@@ -20,13 +20,19 @@ main = Html.programWithFlags
    MODEL
    * Model type
    * Initialize model with empty values
-   * Initialize with a random quote
 -}
-type alias Model =
-  { username : String
+type alias User =
+  { userId : Int
+  , userName : String
   , password : String
-  , token : String
+  , fullName : String
+  , initials : String
+  }
+
+type alias Model =
+  { token : String
   , errorMsg : String
+  , user : User
   }
 
 init : Maybe Model -> ( Model, Cmd Msg )
@@ -35,7 +41,7 @@ init model =
     Just model ->
       ( model, Cmd.none )
     Nothing ->
-      ( Model "" "" "" "", Cmd.none )
+      ( Model "" "" ( User 0 "" "" "" "" ), Cmd.none )
 
 {-
    UPDATE
@@ -55,8 +61,8 @@ loginUrl = "https://red.zeszytykomiksowe.org/auth/login"
 userEncoderJson : Model -> Encode.Value
 userEncoderJson model =
   Encode.object
-    [ ( "username", Encode.string model.username )
-    , ( "password", Encode.string model.password )
+    [ ( "username", Encode.string model.user.userName )
+    , ( "password", Encode.string model.user.password )
     ]
 
 -- POST register / login request
@@ -72,8 +78,8 @@ authUserJson model apiUrl =
 authUserForm model apiUrl =
   let
     body = Http.multipartBody
-      [ Http.stringPart "user" model.username
-      , Http.stringPart "password" model.password
+      [ Http.stringPart "user"     model.user.userName
+      , Http.stringPart "password" model.user.password
       ]
   in 
     Http.post apiUrl body tokenDecoder
@@ -86,14 +92,19 @@ getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
 getTokenCompleted model result =
   case result of
     Ok newToken ->
-      setStorageHelper { model | token = newToken, password = "", errorMsg = "" }
+      -- https://medium.com/elm-shorts/updating-nested-records-in-elm-15d162e80480
+      let
+        oldUser = model.user
+        newUser = { oldUser | password = "" }
+      in
+        setStorageHelper { model | token = newToken, errorMsg = "", user = newUser }
     Err ( Http.BadStatus response ) ->
       if response.status.code == 401 then
         ( { model | errorMsg = "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
       else
-        ( { model | errorMsg = "Błąd " ++ (toString response.status.code) }, Cmd.none )
+        ( { model | errorMsg = "Błąd " ++ ( toString response.status.code ) }, Cmd.none )
     Err error ->
-      ( { model | errorMsg = (toString error) }, Cmd.none )
+      ( { model | errorMsg = ( toString error ) }, Cmd.none )
 
 -- Decode POST response to get access token and user information
 tokenDecoder : Decoder String
@@ -137,13 +148,25 @@ update msg model =
     ClickLogIn ->
       ( model, authUserCmd model loginUrl )
     SetUsername username ->
-      ( { model | username = username }, Cmd.none )
+      let
+        oldUser = model.user
+        newUser = { oldUser | userName = username }
+      in
+        ( { model | user = newUser }, Cmd.none )
     SetPassword password ->
-      ( { model | password = password }, Cmd.none )
+      let
+        oldUser = model.user
+        newUser = { oldUser | password = password }
+      in
+        ( { model | user = newUser }, Cmd.none )
     GetTokenCompleted result ->
       getTokenCompleted model result
     LogOut ->
-      ( { model | username = "", token = "" }, removeStorage model )
+      let
+        oldUser = model.user
+        newUser = { oldUser | userName = "" }
+      in
+        ( { model | token = "", user = newUser }, removeStorage model )
 
 {-
    VIEW
@@ -172,7 +195,7 @@ view model =
           -- Greet a logged in user by username
           greeting : String
           greeting =
-            "Hello, " ++ model.username ++ "!"
+            "Hello, " ++ model.user.userName ++ "!"
         in
           if loggedIn then
             div [ id "greeting" ]
@@ -191,13 +214,13 @@ view model =
               , div [ class "form-group row" ]
                 [ div [ class "col-md-offset-2 col-md-8" ]
                   [ label [ for "username" ] [ text "Username:" ]
-                  , input [ id "username", type_ "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
+                  , input [ id "username", type_ "text", class "form-control", Html.Attributes.value model.user.userName, onInput SetUsername ] []
                   ]
                 ]
               , div [ class "form-group row" ]
                 [ div [ class "col-md-offset-2 col-md-8" ]
                   [ label [ for "password" ] [ text "Password:" ]
-                  , input [ id "password", type_ "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
+                  , input [ id "password", type_ "password", class "form-control", Html.Attributes.value model.user.password, onInput SetPassword ] []
                   ]
                 ]
               , div [ class "text-center" ]
