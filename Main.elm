@@ -9,39 +9,49 @@ import Json.Encode as Encode exposing (..)
 
 
 main : Program (Maybe Model) Model Msg
-main = Html.programWithFlags
-  { init = init
-  , update = update
-  , subscriptions = \_ -> Sub.none
-  , view = view
-  }
+main =
+    Html.programWithFlags
+        { init = init
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+
+
 
 {-
    MODEL
    * Model type
    * Initialize model with empty values
 -}
+
+
 type alias User =
-  { userId : Int
-  , userName : String
-  , password : String
-  , fullName : String
-  , initials : String
-  }
+    { userId : Int
+    , userName : String
+    , password : String
+    , fullName : String
+    , initials : String
+    }
+
 
 type alias Model =
-  { token : String
-  , errorMsg : String
-  , user : User
-  }
+    { token : String
+    , errorMsg : String
+    , user : User
+    }
+
 
 init : Maybe Model -> ( Model, Cmd Msg )
 init model =
-  case model of
-    Just model ->
-      ( model, Cmd.none )
-    Nothing ->
-      ( Model "" "" ( User 0 "" "" "" "" ), Cmd.none )
+    case model of
+        Just model ->
+            ( model, Cmd.none )
+
+        Nothing ->
+            ( Model "" "" (User 0 "" "" "" ""), Cmd.none )
+
+
 
 {-
    UPDATE
@@ -54,119 +64,181 @@ init model =
    * Update case
 -}
 -- API request URLs
+
+
 loginUrl : String
-loginUrl = "https://red.zeszytykomiksowe.org/auth/login"
+loginUrl =
+    "https://red.zeszytykomiksowe.org/auth/login"
+
+
 
 -- Encode user to construct POST request body (for Register and Log In)
+
+
 userEncoderJson : Model -> Encode.Value
 userEncoderJson model =
-  Encode.object
-    [ ( "username", Encode.string model.user.userName )
-    , ( "password", Encode.string model.user.password )
-    ]
+    Encode.object
+        [ ( "username", Encode.string model.user.userName )
+        , ( "password", Encode.string model.user.password )
+        ]
+
+
 
 -- POST register / login request
+
+
 authUserJson : Model -> String -> Http.Request String
 authUserJson model apiUrl =
-  let
-    body = model
-      |> userEncoderJson
-      |> Http.jsonBody
-  in
-    Http.post apiUrl body tokenDecoder
+    let
+        body =
+            model
+                |> userEncoderJson
+                |> Http.jsonBody
+    in
+        Http.post apiUrl body tokenDecoder
+
 
 authUserForm model apiUrl =
-  let
-    body = Http.multipartBody
-      [ Http.stringPart "user"     model.user.userName
-      , Http.stringPart "password" model.user.password
-      ]
-  in 
-    Http.post apiUrl body tokenDecoder
+    let
+        body =
+            Http.multipartBody
+                [ Http.stringPart "user" model.user.userName
+                , Http.stringPart "password" model.user.password
+                ]
+    in
+        Http.post apiUrl body tokenDecoder
+
 
 authUserCmd : Model -> String -> Cmd Msg
 authUserCmd model apiUrl =
-  Http.send GetTokenCompleted ( authUserForm model apiUrl )
+    Http.send GetTokenCompleted (authUserForm model apiUrl)
+
 
 getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
 getTokenCompleted model result =
-  case result of
-    Ok newToken ->
-      -- https://medium.com/elm-shorts/updating-nested-records-in-elm-15d162e80480
-      let
-        oldUser = model.user
-        newUser = { oldUser | password = "" }
-      in
-        setStorageHelper { model | token = newToken, errorMsg = "", user = newUser }
-    Err ( Http.BadStatus response ) ->
-      if response.status.code == 401 then
-        ( { model | errorMsg = "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
-      else
-        ( { model | errorMsg = "Błąd " ++ ( toString response.status.code ) }, Cmd.none )
-    Err error ->
-      ( { model | errorMsg = ( toString error ) }, Cmd.none )
+    case result of
+        Ok newToken ->
+            -- https://medium.com/elm-shorts/updating-nested-records-in-elm-15d162e80480
+            let
+                oldUser =
+                    model.user
+
+                newUser =
+                    { oldUser | password = "" }
+            in
+                setStorageHelper { model | token = newToken, errorMsg = "", user = newUser }
+
+        Err (Http.BadStatus response) ->
+            if response.status.code == 401 then
+                ( { model | errorMsg = "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
+            else
+                ( { model | errorMsg = "Błąd " ++ (toString response.status.code) }, Cmd.none )
+
+        Err error ->
+            ( { model | errorMsg = (toString error) }, Cmd.none )
+
+
 
 -- Decode POST response to get access token and user information
+
+
 tokenDecoder : Decoder String
 tokenDecoder =
-  Decode.field "token" Decode.string
+    Decode.field "token" Decode.string
+
+
 
 -- GET request for random protected quote (authenticated)
+
+
 fetchProtectedQuote : Model -> Http.Request String
 fetchProtectedQuote model =
-  { method = "GET"
-  , headers = [ Http.header "Authorization" ("Token " ++ model.token) ]
-  , url = ""
-  , body = Http.emptyBody
-  , expect = Http.expectString
-  , timeout = Nothing
-  , withCredentials = False
-  }
-    |> Http.request
+    { method = "GET"
+    , headers = [ Http.header "Authorization" ("Token " ++ model.token) ]
+    , url = ""
+    , body = Http.emptyBody
+    , expect = Http.expectString
+    , timeout = Nothing
+    , withCredentials = False
+    }
+        |> Http.request
+
+
 
 -- Helper to update model and set local storage with the updated model
+
+
 setStorageHelper : Model -> ( Model, Cmd Msg )
 setStorageHelper model =
-  ( model, setStorage model )
+    ( model, setStorage model )
+
+
 
 -- Messages
+
+
 type Msg
-  = ClickLogIn
-  | SetUsername String
-  | SetPassword String
-  | GetTokenCompleted ( Result Http.Error String )
-  | LogOut
+    = ClickLogIn
+    | SetUsername String
+    | SetPassword String
+    | GetTokenCompleted (Result Http.Error String)
+    | LogOut
+
+
 
 -- Ports
+
+
 port setStorage : Model -> Cmd msg
+
+
 port removeStorage : Model -> Cmd msg
 
+
+
 -- Update
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    ClickLogIn ->
-      ( model, authUserCmd model loginUrl )
-    SetUsername username ->
-      let
-        oldUser = model.user
-        newUser = { oldUser | userName = username }
-      in
-        ( { model | user = newUser }, Cmd.none )
-    SetPassword password ->
-      let
-        oldUser = model.user
-        newUser = { oldUser | password = password }
-      in
-        ( { model | user = newUser }, Cmd.none )
-    GetTokenCompleted result ->
-      getTokenCompleted model result
-    LogOut ->
-      let
-        oldUser = model.user
-        newUser = { oldUser | userName = "" }
-      in
-        ( { model | token = "", user = newUser }, removeStorage model )
+    case msg of
+        ClickLogIn ->
+            ( model, authUserCmd model loginUrl )
+
+        SetUsername username ->
+            let
+                oldUser =
+                    model.user
+
+                newUser =
+                    { oldUser | userName = username }
+            in
+                ( { model | user = newUser }, Cmd.none )
+
+        SetPassword password ->
+            let
+                oldUser =
+                    model.user
+
+                newUser =
+                    { oldUser | password = password }
+            in
+                ( { model | user = newUser }, Cmd.none )
+
+        GetTokenCompleted result ->
+            getTokenCompleted model result
+
+        LogOut ->
+            let
+                oldUser =
+                    model.user
+
+                newUser =
+                    { oldUser | userName = "" }
+            in
+                ( { model | token = "", user = newUser }, removeStorage model )
+
+
 
 {-
    VIEW
@@ -175,63 +247,67 @@ update msg model =
    * Log In or Register
    * Get a protected quote
 -}
+
+
 view : Model -> Html Msg
 view model =
     let
-      -- Is the user logged in?
-      loggedIn : Bool
-      loggedIn = String.length model.token > 0
+        -- Is the user logged in?
+        loggedIn : Bool
+        loggedIn =
+            String.length model.token > 0
 
-      -- If the user is logged in, show a greeting; if logged out, show the login/register form
-      authBoxView =
-        let
-          -- If there is an error on authentication, show the error alert
-          showError : String
-          showError =
-            if String.isEmpty model.errorMsg then
-              "hidden"
-            else
-              ""
-          -- Greet a logged in user by username
-          greeting : String
-          greeting =
-            "Hello, " ++ model.user.userName ++ "!"
-        in
-          if loggedIn then
-            div [ id "greeting" ]
-              [ h3 [ class "text-center" ] [ text greeting ]
-              , p [ class "text-center" ] [ text "Login był udany!" ]
-              , p [ class "text-center" ]
-                [ button [ class "btn btn-danger", onClick LogOut ] [ text "Wyloguj się" ]
-                ]
-              ]
-          else
-            div [ id "form" ]
-              [ h2 [ class "text-center" ] [ text "Proszę się zalogować" ]
-              , div [ class showError ]
-                [ div [ class "alert alert-danger" ] [ text model.errorMsg ]
-                ]
-              , div [ class "form-group row" ]
-                [ div [ class "col-md-offset-2 col-md-8" ]
-                  [ label [ for "username" ] [ text "Username:" ]
-                  , input [ id "username", type_ "text", class "form-control", Html.Attributes.value model.user.userName, onInput SetUsername ] []
-                  ]
-                ]
-              , div [ class "form-group row" ]
-                [ div [ class "col-md-offset-2 col-md-8" ]
-                  [ label [ for "password" ] [ text "Password:" ]
-                  , input [ id "password", type_ "password", class "form-control", Html.Attributes.value model.user.password, onInput SetPassword ] []
-                  ]
-                ]
-              , div [ class "text-center" ]
-                [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
-                ]
-              ]
+        -- If the user is logged in, show a greeting; if logged out, show the login/register form
+        authBoxView =
+            let
+                -- If there is an error on authentication, show the error alert
+                showError : String
+                showError =
+                    if String.isEmpty model.errorMsg then
+                        "hidden"
+                    else
+                        ""
+
+                -- Greet a logged in user by username
+                greeting : String
+                greeting =
+                    "Hello, " ++ model.user.userName ++ "!"
+            in
+                if loggedIn then
+                    div [ id "greeting" ]
+                        [ h3 [ class "text-center" ] [ text greeting ]
+                        , p [ class "text-center" ] [ text "Login był udany!" ]
+                        , p [ class "text-center" ]
+                            [ button [ class "btn btn-danger", onClick LogOut ] [ text "Wyloguj się" ]
+                            ]
+                        ]
+                else
+                    div [ id "form" ]
+                        [ h2 [ class "text-center" ] [ text "Proszę się zalogować" ]
+                        , div [ class showError ]
+                            [ div [ class "alert alert-danger" ] [ text model.errorMsg ]
+                            ]
+                        , div [ class "form-group row" ]
+                            [ div [ class "col-md-offset-2 col-md-8" ]
+                                [ label [ for "username" ] [ text "Username:" ]
+                                , input [ id "username", type_ "text", class "form-control", Html.Attributes.value model.user.userName, onInput SetUsername ] []
+                                ]
+                            ]
+                        , div [ class "form-group row" ]
+                            [ div [ class "col-md-offset-2 col-md-8" ]
+                                [ label [ for "password" ] [ text "Password:" ]
+                                , input [ id "password", type_ "password", class "form-control", Html.Attributes.value model.user.password, onInput SetPassword ] []
+                                ]
+                            ]
+                        , div [ class "text-center" ]
+                            [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+                            ]
+                        ]
     in
-      div [ class "container" ]
-        [ h2 [ class "text-center" ] [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
-        , div [ class "jumbotron text-left" ]
-          [ -- Login/Register form or user greeting
-            authBoxView
-          ]
-        ]
+        div [ class "container" ]
+            [ h2 [ class "text-center" ] [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
+            , div [ class "jumbotron text-left" ]
+                [ -- Login/Register form or user greeting
+                  authBoxView
+                ]
+            ]
