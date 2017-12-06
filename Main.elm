@@ -52,6 +52,29 @@ init model =
             ( Model "" "" (User 0 "" "" "" ""), Cmd.none )
 
 
+setUserNameInModel : String -> Model -> Model
+setUserNameInModel username model =
+    let
+        oldUser =
+            model.user
+
+        newUser =
+            { oldUser | userName = username }
+    in
+        { model | user = newUser }
+
+
+setPasswordInModel : String -> Model -> Model
+setPasswordInModel password model =
+    let
+        oldUser =
+            model.user
+
+        newUser =
+            { oldUser | password = password }
+    in
+        { model | user = newUser }
+
 
 {-
    UPDATE
@@ -106,13 +129,10 @@ getTokenCompleted model result =
         Ok newToken ->
             -- https://medium.com/elm-shorts/updating-nested-records-in-elm-15d162e80480
             let
-                oldUser =
-                    model.user
-
-                newUser =
-                    { oldUser | password = "" }
+                newModel =
+                    setPasswordInModel "" model
             in
-                setStorageHelper { model | token = newToken, errorMsg = "", user = newUser }
+                setStorageHelper { newModel | token = newToken, errorMsg = "" }
 
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
@@ -192,37 +212,20 @@ update msg model =
             ( model, authUserCmd model loginUrl )
 
         SetUsername username ->
-            let
-                oldUser =
-                    model.user
-
-                newUser =
-                    { oldUser | userName = username }
-            in
-                ( { model | user = newUser }, Cmd.none )
+            ( setUserNameInModel username model, Cmd.none )
 
         SetPassword password ->
-            let
-                oldUser =
-                    model.user
-
-                newUser =
-                    { oldUser | password = password }
-            in
-                ( { model | user = newUser }, Cmd.none )
+            ( setPasswordInModel password model, Cmd.none )
 
         GetTokenCompleted result ->
             getTokenCompleted model result
 
         LogOut ->
             let
-                oldUser =
-                    model.user
-
-                newUser =
-                    { oldUser | userName = "" }
+                newModel =
+                    setUserNameInModel "" model
             in
-                ( { model | token = "", user = newUser }, removeStorage model )
+                ( { newModel | token = "" }, removeStorage model )
 
 
 
