@@ -120,7 +120,7 @@ authUserReqFormBody model =
 
 authUserCmd : Model -> String -> Cmd Msg
 authUserCmd model apiUrl =
-    Http.send GetTokenCompleted (Http.post apiUrl (authUserReqFormBody model) tokenDecoder)
+    Http.send GetTokenCompleted <| Http.post apiUrl (authUserReqFormBody model) tokenDecoder
 
 
 getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
