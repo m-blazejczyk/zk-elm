@@ -52,6 +52,10 @@ init model =
             ( Model "" "" (User 0 "" "" "" ""), Cmd.none )
 
 
+
+-- Setters for nested data within the model
+
+
 setUserNameInModel : String -> Model -> Model
 setUserNameInModel username model =
     let
