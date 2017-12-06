@@ -87,31 +87,17 @@ userEncoderJson model =
 -- POST register / login request
 
 
-authUserJson : Model -> String -> Http.Request String
-authUserJson model apiUrl =
-    let
-        body =
-            model
-                |> userEncoderJson
-                |> Http.jsonBody
-    in
-        Http.post apiUrl body tokenDecoder
-
-
-authUserForm model apiUrl =
-    let
-        body =
-            Http.multipartBody
-                [ Http.stringPart "user" model.user.userName
-                , Http.stringPart "password" model.user.password
-                ]
-    in
-        Http.post apiUrl body tokenDecoder
+authUserReqFormBody : Model -> Http.Body
+authUserReqFormBody model =
+    Http.multipartBody
+        [ Http.stringPart "user" model.user.userName
+        , Http.stringPart "password" model.user.password
+        ]
 
 
 authUserCmd : Model -> String -> Cmd Msg
 authUserCmd model apiUrl =
-    Http.send GetTokenCompleted (authUserForm model apiUrl)
+    Http.send GetTokenCompleted (Http.post apiUrl (authUserReqFormBody model) tokenDecoder)
 
 
 getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
