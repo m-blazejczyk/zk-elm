@@ -86,27 +86,6 @@ setPasswordInModel password model =
    * Ports
    * Update case
 -}
--- API request URLs
-
-
-loginUrl : String
-loginUrl =
-    "https://red.zeszytykomiksowe.org/auth/login"
-
-
-
--- Encode user to construct POST request body (for Register and Log In)
-
-
-userEncoderJson : Model -> Encode.Value
-userEncoderJson model =
-    Encode.object
-        [ ( "username", Encode.string model.user.userName )
-        , ( "password", Encode.string model.user.password )
-        ]
-
-
-
 -- POST register / login request
 
 
@@ -118,9 +97,9 @@ authUserReqFormBody model =
         ]
 
 
-authUserCmd : Model -> String -> Cmd Msg
-authUserCmd model apiUrl =
-    Http.send GetTokenCompleted <| Http.post apiUrl (authUserReqFormBody model) tokenDecoder
+authUserCmd : Model -> Cmd Msg
+authUserCmd model =
+    Http.send GetTokenCompleted <| Http.post "https://red.zeszytykomiksowe.org/auth/login" (authUserReqFormBody model) tokenDecoder
 
 
 getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
@@ -209,7 +188,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickLogIn ->
-            ( model, authUserCmd model loginUrl )
+            ( model, authUserCmd model )
 
         SetUsername username ->
             ( setUserNameInModel username model, Cmd.none )
