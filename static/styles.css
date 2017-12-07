@@ -1,0 +1,552 @@
+/* These are legacy styles */
+
+.link1 { }
+.link2 { }
+.link3 { }
+
+.whitecourier { color: #FFFFFF}
+.blackcourier { color: #000000}
+.blackcourierbold { font-weight: bold; color: #000000}
+.whitecourierlink { }
+.blackcourierlink { }
+.sectioninfo { font-weight: bold; }
+.nowosc { font-weight: bold; color: #d63f2b; }
+
+.articletitle {  font-size: large; font-weight: bold; text-align: center}
+.articlesubtitle {  font-size: larger; font-weight: bold; font-style: italic; text-align: center}
+.articlesection {
+    font: 1.2em Georgia, Times, serif;
+    color: #d63f2b;
+    font-weight: bold;
+}
+.articlecite {  font-style: italic}
+.articleauthor {  font-weight: bold; text-align: right}
+.articlefooter {  font-size: smaller; font-style: italic; text-align: right}
+.articletext { }
+
+.kswmarginleft { background-image: url(publicystyka/brzeg1.jpg) }
+.kswmarginright { background-image: url(publicystyka/brzeg2.jpg) }
+
+.mojewhitebkgd { background-color: #FFFFFF }
+.mojeblackbkgd { background-color: #000000 }
+.mojeautor { text-align: center; font-family: "Courier New", Courier, mono; font-weight: bold; color: #000000; font-size: larger }
+.mojetytulfr { text-align: center; font-family: "Courier New", Courier, mono; font-weight: bold; color: #000000; font-size: larger }
+.mojetytulpl { text-align: center; font-family: "Courier New", Courier, mono; font-weight: bold; color: #000000; font-style: italic }
+.mojedane { text-align: center; font-family: "Courier New", Courier, mono; color: #000000; font-size: smaller }
+.mojedaneold { text-align: center; font-family: "Courier New", Courier, mono; color: #FFFFFF; font-size: smaller }
+.mojeopis { text-align: left; font-family: "Courier New", Courier, mono; color: #000000 }
+
+.francrozdzial { text-align: center; font-size: x-large; font-weight: bold  }
+.francsekcja {
+    font: 1.4em Georgia, Times, serif;
+    color: #d63f2b;
+    font-weight: bold;
+}
+.francpodsekcja {
+    font: 1.2em Georgia, Times, serif;
+    color: #d63f2b;
+}
+.franctytul, .tytul { font-style: italic  }
+.francpodpis { text-align: center; font-size: x-small; color: #FFFFFF  }
+.francpodpis2 { text-align: center; font-size: x-small  }
+.francbold { font-weight: bold  }
+.tablewithmargin {  margin-right: 15px}
+
+.table-r   {float: right; margin-left: 5px; margin-bottom: 2px; margin-right: 0px; margin-top: 5px;}
+.table-l   {float: left; margin-left: 0px; margin-bottom: 2px; margin-right: 5px; margin-top: 5px;}
+
+/***************************************************************/
+
+body {
+    border-top: 5px solid #325565;
+    margin: 0;
+    padding: 0;
+    font: 12px Verdana, sans-serif;
+}
+
+body a {
+    text-decoration: underline;
+    color: #325565;
+}
+
+body a:hover {
+    text-decoration: underline;
+    color: #65accc;
+}
+
+#container {
+    margin: 0 auto;
+    width: 900px;
+    background: #fff;
+}
+
+#logo-zk {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    top: -5px;
+    left: 375px;
+    z-index: 9900;
+}
+
+#logo-centrala {
+    position: relative;
+    width: 107px;
+    height: 31px;
+    top: -140px;
+    left: 780px;
+    z-index: 9900;
+}
+
+#nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#nav-menu li {
+    float: left;
+    width: 125px;
+    display: block;
+    padding-top: 12px;
+    text-decoration: none;
+    text-align: center;
+}
+
+#nav-menu a {
+    font-family: 'Gotham Book', 'Arial', sans-serif;
+    color: #325565;
+    font-size: 16px;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+#nav-menu a:hover {
+    border-bottom: 3px solid #d63f2b;
+    border-top: 1px solid #325565;
+    color: #65accc;
+}
+
+#nav-menu {
+    background: #F8F7EF;
+    border-top: 1px solid #325565;
+    border-bottom: 1px solid #325565;
+    height: 40px;
+}
+
+#news {
+    float: left;
+    color: #333;
+    padding: 15px 15px 0px 15px;
+    width: 600px;
+    border-right: 1px dashed #325565;
+    line-height: 150%;
+}
+
+#news p {
+    padding-left: 40px;
+}
+
+#side-bar {
+    float: right;
+    color: #333;
+    padding: 15px;
+    width: 230px;
+}
+
+.last-modif {
+    clear: both;
+    padding: 3px;
+    border-top: 1px dashed #325565;
+    text-align: right;
+    font-size: 10px;
+}
+
+.biblio-footer {
+    clear: both;
+    padding: 3px;
+    font-size: 11px;
+}
+
+.biblio-footer div div.right {
+    text-align: right;
+}
+
+#komentarze {
+    padding: 3px;
+    border-top: 1px dashed #325565;
+    font-size: 10px;
+    margin: 0 auto;
+    width: 600px;
+}
+
+#footer {
+    clear: both;
+    height: 30px;
+    border-top: 1px solid #325565;
+    border-bottom: 5px solid #325565;
+}
+
+#footer-slogan {
+    float: left;
+    text-align: center;
+    font-size: 12px;
+    padding-top: 9px;
+    height: 25px;
+    width: 198px;
+    color: #d63f2b;
+    border-right: 1px dashed #325565;
+}
+
+#footer-copy {
+    float: left;
+    text-align: center;
+    font-size: 10px;
+    padding-top: 10px;
+    height: 25px;
+    width: 500px;
+    color: #325565;
+    border-right: 1px dashed #325565;
+}
+
+#footer-about {
+    float: left;
+    text-align: center;
+    font-size: 12px;
+    padding-top: 9px;
+    height: 25px;
+    width: 198px;
+}
+
+.section {
+    font: 1.8em Georgia, Times, serif;
+    color: #d63f2b;
+}
+
+.strong {
+    font-weight: bold;
+    color: #d63f2b;
+}
+
+#title {
+    text-align: center;
+    font: 1.8em Georgia, Times, serif;
+    color: #d63f2b;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+#article {
+    margin: 0 auto;
+    width: 600px;
+    margin-bottom: 40px;
+}
+
+.recka-title {
+    text-align: center;
+    font: 1.4em Georgia, Times, serif;
+    color: #d63f2b;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.recka-title a {
+    text-decoration: underline;
+    color: #d63f2b;
+}
+
+.recka-title a:hover {
+    text-decoration: underline;
+    color: #ff4b33;
+}
+
+.recka-img {
+  float: left;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.podpis-redakcja {
+    text-align: left;
+    font: 1.4em Georgia, Times, serif;
+    color: #d63f2b;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.drodzy-title {
+    text-align: left;
+    font: 1.4em Georgia, Times, serif;
+    color: #d63f2b;
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+.toc-section {
+  color: white;
+  background: #325565;
+  font-weight: bold; 
+  font-size: 1.5em;
+  font-style: italic;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.toc-wrapper {
+  padding-bottom: 15px;
+  display: table;
+  width: 100%;
+}
+
+.toc-img {
+  width: 99px; 
+  padding: 3px; 
+  padding-right: 20px; 
+  float: left; 
+  display: table;
+}
+
+.toc-item {
+  width: auto;
+  display: table
+}
+
+.toc-title {
+  display: block; 
+  text-align: left; 
+  font-weight: bold; 
+  font-size: 1.2em; 
+  color: #d63f2b; 
+  margin-bottom: 3px;
+}
+
+.toc-title a {
+  text-decoration: underline;
+  color: #d63f2b;
+}
+
+.toc-title a:hover {
+  text-decoration: underline;
+  color: #ff4b33;
+}
+
+.toc-author {
+  display: block; 
+  text-align: left; 
+  font-size: 1.0em; 
+  margin-bottom: 5px;
+}
+
+.toc-author auth {
+  color: #d63f2b; 
+  font-weight: normal;
+}
+
+.toc-ilu {
+  display: block; 
+  text-align: left; 
+  font-size: 1.0em; 
+  margin-bottom: 5px;
+  font-style: italic;
+}
+
+.alert-box {
+  background-color: #f8f0ef;
+  border-style: solid;
+  border-color: #d63f2b;
+  border-width: 1px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.okladka {
+  float: left;
+  margin: 0 10px 10px 0;
+  padding: 3px;
+  border-bottom: 1px dashed #325565;
+  border-top: 1px dashed #325565;
+}
+
+/* Style do recenzji (do strony głównej) */
+.divider {
+  border-top: 1px dashed #325565;
+  clear: both;
+}
+
+.coverDiv {
+  float: left;
+  width: 90px;
+}
+
+.coverImg {
+  margin: 5px;
+  padding: 3px;
+  border-bottom: 1px dashed #325565;
+  border-top: 1px dashed #325565;
+}
+
+/* To be used for the <figcaption> tag. */
+.coverImgCaption {
+  font-size: 0.8em;
+  text-align: center;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed #325565;
+}
+
+.reviewMain {
+  float: right;
+  width: 500px;
+}
+
+.reviewBook {
+  color: #325565;
+}
+
+/* Style do stron poszczególnych recenzji */
+.recka-autor {
+  font-weight: bold;
+  text-align: right;
+  margin-right: 40px;
+}
+
+.recka-plansze {
+  text-align: left;
+}
+
+.recka-plansza {
+  float: left;
+  margin: 0 10px 10px 0;
+  padding: 3px;
+}
+
+.recka-title-left {
+  text-align: left;
+  clear: all;
+}
+
+.recka-o-albumie {
+  color: #325565;
+}
+
+.recka-wroc {
+  text-align: right;
+  margin-right: 30px;
+}
+
+.recka-field-error {
+  background-color: #f8f0ef;
+  border-style: solid;
+  border-color: #d63f2b;
+  color: #d63f2b;
+  border-width: 1px;
+}
+
+.right-align {
+  float: right;
+}
+
+/* wrapper for two side-by-side centered images */
+.side-by-side {
+  text-align: center;
+}
+
+.image-right {
+  box-sizing: border-box;
+  display: block;
+  float: right !important;
+  margin-bottom: 0px;
+  margin-left: 15px;
+  /* margin-right: -150px; -- must be provided in a style attribute */
+  margin-top: 0px;
+  /* width: 165px; -- must be provided in a style attribute */
+}
+
+/* :first-child */
+.side-by-side figure {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  vertical-align: top;
+}
+
+.side-by-side figure:first-child {
+  margin-right: 80px;
+}
+
+.zk-glyph {
+  display: inline-block;
+  position: relative;
+  height: 48px;
+  width: 48px;
+  padding: 0;
+}
+
+.zk-glyph-about {
+  background: url(/kwok/about.png) no-repeat center;
+}
+
+.zk-glyph-find {
+  background: url(/kwok/pocket_lantern.png) no-repeat center;
+}
+
+.zk-glyph-login {
+  background: url(/kwok/unlock.png) no-repeat center;
+}
+
+.zk-glyph-register {
+  background: url(/kwok/add_user.png) no-repeat center;
+}
+
+.zk-glyph-add {
+  background: url(/kwok/add_list.png) no-repeat center;
+}
+
+.centered {
+  text-align: center;
+}
+
+.black-border {
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+}
+
+.zk-info-row {
+  margin-bottom: 20px;
+}
+
+.skladnica-fiszka {
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  box-shadow: 0 0 5px gray;
+  padding: 10px;
+}
+
+/* ------------ KOPALNIA ------------ */
+
+span.inobtrusive {
+  color: #888888;
+}
+
+p.inobtrusive {
+  color: #888888;
+  margin: 0;
+}
+
+.blockquote {
+  padding-left: 40px;
+}
+
+.kopalnia-title {
+  text-align: left;
+}
+
+.kopalnia-top-div {
+  padding: 25px;
+}
+
+.zawartosc {
+  margin-bottom: 6px;
+}
