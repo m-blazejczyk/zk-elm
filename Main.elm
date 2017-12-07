@@ -272,7 +272,7 @@ viewTemplate model =
                 ]
             ]
         , div [ id "article" ]
-            [ view model ]
+            ( viewContent model )
         , div [ id "footer" ]
             [ div [ id "footer-slogan" ]
                 [ text "O komiksie. Na serio." ]
@@ -286,8 +286,8 @@ viewTemplate model =
         ]
 
 
-view : Model -> Html Msg
-view model =
+viewContent : Model -> List (Html Msg)
+viewContent model =
     let
         -- Is the user logged in?
         loggedIn : Bool
@@ -320,31 +320,30 @@ view model =
                         ]
                 else
                     div [ id "form" ]
-                        [ h2 [ class "text-center" ] [ text "Proszę się zalogować" ]
-                        , div [ class showError ]
+                        [ div [ class showError ]
                             [ div [ class "alert alert-danger" ] [ text model.errorMsg ]
                             ]
                         , div [ class "form-group row" ]
                             [ div [ class "col-md-offset-2 col-md-8" ]
-                                [ label [ for "username" ] [ text "Username:" ]
+                                [ label [ for "username" ] [ text "Kto?" ]
                                 , input [ id "username", type_ "text", class "form-control", Html.Attributes.value model.user.userName, onInput SetUsername ] []
                                 ]
                             ]
                         , div [ class "form-group row" ]
                             [ div [ class "col-md-offset-2 col-md-8" ]
-                                [ label [ for "password" ] [ text "Password:" ]
+                                [ label [ for "password" ] [ text "Hasło:" ]
                                 , input [ id "password", type_ "password", class "form-control", Html.Attributes.value model.user.password, onInput SetPassword ] []
                                 ]
                             ]
                         , div [ class "text-center" ]
-                            [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+                            [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Zaloguj się" ]
                             ]
                         ]
     in
-        div [ class "container" ]
-            [ h2 [ class "text-center" ] [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
-            , div [ class "jumbotron text-left" ]
-                [ -- Login/Register form or user greeting
-                  authBoxView
-                ]
+        [ h2 [ id "title" ]
+            [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
+        , div [ class "jumbotron text-left" ]
+            [ -- Login/Register form or user greeting
+              authBoxView
             ]
+        ]
