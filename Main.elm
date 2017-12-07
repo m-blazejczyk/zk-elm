@@ -14,10 +14,19 @@ main =
         { init = init
         , update = update
         , subscriptions = \_ -> Sub.none
-        , view = view
+        , view = viewTemplate
         }
 
 
+
+{-
+    HELPER FUNCTIONS
+-}
+
+
+
+domain : String
+domain = "https://red.zeszytykomiksowe.org/"
 
 {-
    MODEL
@@ -103,7 +112,7 @@ authUserReqFormBody model =
 
 authUserCmd : Model -> Cmd Msg
 authUserCmd model =
-    Http.send GetTokenCompleted <| Http.post "https://red.zeszytykomiksowe.org/auth/login" (authUserReqFormBody model) tokenDecoder
+    Http.send GetTokenCompleted <| Http.post (domain ++ "auth/login") (authUserReqFormBody model) tokenDecoder
 
 
 getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
@@ -219,6 +228,62 @@ update msg model =
    * Log In or Register
    * Get a protected quote
 -}
+
+
+viewTemplate : Model -> Html Msg
+viewTemplate model = 
+    div [ id "container" ]
+        [ div [ attribute "style" "height: 95px;" ]
+            [ div [ id "logo-zk" ]
+                [ img [ attribute "border" "0", attribute "height" "150", src (domain ++ "static/ZK_logo_red.png"), attribute "width" "150" ]
+                    []
+                ]
+            , div [ id "logo-centrala", attribute "style" "align: right;" ]
+                [ text "Użytkownik" ]
+            ]
+        , div [ id "nav-menu" ]
+            [ ul []
+                [ li []
+                    [ a [ href "/", title "Niusy" ]
+                        [ text "niusy" ]
+                    ]
+                , li []
+                    [ a [ href "/", title "Numery" ]
+                        [ text "numery" ]
+                    ]
+                , li []
+                    [ a [ href "/", title "Recenzje" ]
+                        [ text "recenzje" ]
+                    ]
+                , li [ attribute "style" "width: 150px;" ]
+                    []
+                , li []
+                    [ a [ href "/", title "Składnica" ]
+                        [ text "składnica" ]
+                    ]
+                , li []
+                    [ a [ href "/", title "Bannery" ]
+                        [ text "bannery" ]
+                    ]
+                , li []
+                    [ a [ href "/", title "E-publikacje" ]
+                        [ text "e-publikacje" ]
+                    ]
+                ]
+            ]
+        , div [ id "article" ]
+            [ view model ]
+        , div [ id "footer" ]
+            [ div [ id "footer-slogan" ]
+                [ text "O komiksie. Na serio." ]
+            , div [ id "footer-copy" ]
+                [ text "layout © Michał Błażejczyk 2012 || logo © "
+                , a [ href "mailto:dennis.wojda@gmail.com" ]
+                    [ text " Dennis Wojda" ]
+                , text "2011"
+                ]
+            ]
+        ]
 
 
 view : Model -> Html Msg
