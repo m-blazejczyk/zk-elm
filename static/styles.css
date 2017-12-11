@@ -102,12 +102,11 @@ body a:hover {
 
 #user-menu {
     position: relative;
-    width: 107px;
-    height: 31px;
-    top: -140px;
-    left: 780px;
+    width: 340px;
+    top: -112px;
+    left: 550px;
+    text-align: right;
     z-index: 9900;
-    align: right;
 }
 
 #nav-menu ul {

@@ -240,14 +240,15 @@ update msg model =
 -}
 
 
-viewUserMenu : Maybe User -> Html Msg
+viewUserMenu : Maybe User -> List (Html Msg)
 viewUserMenu mUser =
     case mUser of
         Just user ->
-            text "Użytkownik"
+            [ b [ attribute "style" "padding-right: 20px;" ] [ text user.userName ]
+            , button [ class "btn btn-danger btn-xs", onClick LogOut ] [ text "Wyloguj się" ]
+            ]
         Nothing ->
-            text ""
-
+            [ text "" ]
 
 viewHeader : Maybe User -> Html Msg
 viewHeader mUser = 
@@ -257,55 +258,75 @@ viewHeader mUser =
             []
         ]
     , div [ id "user-menu" ]
-        [ viewUserMenu mUser ] 
+        (viewUserMenu mUser)
     ]
 
 
-view : Model -> Html Msg
-view model = 
-    div [ id "container" ]
-        [ viewHeader <| loggedInUser model
-        , div [ id "nav-menu" ]
-            [ ul []
-                [ li []
-                    [ a [ href "/", title "Niusy" ]
-                        [ text "niusy" ]
-                    ]
-                , li []
-                    [ a [ href "/", title "Numery" ]
-                        [ text "numery" ]
-                    ]
-                , li []
-                    [ a [ href "/", title "Recenzje" ]
-                        [ text "recenzje" ]
-                    ]
-                , li [ attribute "style" "width: 150px;" ]
-                    []
-                , li []
-                    [ a [ href "/", title "Składnica" ]
-                        [ text "składnica" ]
-                    ]
-                , li []
-                    [ a [ href "/", title "Bannery" ]
-                        [ text "bannery" ]
-                    ]
-                , li []
-                    [ a [ href "/", title "E-publikacje" ]
-                        [ text "e-publikacje" ]
-                    ]
+viewMenu : Html Msg
+viewMenu = 
+    div [ id "nav-menu" ]
+        [ ul []
+            [ li []
+                [ a [ href "/", title "Niusy" ]
+                    [ text "niusy" ]
+                ]
+            , li []
+                [ a [ href "/", title "Numery" ]
+                    [ text "numery" ]
+                ]
+            , li []
+                [ a [ href "/", title "Recenzje" ]
+                    [ text "recenzje" ]
+                ]
+            , li [ attribute "style" "width: 150px;" ]
+                []
+            , li []
+                [ a [ href "/", title "Składnica" ]
+                    [ text "składnica" ]
+                ]
+            , li []
+                [ a [ href "/", title "Bannery" ]
+                    [ text "bannery" ]
+                ]
+            , li []
+                [ a [ href "/", title "E-publikacje" ]
+                    [ text "e-publikacje" ]
                 ]
             ]
-        , div [ id "article" ]
-            ( viewContent model )
-        , div [ id "footer" ]
-            [ div [ id "footer-slogan" ]
-                [ text "O komiksie. Na serio." ]
-            , div [ id "footer-copy" ]
-                [ text "layout © Michał Błażejczyk 2012 || logo © "
-                , a [ href "mailto:dennis.wojda@gmail.com" ]
-                    [ text " Dennis Wojda" ]
-                , text "2011"
+        ]
+
+
+viewFooter : Html Msg
+viewFooter = 
+    div [ id "footer" ]
+        [ div [ id "footer-slogan" ]
+            [ text "O komiksie. Na serio." ]
+        , div [ id "footer-copy" ]
+            [ text "layout © Michał Błażejczyk 2012 || logo © "
+            , a [ href "mailto:dennis.wojda@gmail.com" ]
+                [ text " Dennis Wojda" ]
+            , text "2011"
+            ]
+        ]
+
+
+viewLoginForm : User -> Html Msg
+viewLoginForm user =
+    div [ id "form" ]
+        [ div [ class "form-group row" ]
+            [ div [ class "col-md-offset-2 col-md-8" ]
+                [ label [ for "username" ] [ text "Kto?" ]
+                , input [ id "username", type_ "text", class "form-control", Html.Attributes.value user.userName, onInput SetUsername ] []
                 ]
+            ]
+        , div [ class "form-group row" ]
+            [ div [ class "col-md-offset-2 col-md-8" ]
+                [ label [ for "password" ] [ text "Hasło:" ]
+                , input [ id "password", type_ "password", class "form-control", Html.Attributes.value user.password, onInput SetPassword ] []
+                ]
+            ]
+        , div [ class "text-center" ]
+            [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Zaloguj się" ]
             ]
         ]
 
@@ -313,56 +334,42 @@ view model =
 viewContent : Model -> List (Html Msg)
 viewContent model =
     let
-        -- If the user is logged in, show a greeting; if logged out, show the login/register form
-        authBoxView =
-            let
-                -- If there is an error on authentication, show the error alert
-                showError : String
-                showError =
-                    if String.isEmpty model.errorMsg then
-                        "hidden"
-                    else
-                        ""
+        -- If there is an error on authentication, show the error alert
+        showErrorClass : String
+        showErrorClass =
+            if String.isEmpty model.errorMsg then
+                "hidden"
+            else
+                ""
 
-                -- Greet a logged in user by username
-                greeting : String
-                greeting =
-                    "Hello, " ++ model.user.userName ++ "!"
-            in
-                if isLoggedIn model then
-                    div [ id "greeting" ]
-                        [ h3 [ class "text-center" ] [ text greeting ]
-                        , p [ class "text-center" ] [ text "Login był udany!" ]
-                        , p [ class "text-center" ]
-                            [ button [ class "btn btn-danger", onClick LogOut ] [ text "Wyloguj się" ]
-                            ]
+        authBoxView =
+            if isLoggedIn model then
+                div [ id "greeting" ]
+                    [ p [ class "text-center" ] [ text "Login był udany!" ]
+                    , p [ class "text-center" ]
+                        [ button [ class "btn btn-danger", onClick LogOut ] [ text "Wyloguj się" ]
                         ]
-                else
-                    div [ id "form" ]
-                        [ div [ class showError ]
-                            [ div [ class "alert alert-danger" ] [ text model.errorMsg ]
-                            ]
-                        , div [ class "form-group row" ]
-                            [ div [ class "col-md-offset-2 col-md-8" ]
-                                [ label [ for "username" ] [ text "Kto?" ]
-                                , input [ id "username", type_ "text", class "form-control", Html.Attributes.value model.user.userName, onInput SetUsername ] []
-                                ]
-                            ]
-                        , div [ class "form-group row" ]
-                            [ div [ class "col-md-offset-2 col-md-8" ]
-                                [ label [ for "password" ] [ text "Hasło:" ]
-                                , input [ id "password", type_ "password", class "form-control", Html.Attributes.value model.user.password, onInput SetPassword ] []
-                                ]
-                            ]
-                        , div [ class "text-center" ]
-                            [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Zaloguj się" ]
-                            ]
-                        ]
+                    ]
+            else
+                viewLoginForm model.user
     in
-        [ h2 [ id "title" ]
+        [ div [ class showErrorClass ]
+            [ div [ class "alert alert-danger" ]
+                [ text model.errorMsg ]
+            ]
+        , h2 [ id "title" ]
             [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
         , div [ class "jumbotron text-left" ]
-            [ -- Login/Register form or user greeting
-              authBoxView
-            ]
+            [ authBoxView ]
+        ]
+
+
+view : Model -> Html Msg
+view model = 
+    div [ id "container" ]
+        [ viewHeader <| loggedInUser model
+        , viewMenu
+        , div [ id "article" ]
+            ( viewContent model )
+        , viewFooter
         ]
