@@ -155,6 +155,10 @@ body a:hover {
     height: 40px;
 }
 
+.alert {
+  margin-top: 30px;
+}
+
 #news {
     float: left;
     color: #333;
