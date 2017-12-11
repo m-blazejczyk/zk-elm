@@ -57,6 +57,17 @@
 
 /***************************************************************/
 
+.jumbotron {
+  margin: 2em auto;
+  max-width: 400px;
+}
+.jumbotron h2 {
+  margin-top: 0;
+}
+.jumbotron .help-block {
+  font-size: 14px;
+}
+
 body {
     border-top: 5px solid #325565;
     margin: 0;
@@ -89,13 +100,14 @@ body a:hover {
     z-index: 9900;
 }
 
-#logo-centrala {
+#user-menu {
     position: relative;
     width: 107px;
     height: 31px;
     top: -140px;
     left: 780px;
     z-index: 9900;
+    align: right;
 }
 
 #nav-menu ul {

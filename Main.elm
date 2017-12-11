@@ -14,7 +14,7 @@ main =
         { init = init
         , update = update
         , subscriptions = \_ -> Sub.none
-        , view = viewTemplate
+        , view = view
         }
 
 
@@ -87,6 +87,20 @@ setPasswordInModel password model =
             { oldUser | password = password }
     in
         { model | user = newUser }
+
+
+-- Is the user logged in?
+isLoggedIn : Model -> Bool
+isLoggedIn model =
+    String.length model.token > 0
+
+
+loggedInUser : Model -> Maybe User
+loggedInUser model = 
+    if isLoggedIn model then
+        Just model.user
+    else
+        Nothing
 
 
 {-
@@ -223,24 +237,34 @@ update msg model =
 
 {-
    VIEW
-   * Hide sections of view depending on authenticaton state of model
-   * Get a quote
-   * Log In or Register
-   * Get a protected quote
 -}
 
 
-viewTemplate : Model -> Html Msg
-viewTemplate model = 
+viewUserMenu : Maybe User -> Html Msg
+viewUserMenu mUser =
+    case mUser of
+        Just user ->
+            text "Użytkownik"
+        Nothing ->
+            text ""
+
+
+viewHeader : Maybe User -> Html Msg
+viewHeader mUser = 
+    div [ attribute "style" "height: 95px;" ]
+    [ div [ id "logo-zk" ]
+        [ img [ attribute "border" "0", attribute "height" "150", src (domain ++ "static/ZK_logo_red.png"), attribute "width" "150" ]
+            []
+        ]
+    , div [ id "user-menu" ]
+        [ viewUserMenu mUser ] 
+    ]
+
+
+view : Model -> Html Msg
+view model = 
     div [ id "container" ]
-        [ div [ attribute "style" "height: 95px;" ]
-            [ div [ id "logo-zk" ]
-                [ img [ attribute "border" "0", attribute "height" "150", src (domain ++ "static/ZK_logo_red.png"), attribute "width" "150" ]
-                    []
-                ]
-            , div [ id "logo-centrala", attribute "style" "align: right;" ]
-                [ text "Użytkownik" ]
-            ]
+        [ viewHeader <| loggedInUser model
         , div [ id "nav-menu" ]
             [ ul []
                 [ li []
@@ -289,11 +313,6 @@ viewTemplate model =
 viewContent : Model -> List (Html Msg)
 viewContent model =
     let
-        -- Is the user logged in?
-        loggedIn : Bool
-        loggedIn =
-            String.length model.token > 0
-
         -- If the user is logged in, show a greeting; if logged out, show the login/register form
         authBoxView =
             let
@@ -310,7 +329,7 @@ viewContent model =
                 greeting =
                     "Hello, " ++ model.user.userName ++ "!"
             in
-                if loggedIn then
+                if isLoggedIn model then
                     div [ id "greeting" ]
                         [ h3 [ class "text-center" ] [ text greeting ]
                         , p [ class "text-center" ] [ text "Login był udany!" ]
