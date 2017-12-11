@@ -244,7 +244,7 @@ viewUserMenu : Maybe User -> List (Html Msg)
 viewUserMenu mUser =
     case mUser of
         Just user ->
-            [ b [ attribute "style" "padding-right: 20px;" ] [ text user.userName ]
+            [ b [] [ text user.userName ]
             , button [ class "btn btn-danger btn-xs", onClick LogOut ] [ text "Wyloguj się" ]
             ]
         Nothing ->
@@ -253,13 +253,13 @@ viewUserMenu mUser =
 viewHeader : Maybe User -> Html Msg
 viewHeader mUser = 
     div [ attribute "style" "height: 95px;" ]
-    [ div [ id "logo-zk" ]
-        [ img [ attribute "border" "0", attribute "height" "150", src (domain ++ "static/ZK_logo_red.png"), attribute "width" "150" ]
-            []
+        [ div [ id "logo-zk" ]
+            [ img [ src (domain ++ "static/ZK_logo_red.png") ]
+                []
+            ]
+        , div [ id "user-menu" ]
+            (viewUserMenu mUser)
         ]
-    , div [ id "user-menu" ]
-        (viewUserMenu mUser)
-    ]
 
 
 viewMenu : Html Msg

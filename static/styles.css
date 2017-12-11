@@ -100,6 +100,12 @@ body a:hover {
     z-index: 9900;
 }
 
+#logo-zk img {
+    border: 0;
+    height: 150px;
+    width: 150px;
+}
+
 #user-menu {
     position: relative;
     width: 340px;
@@ -107,6 +113,10 @@ body a:hover {
     left: 550px;
     text-align: right;
     z-index: 9900;
+}
+
+#user-menu b {
+  padding-right: 20px;
 }
 
 #nav-menu ul {
