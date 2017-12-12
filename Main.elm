@@ -36,7 +36,8 @@ domain = "https://red.zeszytykomiksowe.org/"
 
 
 type alias User =
-    { userId : Int
+    { token : String
+    , userId : Int
     , userName : String
     , password : String
     , fullName : String
@@ -44,9 +45,13 @@ type alias User =
     }
 
 
+emptyUser : User
+emptyUser = 
+    User "" 0 "" "" "" ""
+
+
 type alias Model =
-    { token : String
-    , errorMsg : String
+    { errorMsg : String
     , user : User
     }
 
@@ -58,7 +63,7 @@ init model =
             ( model, Cmd.none )
 
         Nothing ->
-            ( Model "" "" (User 0 "" "" "" ""), Cmd.none )
+            ( Model "" emptyUser, Cmd.none )
 
 
 
@@ -92,7 +97,7 @@ setPasswordInModel password model =
 -- Is the user logged in?
 isLoggedIn : Model -> Bool
 isLoggedIn model =
-    String.length model.token > 0
+    String.length model.user.token > 0
 
 
 loggedInUser : Model -> Maybe User
@@ -126,19 +131,14 @@ authUserReqFormBody model =
 
 authUserCmd : Model -> Cmd Msg
 authUserCmd model =
-    Http.send GetTokenCompleted <| Http.post (domain ++ "auth/login") (authUserReqFormBody model) tokenDecoder
+    Http.send GetTokenCompleted <| Http.post (domain ++ "auth/login") (authUserReqFormBody model) userDecoder
 
 
-getTokenCompleted : Model -> Result Http.Error String -> ( Model, Cmd Msg )
+getTokenCompleted : Model -> Result Http.Error User -> ( Model, Cmd Msg )
 getTokenCompleted model result =
     case result of
-        Ok newToken ->
-            -- https://medium.com/elm-shorts/updating-nested-records-in-elm-15d162e80480
-            let
-                newModel =
-                    setPasswordInModel "" model
-            in
-                setStorageHelper { newModel | token = newToken, errorMsg = "" }
+        Ok newUser ->
+            setStorageHelper { model | user = newUser, errorMsg = "" }
 
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
@@ -154,9 +154,21 @@ getTokenCompleted model result =
 -- Decode POST response to get access token and user information
 
 
-tokenDecoder : Decoder String
-tokenDecoder =
-    Decode.field "token" Decode.string
+userDecoder : Decoder User
+userDecoder =
+    let
+        makeUser token userId userName fullName initials =
+            User token userId userName "" fullName initials
+
+    in
+
+        Decode.map5
+            makeUser
+            (Decode.field "token" Decode.string)
+            (Decode.field "userId" Decode.int)
+            (Decode.field "userName" Decode.string)
+            (Decode.field "fullName" Decode.string)
+            (Decode.field "initials" Decode.string)
 
 
 
@@ -166,7 +178,7 @@ tokenDecoder =
 fetchProtectedQuote : Model -> Http.Request String
 fetchProtectedQuote model =
     { method = "GET"
-    , headers = [ Http.header "Authorization" ("Token " ++ model.token) ]
+    , headers = [ Http.header "Authorization" ("Token " ++ model.user.token) ]
     , url = ""
     , body = Http.emptyBody
     , expect = Http.expectString
@@ -193,7 +205,7 @@ type Msg
     = ClickLogIn
     | SetUsername String
     | SetPassword String
-    | GetTokenCompleted (Result Http.Error String)
+    | GetTokenCompleted (Result Http.Error User)
     | LogOut
 
 
@@ -227,11 +239,7 @@ update msg model =
             getTokenCompleted model result
 
         LogOut ->
-            let
-                newModel =
-                    setUserNameInModel "" model
-            in
-                ( { newModel | token = "" }, removeStorage model )
+            ( { model | user = emptyUser }, removeStorage model )
 
 
 
@@ -244,7 +252,7 @@ viewUserMenu : Maybe User -> List (Html Msg)
 viewUserMenu mUser =
     case mUser of
         Just user ->
-            [ b [] [ text user.userName ]
+            [ b [] [ text user.fullName ]
             , button [ class "btn btn-danger btn-xs", onClick LogOut ] [ text "Wyloguj się" ]
             ]
         Nothing ->
