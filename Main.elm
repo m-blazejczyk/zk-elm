@@ -320,21 +320,23 @@ viewFooter =
 
 viewLoginForm : User -> Html Msg
 viewLoginForm user =
-    div [ id "form" ]
-        [ div [ class "form-group row" ]
-            [ div [ class "col-md-offset-2 col-md-8" ]
-                [ label [ for "username" ] [ text "Kto?" ]
-                , input [ id "username", type_ "text", class "form-control", Html.Attributes.value user.userName, onInput SetUsername ] []
+    div [ class "jumbotron text-left" ]
+        [ div [ id "form" ]
+            [ div [ class "form-group row" ]
+                [ div [ class "col-md-offset-2 col-md-8" ]
+                    [ label [ for "username" ] [ text "Kto?" ]
+                    , input [ id "username", type_ "text", class "form-control", Html.Attributes.value user.userName, onInput SetUsername ] []
+                    ]
                 ]
-            ]
-        , div [ class "form-group row" ]
-            [ div [ class "col-md-offset-2 col-md-8" ]
-                [ label [ for "password" ] [ text "Hasło:" ]
-                , input [ id "password", type_ "password", class "form-control", Html.Attributes.value user.password, onInput SetPassword ] []
+            , div [ class "form-group row" ]
+                [ div [ class "col-md-offset-2 col-md-8" ]
+                    [ label [ for "password" ] [ text "Hasło:" ]
+                    , input [ id "password", type_ "password", class "form-control", Html.Attributes.value user.password, onInput SetPassword ] []
+                    ]
                 ]
-            ]
-        , div [ class "text-center" ]
-            [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Zaloguj się" ]
+            , div [ class "text-center" ]
+                [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Zaloguj się" ]
+                ]
             ]
         ]
 
@@ -352,12 +354,7 @@ viewContent model =
 
         authBoxView =
             if isLoggedIn model then
-                div [ id "greeting" ]
-                    [ p [ class "text-center" ] [ text "Login był udany!" ]
-                    , p [ class "text-center" ]
-                        [ button [ class "btn btn-danger", onClick LogOut ] [ text "Wyloguj się" ]
-                        ]
-                    ]
+                p [ class "text-center" ] [ text "Login był udany!" ]
             else
                 viewLoginForm model.user
     in
@@ -367,8 +364,7 @@ viewContent model =
             ]
         , h2 [ id "title" ]
             [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
-        , div [ class "jumbotron text-left" ]
-            [ authBoxView ]
+        , authBoxView
         ]
 
 
