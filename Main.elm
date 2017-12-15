@@ -109,6 +109,14 @@ loggedInUser model =
 
 
 {-
+   PAGE
+-}
+
+
+type Page = MainMenu | News | Issues | Reviews | Repository | Banners
+
+
+{-
    UPDATE
    * API routes
    * GET and POST
