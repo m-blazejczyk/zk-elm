@@ -266,6 +266,7 @@ viewUserMenu mUser =
         Nothing ->
             [ text "" ]
 
+
 viewHeader : Maybe User -> Html Msg
 viewHeader mUser = 
     div [ attribute "style" "height: 95px;" ]
@@ -278,8 +279,8 @@ viewHeader mUser =
         ]
 
 
-viewMenu : Html Msg
-viewMenu = 
+viewTopMenu : Html Msg
+viewTopMenu = 
     div [ id "nav-menu" ]
         [ ul []
             [ li []
@@ -380,7 +381,7 @@ view : Model -> Html Msg
 view model = 
     div [ id "container" ]
         [ viewHeader <| loggedInUser model
-        , viewMenu
+        , viewTopMenu
         , div [ id "article" ]
             ( viewContent model )
         , viewFooter
