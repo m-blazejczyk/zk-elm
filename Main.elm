@@ -28,6 +28,27 @@ main =
 domain : String
 domain = "https://red.zeszytykomiksowe.org/"
 
+
+{-
+   PAGE
+-}
+
+
+type Page = MainMenu | News | Issues | Reviews | Repository | Banners | HomePageContent
+
+
+pageTitles : Page -> (String, String)
+pageTitles page =
+    case page of
+        MainMenu ->        ("portal",    "Portal redakcyjny „Zeszytów Komiksowych”")
+        News ->            ("newsy",     "Newsy")
+        Issues ->          ("numery",    "Numery „Zeszytów Komiksowych”")
+        Reviews ->         ("recenzje",  "Recenzje")
+        Repository ->      ("składnica", "Składnica naukowa")
+        Banners ->         ("bannery",   "Bannery")
+        HomePageContent -> ("str. gł.",  "Zawartość strony głównej")
+
+
 {-
    MODEL
    * Model type
@@ -52,6 +73,7 @@ emptyUser =
 
 type alias Model =
     { errorMsg : String
+    , page : Page
     , user : User
     }
 
@@ -63,7 +85,7 @@ init model =
             ( model, Cmd.none )
 
         Nothing ->
-            ( Model "" emptyUser, Cmd.none )
+            ( Model "" MainMenu emptyUser, Cmd.none )
 
 
 
@@ -106,14 +128,6 @@ loggedInUser model =
         Just model.user
     else
         Nothing
-
-
-{-
-   PAGE
--}
-
-
-type Page = MainMenu | News | Issues | Reviews | Repository | Banners
 
 
 {-
@@ -350,31 +364,47 @@ viewLoginForm user =
         ]
 
 
-viewContent : Model -> List (Html Msg)
-viewContent model =
+viewError : String -> Html Msg
+viewError errorMsg = 
     let
-        -- If there is an error on authentication, show the error alert
-        showErrorClass : String
-        showErrorClass =
-            if String.isEmpty model.errorMsg then
+        errorClass : String
+        errorClass =
+            if String.isEmpty errorMsg then
                 "hidden"
             else
                 ""
-
-        authBoxView =
-            if isLoggedIn model then
-                p [ class "text-center" ] [ text "Login był udany!" ]
-            else
-                viewLoginForm model.user
     in
-        [ div [ class showErrorClass ]
+        [ div [ class errorClass ]
             [ div [ class "alert alert-danger" ]
-                [ text model.errorMsg ]
+                [ text errorMsg ]
             ]
-        , h2 [ id "title" ]
-            [ text "Portal redakcyjny „Zeszytów Komiksowych”" ]
-        , authBoxView
         ]
+
+
+viewTitle : Model -> Html Msg
+viewTitle model =
+    let
+        page = 
+            if isLoggedIn model then
+                model.page
+            else
+                MainMenu
+        ( _, title ) = pageTitles page
+    in
+        h2 [ id "title" ] [ text title ]
+
+
+viewPage : Model -> Html Msg
+viewPage _ =
+    p [ class "text-center" ] [ text "Przykro mi – ta strona jeszcze nie istnieje" ]
+
+
+viewContent : Model -> Html Msg
+viewContent model =
+    if isLoggedIn model then
+        viewPage model
+    else
+        viewLoginForm model.user
 
 
 view : Model -> Html Msg
@@ -383,6 +413,8 @@ view model =
         [ viewHeader <| loggedInUser model
         , viewTopMenu
         , div [ id "article" ]
-            ( viewContent model )
+            [ viewError model.errorMsg
+            , viewTitle model
+            , viewContent model ]
         , viewFooter
         ]
