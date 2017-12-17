@@ -8,7 +8,7 @@ import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
 
 
-main : Program (Maybe Model) Model Msg
+main : Program (Maybe ModelForPorts) Model Msg
 main =
     Html.programWithFlags
         { init = init
@@ -78,11 +78,35 @@ type alias Model =
     }
 
 
-init : Maybe Model -> ( Model, Cmd Msg )
-init model =
-    case model of
-        Just model ->
-            ( model, Cmd.none )
+-- Special type used to save/restore state via ports and flags
+
+
+type alias ModelForPorts =
+    { errorMsg : String
+    , pageStr : String
+    , user : User
+    }
+
+
+convertModelForPort : Model -> ModelForPorts
+convertModelForPort model =
+    ModelForPorts model.errorMsg "" model.user
+
+
+convertModelFromPort : ModelForPorts -> Model
+convertModelFromPort modelFP =
+    Model modelFP.errorMsg MainMenu modelFP.user
+
+
+
+-- Initialization
+
+
+init : Maybe ModelForPorts -> ( Model, Cmd Msg )
+init mModelFP =
+    case mModelFP of
+        Just modelFP ->
+            ( convertModelFromPort modelFP, Cmd.none )
 
         Nothing ->
             ( Model "" MainMenu emptyUser, Cmd.none )
@@ -211,15 +235,6 @@ fetchProtectedQuote model =
 
 
 
--- Helper to update model and set local storage with the updated model
-
-
-setStorageHelper : Model -> ( Model, Cmd Msg )
-setStorageHelper model =
-    ( model, setStorage model )
-
-
-
 -- Messages
 
 
@@ -235,10 +250,19 @@ type Msg
 -- Ports
 
 
-port setStorage : Model -> Cmd msg
+port setStorage : ModelForPorts -> Cmd msg
 
 
-port removeStorage : Model -> Cmd msg
+port removeStorage : () -> Cmd msg
+
+
+
+-- Helper to update model and set local storage with the updated model
+
+
+setStorageHelper : Model -> ( Model, Cmd Msg )
+setStorageHelper model =
+    ( model, setStorage <| convertModelForPort model )
 
 
 
@@ -261,7 +285,7 @@ update msg model =
             getTokenCompleted model result
 
         LogOut ->
-            ( { model | user = emptyUser }, removeStorage model )
+            ( { model | user = emptyUser }, removeStorage () )
 
 
 
