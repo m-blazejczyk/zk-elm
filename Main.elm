@@ -374,11 +374,10 @@ viewError errorMsg =
             else
                 ""
     in
-        [ div [ class errorClass ]
+        div [ class errorClass ]
             [ div [ class "alert alert-danger" ]
                 [ text errorMsg ]
             ]
-        ]
 
 
 viewTitle : Model -> Html Msg
