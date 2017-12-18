@@ -40,13 +40,17 @@ type Page = MainMenu | News | Issues | Reviews | Repository | Banners | HomePage
 pageTitles : Page -> (String, String)
 pageTitles page =
     case page of
-        MainMenu ->        ("portal",    "Portal redakcyjny „Zeszytów Komiksowych”")
-        News ->            ("newsy",     "Newsy")
-        Issues ->          ("numery",    "Numery „Zeszytów Komiksowych”")
-        Reviews ->         ("recenzje",  "Recenzje")
-        Repository ->      ("składnica", "Składnica naukowa")
-        Banners ->         ("bannery",   "Bannery")
-        HomePageContent -> ("str. gł.",  "Zawartość strony głównej")
+        MainMenu ->        ("portal",        "Portal redakcyjny „Zeszytów Komiksowych”")
+        News ->            ("newsy",         "Newsy")
+        Issues ->          ("numery",        "Numery „Zeszytów Komiksowych”")
+        Reviews ->         ("recenzje",      "Recenzje")
+        Repository ->      ("składnica",     "Składnica naukowa")
+        Banners ->         ("bannery",       "Bannery")
+        HomePageContent -> ("strona główna", "Zawartość strony głównej")
+
+
+editingPages : List Page
+editingPages = [ Banners, HomePageContent, News, Issues, Reviews, Repository ]
 
 
 {-
@@ -320,46 +324,40 @@ viewHeader : Maybe User -> Html Msg
 viewHeader mUser = 
     div [ attribute "style" "height: 95px;" ]
         [ div [ id "logo-zk" ]
-            [ img [ src (domain ++ "static/ZK_logo_red.png") ]
+            [ img [ src ( domain ++ "static/ZK_logo_red.png" ) ]
                 []
             ]
         , div [ id "user-menu" ]
-            (viewUserMenu mUser)
+            ( viewUserMenu mUser )
         ]
 
 
 viewTopMenu : Html Msg
 viewTopMenu = 
-    div [ id "nav-menu" ]
-        [ ul []
-            [ li []
-                [ a [ href "/", title "Niusy" ]
-                    [ text "niusy" ]
-                ]
-            , li []
-                [ a [ href "/", title "Numery" ]
-                    [ text "numery" ]
-                ]
-            , li []
-                [ a [ href "/", title "Recenzje" ]
-                    [ text "recenzje" ]
-                ]
-            , li [ attribute "style" "width: 150px;" ]
-                []
-            , li []
-                [ a [ href "/", title "Składnica" ]
-                    [ text "składnica" ]
-                ]
-            , li []
-                [ a [ href "/", title "Bannery" ]
-                    [ text "bannery" ]
-                ]
-            , li []
-                [ a [ href "/", title "E-publikacje" ]
-                    [ text "e-publikacje" ]
-                ]
-            ]
-        ]
+
+    let
+        midIndex = ( ( List.length editingPages ) // 2 ) - 1
+
+        buildLi page = 
+            let
+                ( short, long ) = pageTitles page
+            in
+                li [] [ a [ href "/", title long ] [ text short ] ]
+
+        mapper page t = 
+            let
+                ( index, newList ) = t
+            in
+                if index == midIndex then
+                    ( index + 1, ( li [ attribute "style" "width: 150px;" ] [] ) :: ( buildLi page ) :: newList )
+                else
+                    ( index + 1, ( buildLi page ) :: newList )
+
+        ( _, lis ) = List.foldr mapper ( 0, [] ) editingPages
+            
+    in
+        div [ id "nav-menu" ]
+            [ ul [] lis ]
 
 
 viewFooter : Html Msg
