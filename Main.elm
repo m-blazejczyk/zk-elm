@@ -78,24 +78,24 @@ type alias Model =
     }
 
 
--- Special type used to save/restore state via ports and flags
+-- Special type used to save/restore state via ports and flags;
+-- Cannot use union types, and there's no need to keep the error message
 
 
 type alias ModelForPorts =
-    { errorMsg : String
-    , pageStr : String
+    { pageStr : String
     , user : User
     }
 
 
 convertModelForPort : Model -> ModelForPorts
 convertModelForPort model =
-    ModelForPorts model.errorMsg "" model.user
+    ModelForPorts "" model.user
 
 
 convertModelFromPort : ModelForPorts -> Model
 convertModelFromPort modelFP =
-    Model modelFP.errorMsg MainMenu modelFP.user
+    Model "" MainMenu modelFP.user
 
 
 
