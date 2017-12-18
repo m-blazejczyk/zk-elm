@@ -195,7 +195,7 @@ getTokenCompleted : Model -> Result Http.Error User -> ( Model, Cmd Msg )
 getTokenCompleted model result =
     case result of
         Ok newUser ->
-            setStorageHelper { model | user = newUser, errorMsg = "" }
+            setStorageHelper { model | page = MainMenu, user = newUser, errorMsg = "" }
 
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
@@ -296,7 +296,7 @@ update msg model =
             getTokenCompleted model result
 
         LogOut ->
-            ( { model | user = emptyUser }, removeStorage () )
+            ( { model | page = MainMenu, user = emptyUser }, removeStorage () )
 
 
 
