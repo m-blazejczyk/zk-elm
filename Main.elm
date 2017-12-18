@@ -90,12 +90,23 @@ type alias ModelForPorts =
 
 convertModelForPort : Model -> ModelForPorts
 convertModelForPort model =
-    ModelForPorts "" model.user
+    ModelForPorts ( toString model.errorMsg ) model.user
 
 
 convertModelFromPort : ModelForPorts -> Model
 convertModelFromPort modelFP =
-    Model "" MainMenu modelFP.user
+    let
+        page = case modelFP.pageStr of
+            "News" ->            News
+            "Issues" ->          Issues
+            "Reviews" ->         Reviews
+            "Repository" ->      Repository
+            "Banners" ->         Banners
+            "HomePageContent" -> HomePageContent
+            _ ->                 MainMenu
+
+    in
+        Model "" page modelFP.user
 
 
 
