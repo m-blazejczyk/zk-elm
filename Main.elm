@@ -259,6 +259,7 @@ type Msg
     | SetPassword String
     | GetTokenCompleted (Result Http.Error User)
     | LogOut
+    | OpenPage Page
 
 
 
@@ -301,6 +302,9 @@ update msg model =
 
         LogOut ->
             ( { model | page = MainMenu, user = emptyUser }, removeStorage () )
+
+        OpenPage page ->
+            ( { model | page = page }, Cmd.none )
 
 
 
@@ -429,30 +433,48 @@ viewTitle model =
 viewMainMenu : Html Msg
 viewMainMenu =
     let
-        buttonStyle = [ ( "width", "100%" )
-            , ( "padding-top", "15px" )
-            , ( "padding-bottom", "15px" )
-            , ( "margin-top", "15px" )
-            , ( "margin-bottom", "15px" )
-            ]
-
-        pageButton page =
+        pageButton page active =
             let
+                buttonStyle = [ ( "width", "100%" )
+                    , ( "padding-top", "15px" )
+                    , ( "padding-bottom", "15px" )
+                    , ( "margin-top", "15px" )
+                    , ( "margin-bottom", "15px" )
+                    ]
+
+                buttonClass active = 
+                    if active then
+                        "btn-primary"
+                    else
+                        "btn-default"
+
                 ( _, title, _ ) = pageTitles page
+
+                buttonText active =
+                    if active then
+                        text title
+                    else
+                        em [] [ text title ]
+
             in
-                button [ class "btn btn-primary", style buttonStyle ] [ text title ]
+                button [ class "btn"
+                    , class ( buttonClass active )
+                    , style buttonStyle
+                    , onClick ( OpenPage page )
+                    ]
+                    [ buttonText active ]
 
     in
         div []
             [ div [ class "row" ]
-                [ div [ class "col-md-4" ] [ pageButton Banners ]
-                , div [ class "col-md-4" ] [ pageButton HomePageContent ]
-                , div [ class "col-md-4" ] [ pageButton News ]
+                [ div [ class "col-md-4" ] [ pageButton Banners True ]
+                , div [ class "col-md-4" ] [ pageButton HomePageContent False ]
+                , div [ class "col-md-4" ] [ pageButton News False ]
                 ]
             , div [ class "row" ]
-                [ div [ class "col-md-4" ] [ pageButton Issues ]
-                , div [ class "col-md-4" ] [ pageButton Reviews ]
-                , div [ class "col-md-4" ] [ pageButton Repository ]
+                [ div [ class "col-md-4" ] [ pageButton Issues False ]
+                , div [ class "col-md-4" ] [ pageButton Reviews False ]
+                , div [ class "col-md-4" ] [ pageButton Repository False ]
                 ]
             ]
 
