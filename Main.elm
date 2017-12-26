@@ -328,8 +328,10 @@ viewHeader : Maybe User -> Html Msg
 viewHeader mUser = 
     div [ attribute "style" "height: 95px;" ]
         [ div [ id "logo-zk" ]
-            [ img [ src ( domain ++ "static/ZK_logo_red.png" ) ]
-                []
+            [ a [ href "#", onClick ( OpenPage MainMenu ) ] 
+                [ img [ src ( domain ++ "static/ZK_logo_red.png" ) ]
+                    []
+                ]
             ]
         , div [ id "user-menu" ]
             ( viewUserMenu mUser )
@@ -346,7 +348,7 @@ viewTopMenu =
             let
                 ( short, _, long ) = pageTitles page
             in
-                li [] [ a [ href "/", title long ] [ text short ] ]
+                li [] [ a [ href "#", title long, onClick ( OpenPage page ) ] [ text short ] ]
 
         mapper page t = 
             let
