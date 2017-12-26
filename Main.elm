@@ -37,16 +37,16 @@ domain = "https://red.zeszytykomiksowe.org/"
 type Page = MainMenu | News | Issues | Reviews | Repository | Banners | HomePageContent
 
 
-pageTitles : Page -> (String, String)
+pageTitles : Page -> (String, String, String)
 pageTitles page =
     case page of
-        MainMenu ->        ("portal",        "Portal redakcyjny „Zeszytów Komiksowych”")
-        News ->            ("newsy",         "Newsy")
-        Issues ->          ("numery",        "Numery „Zeszytów Komiksowych”")
-        Reviews ->         ("recenzje",      "Recenzje")
-        Repository ->      ("składnica",     "Składnica naukowa")
-        Banners ->         ("bannery",       "Bannery")
-        HomePageContent -> ("strona główna", "Zawartość strony głównej")
+        MainMenu ->        ("portal",        "Portal",            "Portal redakcyjny „Zeszytów Komiksowych”")
+        News ->            ("newsy",         "Newsy",             "Newsy")
+        Issues ->          ("numery",        "Numery „ZK”",       "Numery „Zeszytów Komiksowych”")
+        Reviews ->         ("recenzje",      "Recenzje",          "Recenzje")
+        Repository ->      ("składnica",     "Składnica naukowa", "Składnica naukowa")
+        Banners ->         ("bannery",       "Bannery",           "Bannery")
+        HomePageContent -> ("strona główna", "Strona główna",     "Zawartość strony głównej")
 
 
 editingPages : List Page
@@ -340,7 +340,7 @@ viewTopMenu =
 
         buildLi page = 
             let
-                ( short, long ) = pageTitles page
+                ( short, _, long ) = pageTitles page
             in
                 li [] [ a [ href "/", title long ] [ text short ] ]
 
@@ -421,14 +421,55 @@ viewTitle model =
                 model.page
             else
                 MainMenu
-        ( _, title ) = pageTitles page
+        ( _, _, title ) = pageTitles page
     in
         h2 [ id "title" ] [ text title ]
 
 
+viewMainMenu : Html Msg
+viewMainMenu =
+    let
+        buttonStyle = [ ( "width", "100%" )
+            , ( "padding-top", "15px" )
+            , ( "padding-bottom", "15px" )
+            , ( "margin-top", "15px" )
+            , ( "margin-bottom", "15px" )
+            ]
+
+        pageButton page =
+            let
+                ( _, title, _ ) = pageTitles page
+            in
+                button [ class "btn btn-primary", style buttonStyle ] [ text title ]
+
+    in
+        div []
+            [ div [ class "row" ]
+                [ div [ class "col-md-4" ] [ pageButton Banners ]
+                , div [ class "col-md-4" ] [ pageButton HomePageContent ]
+                , div [ class "col-md-4" ] [ pageButton News ]
+                ]
+            , div [ class "row" ]
+                [ div [ class "col-md-4" ] [ pageButton Issues ]
+                , div [ class "col-md-4" ] [ pageButton Reviews ]
+                , div [ class "col-md-4" ] [ pageButton Repository ]
+                ]
+            ]
+
+
 viewPage : Model -> Html Msg
-viewPage _ =
-    p [ class "text-center" ] [ text "Przykro mi – ta strona jeszcze nie istnieje" ]
+viewPage model =
+    let
+        noContent = p [ class "text-center" ] [ text "Przykro mi – ta strona jeszcze nie istnieje" ]
+    in
+        case model.page of
+            MainMenu ->        viewMainMenu
+            News ->            noContent
+            Issues ->          noContent
+            Reviews ->         noContent
+            Repository ->      noContent
+            Banners ->         noContent
+            HomePageContent -> noContent
 
 
 viewContent : Model -> Html Msg
