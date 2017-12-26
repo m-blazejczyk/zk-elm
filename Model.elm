@@ -3,6 +3,7 @@ module Model exposing (..)
 import Json.Decode as Decode exposing (..)
 
 import Page exposing (..)
+import Banners
 
 
 type alias User =
@@ -24,6 +25,7 @@ type alias Model =
     { errorMsg : String
     , page : Page
     , user : User
+    , banners : Banners.Model
     }
 
 
@@ -45,6 +47,7 @@ convertModelForPort model =
 convertModelFromPort : ModelForPorts -> Model
 convertModelFromPort modelFP =
     let
+        page : Page
         page = case modelFP.pageStr of
             "News" ->            News
             "Issues" ->          Issues
@@ -55,7 +58,7 @@ convertModelFromPort modelFP =
             _ ->                 MainMenu
 
     in
-        Model "" page modelFP.user
+        Model "" page modelFP.user Banners.init
 
 
 -- Setters for nested data within the model

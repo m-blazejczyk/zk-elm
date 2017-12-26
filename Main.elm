@@ -11,6 +11,7 @@ import Page exposing (..)
 import Model exposing (..)
 import Msg exposing (..)
 import ViewTemplate exposing (..)
+import Banners
 
 
 main : Program (Maybe ModelForPorts) Model Msg
@@ -33,7 +34,7 @@ init mModelFP =
             ( convertModelFromPort modelFP, Cmd.none )
 
         Nothing ->
-            ( Model "" MainMenu emptyUser, Cmd.none )
+            ( Model "" MainMenu emptyUser Banners.init, Cmd.none )
 
 
 
@@ -133,6 +134,9 @@ update msg model =
 
         OpenPage page ->
             ( { model | page = page }, Cmd.none )
+
+        Msg.BannersMsg _ ->
+            ( model, Cmd.none )
 
 
 view : Model -> Html Msg

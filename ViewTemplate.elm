@@ -8,6 +8,7 @@ import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
 import Msg exposing (..)
+import BannersView as Banners
 
 
 viewUserMenu : Maybe User -> List (Html Msg)
@@ -189,7 +190,7 @@ viewPage model =
             Issues ->          noContent
             Reviews ->         noContent
             Repository ->      noContent
-            Banners ->         noContent
+            Banners ->         Banners.view model.banners |> Html.map BannersMsg
             HomePageContent -> noContent
 
 

@@ -4,6 +4,7 @@ import Http
 
 import Page exposing (..)
 import Model exposing (..)
+import Banners
 
 
 type Msg
@@ -13,3 +14,4 @@ type Msg
     | GetTokenCompleted (Result Http.Error User)
     | LogOut
     | OpenPage Page
+    | BannersMsg Banners.Msg
