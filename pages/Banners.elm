@@ -9,7 +9,8 @@ type Msg
 
 
 type alias Banner =
-    { silent : Bool
+    { id : Int
+    , silent : Bool
     , startDate : Maybe Date
     , endDate : Maybe Date
     , image : String
@@ -26,4 +27,4 @@ type alias Model =
 
 init : Model
 init = 
-    Model [ Banner False Nothing ( Result.toMaybe <| Date.fromString "2018/1/15" ) "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 ]
+    Model [ Banner 1 False Nothing ( Result.toMaybe <| Date.fromString "2018/1/15" ) "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 ]
