@@ -45,7 +45,7 @@ viewSingleBanner data =
         , td [] [ text "3" ]
         , td [] [ text "4" ]
         , td [] [ text "5" ]
-        , td [] [ text "6" ]
+        , td [] [ text <| toString data.weight ]
         , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
         ]
 
