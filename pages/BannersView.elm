@@ -82,7 +82,7 @@ viewUrl url =
 viewSingleBanner : Banner -> Html Msg
 viewSingleBanner data =
     tr []
-        [ td [] [ input [ type_ "checkBox", checked data.isSilent ] [], text " Ukryj" ]
+        [ td [] [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
         , td [] [ viewImage data ]
         , td [] [ text <| viewDate data.startDate ]
         , td [] [ text <| viewDate data.endDate ]

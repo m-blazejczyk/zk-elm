@@ -137,8 +137,12 @@ update msg model =
         OpenPage page ->
             ( { model | page = page }, Cmd.none )
 
-        Msg.BannersMsg _ ->
-            ( model, Cmd.none )
+        BannersMsg innerMsg ->
+            let
+                ( innerModel, innerCmd ) =
+                    Banners.update innerMsg model.banners
+            in
+                ( { model | banners = innerModel }, Cmd.map BannersMsg innerCmd )
 
 
 view : Model -> Html Msg
