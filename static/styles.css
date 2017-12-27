@@ -263,8 +263,13 @@ body a:hover {
 
 #article {
     margin: 0 auto;
-    width: 600px;
+    width: 100%;
     margin-bottom: 40px;
+}
+
+#main-menu {
+    margin: 0 auto;
+    width: 600px;
 }
 
 .recka-title {

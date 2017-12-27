@@ -165,7 +165,7 @@ viewMainMenu =
                     [ buttonText active ]
 
     in
-        div []
+        div [ id "main-menu" ]
             [ div [ class "row" ]
                 [ div [ class "col-md-4" ] [ pageButton Banners True ]
                 , div [ class "col-md-4" ] [ pageButton HomePageContent False ]

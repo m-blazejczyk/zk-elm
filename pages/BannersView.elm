@@ -10,4 +10,7 @@ import Banners exposing (..)
 
 view : Model -> Html Msg
 view model =
-    p [] [ text <| Basics.toString model.banners ]
+    p []
+        [ text <| Basics.toString model.banners
+        , span [ class "glyphicon glyphicon-heart" ] []
+        ]
