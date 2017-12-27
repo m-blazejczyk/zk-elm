@@ -1,7 +1,6 @@
 module Msg exposing (..)
 
 import Http
-
 import Page exposing (..)
 import Model exposing (..)
 import Banners

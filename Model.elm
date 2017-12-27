@@ -1,7 +1,6 @@
 module Model exposing (..)
 
 import Json.Decode as Decode exposing (..)
-
 import Page exposing (..)
 import Banners
 
@@ -17,7 +16,7 @@ type alias User =
 
 
 emptyUser : User
-emptyUser = 
+emptyUser =
     User "" 0 "" "" "" ""
 
 
@@ -27,6 +26,7 @@ type alias Model =
     , user : User
     , banners : Banners.Model
     }
+
 
 
 -- Special type used to save/restore state via ports and flags;
@@ -41,24 +41,38 @@ type alias ModelForPorts =
 
 convertModelForPort : Model -> ModelForPorts
 convertModelForPort model =
-    ModelForPorts ( toString model.errorMsg ) model.user
+    ModelForPorts (toString model.errorMsg) model.user
 
 
 convertModelFromPort : ModelForPorts -> Model
 convertModelFromPort modelFP =
     let
         page : Page
-        page = case modelFP.pageStr of
-            "News" ->            News
-            "Issues" ->          Issues
-            "Reviews" ->         Reviews
-            "Repository" ->      Repository
-            "Banners" ->         Banners
-            "HomePageContent" -> HomePageContent
-            _ ->                 MainMenu
+        page =
+            case modelFP.pageStr of
+                "News" ->
+                    News
 
+                "Issues" ->
+                    Issues
+
+                "Reviews" ->
+                    Reviews
+
+                "Repository" ->
+                    Repository
+
+                "Banners" ->
+                    Banners
+
+                "HomePageContent" ->
+                    HomePageContent
+
+                _ ->
+                    MainMenu
     in
         Model "" page modelFP.user Banners.init
+
 
 
 -- Setters for nested data within the model
@@ -88,14 +102,17 @@ setPasswordInModel password model =
         { model | user = newUser }
 
 
+
 -- Is the user logged in?
+
+
 isLoggedIn : Model -> Bool
 isLoggedIn model =
     String.length model.user.token > 0
 
 
 loggedInUser : Model -> Maybe User
-loggedInUser model = 
+loggedInUser model =
     if isLoggedIn model then
         Just model.user
     else
@@ -107,9 +124,7 @@ userDecoder =
     let
         makeUser token userId userName fullName initials =
             User token userId userName "" fullName initials
-
     in
-
         Decode.map5
             makeUser
             (Decode.field "token" Decode.string)

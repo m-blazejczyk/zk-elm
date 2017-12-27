@@ -1,6 +1,6 @@
 module Banners exposing (..)
 
-import Date exposing ( Date )
+import Date exposing (Date)
 import Result
 
 
@@ -20,11 +20,12 @@ type alias Banner =
     , weight : Int
     }
 
+
 type alias Model =
     { banners : List Banner
     }
 
 
 init : Model
-init = 
-    Model [ Banner 1 False Nothing ( Result.toMaybe <| Date.fromString "2018/1/15" ) "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 ]
+init =
+    Model [ Banner 1 False Nothing (Result.toMaybe <| Date.fromString "2018/1/15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 ]

@@ -5,7 +5,6 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import Http
 import Json.Decode as Decode exposing (..)
-
 import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
@@ -22,6 +21,7 @@ main =
         , subscriptions = \_ -> Sub.none
         , view = view
         }
+
 
 
 -- Initialization
@@ -80,6 +80,7 @@ getTokenCompleted model result =
             ( { model | errorMsg = (toString error) }, Cmd.none )
 
 
+
 -- GET request for random protected quote (authenticated)
 
 
@@ -94,6 +95,7 @@ fetchProtectedQuote model =
     , withCredentials = False
     }
         |> Http.request
+
 
 
 -- Ports
@@ -140,13 +142,14 @@ update msg model =
 
 
 view : Model -> Html Msg
-view model = 
+view model =
     div [ id "container" ]
         [ viewHeader <| loggedInUser model
         , viewTopMenu
         , div [ id "article" ]
             [ viewError model.errorMsg
             , viewTitle model
-            , viewContent model ]
+            , viewContent model
+            ]
         , viewFooter
         ]

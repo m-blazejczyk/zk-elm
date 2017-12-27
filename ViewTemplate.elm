@@ -3,7 +3,6 @@ module ViewTemplate exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-
 import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
@@ -18,54 +17,57 @@ viewUserMenu mUser =
             [ b [] [ text user.fullName ]
             , button [ class "btn btn-danger btn-xs", onClick LogOut ] [ text "Wyloguj się" ]
             ]
+
         Nothing ->
             [ text "" ]
 
 
 viewHeader : Maybe User -> Html Msg
-viewHeader mUser = 
+viewHeader mUser =
     div [ attribute "style" "height: 95px;" ]
         [ div [ id "logo-zk" ]
-            [ a [ href "#", onClick ( OpenPage MainMenu ) ] 
-                [ img [ src ( domain ++ "static/ZK_logo_red.png" ) ]
+            [ a [ href "#", onClick (OpenPage MainMenu) ]
+                [ img [ src (domain ++ "static/ZK_logo_red.png") ]
                     []
                 ]
             ]
         , div [ id "user-menu" ]
-            ( viewUserMenu mUser )
+            (viewUserMenu mUser)
         ]
 
 
 viewTopMenu : Html Msg
-viewTopMenu = 
-
+viewTopMenu =
     let
-        midIndex = ( ( List.length editingPages ) // 2 ) - 1
+        midIndex =
+            ((List.length editingPages) // 2) - 1
 
-        buildLi page = 
+        buildLi page =
             let
-                ( short, _, long ) = pageTitles page
+                ( short, _, long ) =
+                    pageTitles page
             in
-                li [] [ a [ href "#", title long, onClick ( OpenPage page ) ] [ text short ] ]
+                li [] [ a [ href "#", title long, onClick (OpenPage page) ] [ text short ] ]
 
-        mapper page t = 
+        mapper page t =
             let
-                ( index, newList ) = t
+                ( index, newList ) =
+                    t
             in
                 if index == midIndex then
-                    ( index + 1, ( li [ attribute "style" "width: 150px;" ] [] ) :: ( buildLi page ) :: newList )
+                    ( index + 1, (li [ attribute "style" "width: 150px;" ] []) :: (buildLi page) :: newList )
                 else
-                    ( index + 1, ( buildLi page ) :: newList )
+                    ( index + 1, (buildLi page) :: newList )
 
-        ( _, lis ) = List.foldr mapper ( 0, [] ) editingPages
-            
+        ( _, lis ) =
+            List.foldr mapper ( 0, [] ) editingPages
     in
         div [ id "nav-menu" ]
             [ ul [] lis ]
 
 
 viewFooter : Html Msg
-viewFooter = 
+viewFooter =
     div [ id "footer" ]
         [ div [ id "footer-slogan" ]
             [ text "O komiksie. Na serio." ]
@@ -102,7 +104,7 @@ viewLoginForm user =
 
 
 viewError : String -> Html Msg
-viewError errorMsg = 
+viewError errorMsg =
     let
         errorClass : String
         errorClass =
@@ -120,12 +122,14 @@ viewError errorMsg =
 viewTitle : Model -> Html Msg
 viewTitle model =
     let
-        page = 
+        page =
             if isLoggedIn model then
                 model.page
             else
                 MainMenu
-        ( _, _, title ) = pageTitles page
+
+        ( _, _, title ) =
+            pageTitles page
     in
         h2 [ id "title" ] [ text title ]
 
@@ -135,35 +139,36 @@ viewMainMenu =
     let
         pageButton page active =
             let
-                buttonStyle = [ ( "width", "100%" )
+                buttonStyle =
+                    [ ( "width", "100%" )
                     , ( "padding-top", "15px" )
                     , ( "padding-bottom", "15px" )
                     , ( "margin-top", "15px" )
                     , ( "margin-bottom", "15px" )
                     ]
 
-                buttonClass active = 
+                buttonClass active =
                     if active then
                         "btn-primary"
                     else
                         "btn-default"
 
-                ( _, title, _ ) = pageTitles page
+                ( _, title, _ ) =
+                    pageTitles page
 
                 buttonText active =
                     if active then
                         text title
                     else
                         em [] [ text title ]
-
             in
-                button [ class "btn"
-                    , class ( buttonClass active )
+                button
+                    [ class "btn"
+                    , class (buttonClass active)
                     , style buttonStyle
-                    , onClick ( OpenPage page )
+                    , onClick (OpenPage page)
                     ]
                     [ buttonText active ]
-
     in
         div [ id "main-menu" ]
             [ div [ class "row" ]
@@ -182,16 +187,30 @@ viewMainMenu =
 viewPage : Model -> Html Msg
 viewPage model =
     let
-        noContent = p [ class "text-center" ] [ text "Przykro mi – ta strona jeszcze nie istnieje" ]
+        noContent =
+            p [ class "text-center" ] [ text "Przykro mi – ta strona jeszcze nie istnieje" ]
     in
         case model.page of
-            MainMenu ->        viewMainMenu
-            News ->            noContent
-            Issues ->          noContent
-            Reviews ->         noContent
-            Repository ->      noContent
-            Banners ->         Banners.view model.banners |> Html.map BannersMsg
-            HomePageContent -> noContent
+            MainMenu ->
+                viewMainMenu
+
+            News ->
+                noContent
+
+            Issues ->
+                noContent
+
+            Reviews ->
+                noContent
+
+            Repository ->
+                noContent
+
+            Banners ->
+                Banners.view model.banners |> Html.map BannersMsg
+
+            HomePageContent ->
+                noContent
 
 
 viewContent : Model -> Html Msg

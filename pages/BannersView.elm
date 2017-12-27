@@ -1,34 +1,41 @@
-module BannersView exposing ( view )
+module BannersView exposing (view)
 
-import Date exposing ( Date )
+import Date exposing (Date)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-
 import Global exposing (..)
 import Ui exposing (..)
+
+
 -- Model, Msg, ...
+
 import Banners exposing (..)
 
 
 silentColumnTooltip : String
-silentColumnTooltip = "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
+silentColumnTooltip =
+    "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
 
 
 startDateColumnTooltip : String
-startDateColumnTooltip = "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
+startDateColumnTooltip =
+    "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
 
 
 endDateColumnTooltip : String
-endDateColumnTooltip = "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
+endDateColumnTooltip =
+    "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
 
 
 urlColumnTooltip : String
-urlColumnTooltip = "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
+urlColumnTooltip =
+    "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
 
 
 weightColumnTooltip : String
-weightColumnTooltip = "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
+weightColumnTooltip =
+    "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
 
 
 viewImage : Banner -> Html Msg
@@ -40,10 +47,11 @@ viewImage data =
 
 
 viewDate : Maybe Date -> String
-viewDate mDate = 
+viewDate mDate =
     case mDate of
         Just date ->
             dateToStringPl date
+
         Nothing ->
             "Brak daty"
 
@@ -51,24 +59,20 @@ viewDate mDate =
 viewUrl : String -> String
 viewUrl url =
     let
-      urlNoHttp = 
-          if String.startsWith "http://" url then
-              String.dropLeft 7 url
-          else
-              if String.startsWith "https://" url then
-                  String.dropLeft 8 url
-              else
-                  url
-        
+        urlNoHttp =
+            if String.startsWith "http://" url then
+                String.dropLeft 7 url
+            else if String.startsWith "https://" url then
+                String.dropLeft 8 url
+            else
+                url
     in
-
         if String.isEmpty url then
             "Brak linka"
+        else if String.length urlNoHttp < 20 then
+            urlNoHttp
         else
-            if String.length urlNoHttp < 20 then
-                urlNoHttp
-            else
-                ( String.left 20 urlNoHttp ) ++ "…"
+            (String.left 20 urlNoHttp) ++ "…"
 
 
 viewSingleBanner : Banner -> Html Msg
@@ -92,11 +96,11 @@ view model =
                 [ th [] [ glyphiconInfo NoSpace silentColumnTooltip ]
                 , th [] [ text "Obrazek" ]
                 , th [] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
-                , th [] [ glyphiconInfo SpaceRight endDateColumnTooltip,   glyphicon "sort" SpaceRight, text "…do" ]
-                , th [] [ glyphiconInfo SpaceRight urlColumnTooltip,       glyphicon "sort" SpaceRight, text "Link" ]
-                , th [] [ glyphiconInfo SpaceRight weightColumnTooltip,    glyphicon "sort" SpaceRight, text "Waga" ]
+                , th [] [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
+                , th [] [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
+                , th [] [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
                 , th [] [ text "" ]
                 ]
             ]
-        , tbody [] ( List.map viewSingleBanner model.banners )
+        , tbody [] (List.map viewSingleBanner model.banners)
         ]
