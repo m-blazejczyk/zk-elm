@@ -34,8 +34,16 @@ init =
         ]
 
 
+updateSilent : Int -> Bool -> Banner -> Banner
+updateSilent id checked banner =
+    if id == banner.id then
+        { banner | isSilent = checked }
+    else
+        banner
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeSilent id checked ->
-            ( model, Cmd.none )
+            ( { model | banners = List.map (updateSilent id checked) model.banners }, Cmd.none )
