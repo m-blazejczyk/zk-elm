@@ -10,7 +10,7 @@ type Msg
 
 type alias Banner =
     { id : Int
-    , silent : Bool
+    , isSilent : Bool
     , startDate : Maybe Date
     , endDate : Maybe Date
     , image : String

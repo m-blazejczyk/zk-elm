@@ -51,7 +51,7 @@ viewDate mDate =
 viewSingleBanner : Banner -> Html Msg
 viewSingleBanner data =
     tr []
-        [ td [] [ text "1" ]
+        [ td [] [ input [ type_ "checkBox", checked data.isSilent ] [], text " Ukryj" ]
         , td [] [ viewImage data ]
         , td [] [ text <| viewDate data.startDate ]
         , td [] [ text <| viewDate data.endDate ]
@@ -66,7 +66,7 @@ view model =
     table [ class "table table-bordered" ]
         [ thead []
             [ tr []
-                [ th [] [ glyphiconInfo SpaceRight silentColumnTooltip,    glyphicon "ban-circle" NoSpace ]
+                [ th [] [ glyphiconInfo NoSpace silentColumnTooltip ]
                 , th [] [ text "Obrazek" ]
                 , th [] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
                 , th [] [ glyphiconInfo SpaceRight endDateColumnTooltip,   glyphicon "sort" SpaceRight, text "…do" ]
