@@ -10,4 +10,4 @@ import Banners exposing (..)
 
 view : Model -> Html Msg
 view model =
-    p [] [ text model.bannerText ]
+    p [] [ text <| Basics.toString model.banners ]
