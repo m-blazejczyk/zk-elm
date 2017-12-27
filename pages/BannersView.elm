@@ -1,9 +1,11 @@
 module BannersView exposing ( view )
 
+import Date exposing ( Date )
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
+import Global exposing (..)
 import Ui exposing (..)
 -- Model, Msg, ...
 import Banners exposing (..)
@@ -37,13 +39,22 @@ viewImage data =
         img [ src data.image, width data.imageW, height data.imageH ] []
 
 
+viewDate : Maybe Date -> String
+viewDate mDate = 
+    case mDate of
+        Just date ->
+            dateToStringPl date
+        Nothing ->
+            "Brak daty"
+
+
 viewSingleBanner : Banner -> Html Msg
 viewSingleBanner data =
     tr []
         [ td [] [ text "1" ]
         , td [] [ viewImage data ]
-        , td [] [ text "3" ]
-        , td [] [ text "4" ]
+        , td [] [ text <| viewDate data.startDate ]
+        , td [] [ text <| viewDate data.endDate ]
         , td [] [ text "5" ]
         , td [] [ text <| toString data.weight ]
         , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
