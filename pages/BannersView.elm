@@ -48,6 +48,29 @@ viewDate mDate =
             "Brak daty"
 
 
+viewUrl : String -> String
+viewUrl url =
+    let
+      urlNoHttp = 
+          if String.startsWith "http://" url then
+              String.dropLeft 7 url
+          else
+              if String.startsWith "https://" url then
+                  String.dropLeft 8 url
+              else
+                  url
+        
+    in
+
+        if String.isEmpty url then
+            "Brak linka"
+        else
+            if String.length urlNoHttp < 20 then
+                urlNoHttp
+            else
+                ( String.left 20 urlNoHttp ) ++ "…"
+
+
 viewSingleBanner : Banner -> Html Msg
 viewSingleBanner data =
     tr []
@@ -55,7 +78,7 @@ viewSingleBanner data =
         , td [] [ viewImage data ]
         , td [] [ text <| viewDate data.startDate ]
         , td [] [ text <| viewDate data.endDate ]
-        , td [] [ text "5" ]
+        , td [] [ text <| viewUrl data.url ]
         , td [] [ text <| toString data.weight ]
         , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
         ]
