@@ -43,7 +43,11 @@ viewImage data =
     if String.isEmpty data.image then
         text "Brak obrazka"
     else
-        img [ src data.image, width data.imageW, height data.imageH ] []
+        div [ style [ ( "text-align", "center" ) ] ]
+            [ img [ src data.image, width data.imageW, height data.imageH ] []
+            , br [] []
+            , span [] [ text (toString data.imageW ++ " × " ++ toString data.imageH ++ " px") ]
+            ]
 
 
 viewDate : Maybe Date -> String
