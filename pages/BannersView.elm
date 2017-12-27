@@ -4,20 +4,22 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
+import Ui exposing (..)
 -- Model, Msg, ...
 import Banners exposing (..)
 
 
 view : Model -> Html Msg
 view model =
-    table [ class "table" ]
+    table [ class "table table-bordered" ]
         [ thead []
             [ tr []
-                [ th [] [ span [ class "glyphicon glyphicon-ban-circle" ] [] ]
-                , th [] [ text "Obrazek" ]
-                , th [] [ text "Wyświetlaj od…" ]
-                , th [] [ text "…do" ]
-                , th [] [ text "Link" ]
+                [ th [] [ glyphicon "info-sign" SpaceRight, glyphicon "ban-circle" NoSpace ]
+                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Obrazek" ]
+                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
+                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "…do" ]
+                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Link" ]
+                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Waga" ]
                 , th [] [ text "" ]
                 ]
             ]
@@ -29,6 +31,7 @@ view model =
                 , td [] [ text "4" ]
                 , td [] [ text "5" ]
                 , td [] [ text "6" ]
+                , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
                 ]
             ]
         ]

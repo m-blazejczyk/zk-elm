@@ -16,14 +16,14 @@ type alias Banner =
     , imageH : Int
     , imageW : Int
     , url : String
+    , weight : Int
     }
 
 type alias Model =
-    { bannerText : String
-    , banners : List Banner
+    { banners : List Banner
     }
 
 
 init : Model
 init = 
-    Model "Test" [ Banner False Nothing ( Result.toMaybe <| Date.fromString "2018/1/15" ) "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" ]
+    Model [ Banner False Nothing ( Result.toMaybe <| Date.fromString "2018/1/15" ) "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 ]
