@@ -29,6 +29,27 @@ weightColumnTooltip : String
 weightColumnTooltip = "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
 
 
+viewImage : Banner -> Html Msg
+viewImage data =
+    if String.isEmpty data.image then
+        text "Brak obrazka"
+    else
+        img [ src data.image, width data.imageW, height data.imageH ] []
+
+
+viewSingleBanner : Banner -> Html Msg
+viewSingleBanner data =
+    tr []
+        [ td [] [ text "1" ]
+        , td [] [ viewImage data ]
+        , td [] [ text "3" ]
+        , td [] [ text "4" ]
+        , td [] [ text "5" ]
+        , td [] [ text "6" ]
+        , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     table [ class "table table-bordered" ]
@@ -43,15 +64,5 @@ view model =
                 , th [] [ text "" ]
                 ]
             ]
-        , tbody []
-            [ tr []
-                [ td [] [ text "1" ]
-                , td [] [ text "2" ]
-                , td [] [ text "3" ]
-                , td [] [ text "4" ]
-                , td [] [ text "5" ]
-                , td [] [ text "6" ]
-                , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
-                ]
-            ]
+        , tbody [] ( List.map viewSingleBanner model.banners )
         ]
