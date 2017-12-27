@@ -1,4 +1,4 @@
-module Ui exposing (..)
+module Ui exposing ( Space (..), glyphicon, glyphiconInfo )
 
 import Html exposing (..)
 import Html.Events exposing (..)
@@ -10,15 +10,19 @@ type Space
   | NoSpace
 
 
+spaceStyle : Space -> Attribute msg
+spaceStyle space =
+    case space of
+        SpaceRight ->
+            style [ ( "margin-right", "10px" ) ]
+        NoSpace ->
+            style []
+
+
 glyphicon : String -> Space -> Html msg
 glyphicon glyph space =
-    let
-      spaceStyle =
-          case space of
-              SpaceRight ->
-                  style [ ( "margin-right", "10px" ) ]
-              NoSpace ->
-                  style []
-        
-    in
-        span [ class "glyphicon", class ( "glyphicon-" ++ glyph ), spaceStyle ] []
+    span [ class "glyphicon", class ( "glyphicon-" ++ glyph ), spaceStyle space ] []
+
+glyphiconInfo : Space -> String -> Html msg
+glyphiconInfo space tooltip = 
+    span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ] [ span [ class "tooltiptext" ] [ text tooltip ] ]

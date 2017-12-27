@@ -1,9 +1,5 @@
 /* These are legacy styles */
 
-.link1 { }
-.link2 { }
-.link3 { }
-
 .whitecourier { color: #FFFFFF}
 .blackcourier { color: #000000}
 .blackcourierbold { font-weight: bold; color: #000000}
@@ -24,18 +20,6 @@
 .articlefooter {  font-size: smaller; font-style: italic; text-align: right}
 .articletext { }
 
-.kswmarginleft { background-image: url(publicystyka/brzeg1.jpg) }
-.kswmarginright { background-image: url(publicystyka/brzeg2.jpg) }
-
-.mojewhitebkgd { background-color: #FFFFFF }
-.mojeblackbkgd { background-color: #000000 }
-.mojeautor { text-align: center; font-family: "Courier New", Courier, mono; font-weight: bold; color: #000000; font-size: larger }
-.mojetytulfr { text-align: center; font-family: "Courier New", Courier, mono; font-weight: bold; color: #000000; font-size: larger }
-.mojetytulpl { text-align: center; font-family: "Courier New", Courier, mono; font-weight: bold; color: #000000; font-style: italic }
-.mojedane { text-align: center; font-family: "Courier New", Courier, mono; color: #000000; font-size: smaller }
-.mojedaneold { text-align: center; font-family: "Courier New", Courier, mono; color: #FFFFFF; font-size: smaller }
-.mojeopis { text-align: left; font-family: "Courier New", Courier, mono; color: #000000 }
-
 .francrozdzial { text-align: center; font-size: x-large; font-weight: bold  }
 .francsekcja {
     font: 1.4em Georgia, Times, serif;
@@ -52,10 +36,32 @@
 .francbold { font-weight: bold  }
 .tablewithmargin {  margin-right: 15px}
 
-.table-r   {float: right; margin-left: 5px; margin-bottom: 2px; margin-right: 0px; margin-top: 5px;}
-.table-l   {float: left; margin-left: 0px; margin-bottom: 2px; margin-right: 5px; margin-top: 5px;}
-
 /***************************************************************/
+
+/* Tooltips for glyphicons
+   See https://www.w3schools.com/css/css_tooltip.asp */
+.glyphicon .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    padding: 5px;
+    border-radius: 6px;
+    font: 11px Verdana, sans-serif;
+
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+
+    width: 250px;
+    top: 200%;
+    left: 0px; 
+}
+
+/* Show the tooltip text when you mouse over the glyphicon */
+.glyphicon:hover .tooltiptext {
+    visibility: visible;
+}
 
 .jumbotron {
   margin: 2em auto;

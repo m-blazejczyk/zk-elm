@@ -1,4 +1,4 @@
-module BannersView exposing (..)
+module BannersView exposing ( view )
 
 import Html exposing (..)
 import Html.Events exposing (..)
@@ -9,17 +9,37 @@ import Ui exposing (..)
 import Banners exposing (..)
 
 
+silentColumnTooltip : String
+silentColumnTooltip = "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
+
+
+startDateColumnTooltip : String
+startDateColumnTooltip = "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
+
+
+endDateColumnTooltip : String
+endDateColumnTooltip = "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
+
+
+urlColumnTooltip : String
+urlColumnTooltip = "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
+
+
+weightColumnTooltip : String
+weightColumnTooltip = "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
+
+
 view : Model -> Html Msg
 view model =
     table [ class "table table-bordered" ]
         [ thead []
             [ tr []
-                [ th [] [ glyphicon "info-sign" SpaceRight, glyphicon "ban-circle" NoSpace ]
-                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Obrazek" ]
-                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
-                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "…do" ]
-                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Link" ]
-                , th [] [ glyphicon "info-sign" SpaceRight, glyphicon "sort" SpaceRight, text "Waga" ]
+                [ th [] [ glyphiconInfo SpaceRight silentColumnTooltip,    glyphicon "ban-circle" NoSpace ]
+                , th [] [ text "Obrazek" ]
+                , th [] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
+                , th [] [ glyphiconInfo SpaceRight endDateColumnTooltip,   glyphicon "sort" SpaceRight, text "…do" ]
+                , th [] [ glyphiconInfo SpaceRight urlColumnTooltip,       glyphicon "sort" SpaceRight, text "Link" ]
+                , th [] [ glyphiconInfo SpaceRight weightColumnTooltip,    glyphicon "sort" SpaceRight, text "Waga" ]
                 , th [] [ text "" ]
                 ]
             ]
