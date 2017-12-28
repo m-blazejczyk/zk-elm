@@ -79,6 +79,20 @@ viewUrl url =
             (String.left 20 urlNoHttp) ++ "…"
 
 
+viewWeight : Int -> Html Msg
+viewWeight weight =
+    div [ style [ ( "width", "100%" ) ] ]
+        [ div [ class "form-group has-error has-feedback", style [ ( "width", "100%" ), ( "display", "block" ), ( "margin-bottom", "0px" ) ] ]
+            [ input [ type_ "text", class "form-control", value (toString weight) ] []
+            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+            ]
+        , div [ class "btn-group", style [ ( "float", "right" ) ] ]
+            [ button [ class "btn btn-default btn-sm" ] [ glyphicon "ok" NoSpace ]
+            , button [ class "btn btn-default btn-sm" ] [ glyphicon "remove" NoSpace ]
+            ]
+        ]
+
+
 viewSingleBanner : Banner -> Html Msg
 viewSingleBanner data =
     tr []
@@ -87,7 +101,7 @@ viewSingleBanner data =
         , td [] [ text <| viewDate data.startDate ]
         , td [] [ text <| viewDate data.endDate ]
         , td [] [ text <| viewUrl data.url ]
-        , td [] [ text <| toString data.weight ]
+        , td [ style [ ( "width", "100px" ), ( "text-align", "right" ) ] ] [ viewWeight data.weight ]
         , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
         ]
 
@@ -102,7 +116,7 @@ view model =
                 , th [] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
                 , th [] [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
                 , th [] [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
-                , th [] [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
+                , th [ style [ ( "width", "100px" ) ] ] [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
                 , th [] [ text "" ]
                 ]
             ]
