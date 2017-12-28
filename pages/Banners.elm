@@ -1,4 +1,4 @@
-module Banners exposing (Msg(..), Banner, Model, init, update)
+module Banners exposing (Msg(..), Banner, Model, Column(..), init, update)
 
 import Date exposing (Date)
 import Result
@@ -19,6 +19,16 @@ type alias Banner =
     , url : String
     , weight : Int
     }
+
+
+type Column
+    = SilentColumn
+    | ImageColumn
+    | StartDateColumn
+    | EndDateColumn
+    | UrlColumn
+    | WeightColumn
+    | ActionsColumn
 
 
 type alias Model =

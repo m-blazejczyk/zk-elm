@@ -38,6 +38,41 @@ weightColumnTooltip =
     "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
 
 
+columnWidth : Column -> Maybe Int
+columnWidth col =
+    case col of
+        SilentColumn ->
+            Just 80
+
+        ImageColumn ->
+            Nothing
+
+        StartDateColumn ->
+            Just 100
+
+        EndDateColumn ->
+            Just 100
+
+        UrlColumn ->
+            Nothing
+
+        WeightColumn ->
+            Just 100
+
+        ActionsColumn ->
+            Nothing
+
+
+columnStyle : Column -> List (String, String)
+columnStyle col = 
+    case columnWidth col of
+        Just width ->
+            [ ( "width", (toString width) ++ "px" ) ]
+
+        Nothing ->
+            []
+
+
 viewImage : Banner -> Html Msg
 viewImage data =
     if String.isEmpty data.image then
@@ -96,13 +131,13 @@ viewWeight weight =
 viewSingleBanner : Banner -> Html Msg
 viewSingleBanner data =
     tr []
-        [ td [] [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
-        , td [] [ viewImage data ]
-        , td [] [ text <| viewDate data.startDate ]
-        , td [] [ text <| viewDate data.endDate ]
-        , td [] [ text <| viewUrl data.url ]
-        , td [ style [ ( "width", "100px" ), ( "text-align", "right" ) ] ] [ viewWeight data.weight ]
-        , td [] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
+        [ td [ style <| columnStyle SilentColumn ] [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
+        , td [ style <| columnStyle ImageColumn ] [ viewImage data ]
+        , td [ style <| columnStyle StartDateColumn ] [ text <| viewDate data.startDate ]
+        , td [ style <| columnStyle EndDateColumn ] [ text <| viewDate data.endDate ]
+        , td [ style <| columnStyle UrlColumn ] [ text <| viewUrl data.url ]
+        , td [ style <| columnStyle WeightColumn ] [ viewWeight data.weight ]
+        , td [ style <| columnStyle ActionsColumn ] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
         ]
 
 
@@ -111,13 +146,13 @@ view model =
     table [ class "table table-bordered" ]
         [ thead []
             [ tr []
-                [ th [] [ glyphiconInfo NoSpace silentColumnTooltip ]
-                , th [] [ text "Obrazek" ]
-                , th [] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Wyświetlaj od…" ]
-                , th [] [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
-                , th [] [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
-                , th [ style [ ( "width", "100px" ) ] ] [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
-                , th [] [ text "" ]
+                [ th [ style <| columnStyle SilentColumn ]    [ glyphiconInfo SpaceRight silentColumnTooltip, text "Ukryj" ]
+                , th [ style <| columnStyle ImageColumn ]     [ text "Obrazek" ]
+                , th [ style <| columnStyle StartDateColumn ] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Od…" ]
+                , th [ style <| columnStyle EndDateColumn ]   [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
+                , th [ style <| columnStyle UrlColumn ]       [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
+                , th [ style <| columnStyle WeightColumn ]    [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
+                , th [ style <| columnStyle ActionsColumn ]   [ text "" ]
                 ]
             ]
         , tbody [] (List.map viewSingleBanner model.banners)
