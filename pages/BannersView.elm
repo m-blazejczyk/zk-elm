@@ -142,13 +142,8 @@ viewWeight weight =
                 viewInputWithError <| toString weight
             else
                 viewInputNormal <| toString weight
-
     in
-
-        div [ class "full-width" ]
-            [ viewInput
-            , viewInputButtons
-            ]
+        div [ class "full-width" ] [ viewInput, viewInputButtons ]
 
 
 viewSingleBanner : Banner -> Html Msg
