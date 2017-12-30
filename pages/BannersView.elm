@@ -125,12 +125,12 @@ viewInputButtons =
 viewInputNormal: String -> Html Msg
 viewInputNormal val =
     div [ class "form-group full-width-input" ]
-        [ input [ type_ "text", maxlength "2", class "form-control", value val ] [] ]
+        [ input [ type_ "text", maxlength 2, class "form-control", value val ] [] ]
 
 viewInputWithError: String -> Html Msg
 viewInputWithError val =
     div [ class "form-group has-error has-feedback full-width-input" ]
-        [ input [ type_ "text", maxlength "2", class "form-control", value val ] []
+        [ input [ type_ "text", maxlength 2, class "form-control", value val ] []
         , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
         ]
 
