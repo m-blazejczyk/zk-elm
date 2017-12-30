@@ -114,18 +114,41 @@ viewUrl url =
             (String.left 20 urlNoHttp) ++ "…"
 
 
+viewInputButtons: Html Msg
+viewInputButtons = 
+    div [ class "btn-group right-align" ]
+        [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ] ] [ glyphicon "ok" NoSpace ]
+        , button [ class "btn btn-default btn-sm", style [ ( "color", "red" ) ] ]   [ glyphicon "remove" NoSpace ]
+        ]
+
+
+viewInputNormal: String -> Html Msg
+viewInputNormal val =
+    div [ class "form-group full-width-input" ]
+        [ input [ type_ "text", class "form-control", value val ] [] ]
+
+viewInputWithError: String -> Html Msg
+viewInputWithError val =
+    div [ class "form-group has-error has-feedback full-width-input" ]
+        [ input [ type_ "text", class "form-control", value val ] []
+        , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+        ]
+
 viewWeight : Int -> Html Msg
 viewWeight weight =
-    div [ class "full-width" ]
-        [ div [ class "form-group has-error has-feedback full-width-input" ]
-            [ input [ type_ "text", class "form-control", value (toString weight) ] []
-            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+    let
+        viewInput =
+            if weight > 10 then
+                viewInputWithError <| toString weight
+            else
+                viewInputNormal <| toString weight
+
+    in
+
+        div [ class "full-width" ]
+            [ viewInput
+            , viewInputButtons
             ]
-        , div [ class "btn-group right-align" ]
-            [ button [ class "btn btn-default btn-sm" ] [ glyphicon "ok" NoSpace ]
-            , button [ class "btn btn-default btn-sm" ] [ glyphicon "remove" NoSpace ]
-            ]
-        ]
 
 
 viewSingleBanner : Banner -> Html Msg
