@@ -27,4 +27,4 @@ glyphicon glyph space =
 
 glyphiconInfo : Space -> String -> Html msg
 glyphiconInfo space tooltip =
-    span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ] [ span [ class "tooltiptext" ] [ text tooltip ] ]
+    span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ] [ span [ class "tooltip-text tooltip-glyphicon" ] [ text tooltip ] ]

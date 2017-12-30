@@ -135,7 +135,7 @@ viewSingleBanner data =
         , td [ style <| columnStyle ImageColumn ] [ viewImage data ]
         , td [ style <| columnStyle StartDateColumn ] [ text <| viewDate data.startDate ]
         , td [ style <| columnStyle EndDateColumn ] [ text <| viewDate data.endDate ]
-        , td [ style <| columnStyle UrlColumn ] [ text <| viewUrl data.url ]
+        , td [ style <| columnStyle UrlColumn ] [ span [ class "with-tooltip" ] [ text <| viewUrl data.url, span [ class "tooltip-text tooltip-span" ] [ text data.url ] ] ]
         , td [ style <| columnStyle WeightColumn ] [ viewWeight data.weight ]
         , td [ style <| columnStyle ActionsColumn ] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
         ]

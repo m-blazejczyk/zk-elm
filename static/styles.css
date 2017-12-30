@@ -34,32 +34,44 @@
 .francpodpis { text-align: center; font-size: x-small; color: #FFFFFF  }
 .francpodpis2 { text-align: center; font-size: x-small  }
 .francbold { font-weight: bold  }
-.tablewithmargin {  margin-right: 15px}
+.tablewithmargin {  margin-right: 15px  }
 
 /***************************************************************/
 
-/* Tooltips for glyphicons
+.with-tooltip {
+  /* Nothing by design */
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltips
    See https://www.w3schools.com/css/css_tooltip.asp */
-.glyphicon .tooltiptext {
+.glyphicon .tooltip-text, .with-tooltip .tooltip-text {
     visibility: hidden;
-    width: 120px;
-    background-color: black;
-    color: #fff;
+    background-color: #DDD;
     padding: 5px;
     border-radius: 6px;
+    border-color: #222;
     font: 11px Verdana, sans-serif;
 
     /* Position the tooltip text */
     position: absolute;
     z-index: 1;
 
-    width: 250px;
-    top: 200%;
     left: 0px; 
 }
 
-/* Show the tooltip text when you mouse over the glyphicon */
-.glyphicon:hover .tooltiptext {
+.tooltip-glyphicon {
+    width: 250px;
+    top: 200%;
+}
+
+.tooltip-span {
+    top: 110%;
+}
+
+/* Show the tooltip text when you mouse over the parent container */
+.glyphicon:hover .tooltip-text, .with-tooltip:hover .tooltip-text {
     visibility: visible;
 }
 
