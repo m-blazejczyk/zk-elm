@@ -116,12 +116,12 @@ viewUrl url =
 
 viewWeight : Int -> Html Msg
 viewWeight weight =
-    div [ style [ ( "width", "100%" ) ] ]
-        [ div [ class "form-group has-error has-feedback", style [ ( "width", "100%" ), ( "display", "block" ), ( "margin-bottom", "0px" ) ] ]
+    div [ class "full-width" ]
+        [ div [ class "form-group has-error has-feedback full-width-input" ]
             [ input [ type_ "text", class "form-control", value (toString weight) ] []
             , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
             ]
-        , div [ class "btn-group", style [ ( "float", "right" ) ] ]
+        , div [ class "btn-group right-align" ]
             [ button [ class "btn btn-default btn-sm" ] [ glyphicon "ok" NoSpace ]
             , button [ class "btn btn-default btn-sm" ] [ glyphicon "remove" NoSpace ]
             ]

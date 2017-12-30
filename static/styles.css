@@ -572,6 +572,16 @@ body a:hover {
   padding: 10px;
 }
 
+.full-width {
+  width: 100%;
+}
+
+.full-width-input {
+  width: 100%;
+  display: block;
+  margin-bottom: 0px;
+}
+
 /* ------------ KOPALNIA ------------ */
 
 span.inobtrusive {
