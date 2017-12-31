@@ -95,8 +95,43 @@ viewDate mDate =
             "Brak daty"
 
 
-viewUrl : String -> String
-viewUrl url =
+viewInputButtons: Html Msg
+viewInputButtons = 
+    div [ class "btn-group right-align" ]
+        [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ] ] [ glyphicon "ok" NoSpace ]
+        , button [ class "btn btn-default btn-sm", style [ ( "color", "red" ) ] ]   [ glyphicon "remove" NoSpace ]
+        ]
+
+
+viewInputNormal: Int -> String -> Html Msg
+viewInputNormal maxLen val =
+    div [ class "form-group full-width-input" ]
+        [ input [ type_ "text", maxlength maxLen, class "form-control", value val ] [] ]
+
+viewInputWithError: Int -> String -> Html Msg
+viewInputWithError maxLen val =
+    div [ class "form-group has-error has-feedback full-width-input" ]
+        [ input [ type_ "text", maxlength maxLen, class "form-control", value val ] []
+        , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+        ]
+
+viewWeight : Maybe Editing -> Banner -> Html Msg
+viewWeight mEditing data =
+    let
+        weightStr = toString data.weight
+
+        viewInput =
+            if data.weight > 10 then
+                viewInputWithError 2 weightStr
+            else
+                viewInputNormal 2 weightStr
+    in
+        div [ class "full-width", onClick <| StartEditing data.id WeightColumn weightStr ]
+            [ viewInput, viewInputButtons ]
+
+
+shorterUrl : String -> String
+shorterUrl url =
     let
         urlNoHttp =
             if String.startsWith "http://" url then
@@ -114,47 +149,28 @@ viewUrl url =
             (String.left 20 urlNoHttp) ++ "…"
 
 
-viewInputButtons: Html Msg
-viewInputButtons = 
-    div [ class "btn-group right-align" ]
-        [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ] ] [ glyphicon "ok" NoSpace ]
-        , button [ class "btn btn-default btn-sm", style [ ( "color", "red" ) ] ]   [ glyphicon "remove" NoSpace ]
-        ]
+viewUrl : Maybe Editing -> Banner -> Html Msg
+viewUrl mEditing data = 
+    case mEditing of
+        Just editing ->
+            span [] [ text "Editing!" ]
+
+        Nothing ->            
+            span [ class "with-tooltip", onClick <| StartEditing data.id UrlColumn data.url ]
+                [ text <| shorterUrl data.url
+                , span [ class "tooltip-text tooltip-span" ] [ text data.url ]
+                ]
 
 
-viewInputNormal: String -> Html Msg
-viewInputNormal val =
-    div [ class "form-group full-width-input" ]
-        [ input [ type_ "text", maxlength 2, class "form-control", value val ] [] ]
-
-viewInputWithError: String -> Html Msg
-viewInputWithError val =
-    div [ class "form-group has-error has-feedback full-width-input" ]
-        [ input [ type_ "text", maxlength 2, class "form-control", value val ] []
-        , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-        ]
-
-viewWeight : Int -> Html Msg
-viewWeight weight =
-    let
-        viewInput =
-            if weight > 10 then
-                viewInputWithError <| toString weight
-            else
-                viewInputNormal <| toString weight
-    in
-        div [ class "full-width" ] [ viewInput, viewInputButtons ]
-
-
-viewSingleBanner : Banner -> Html Msg
-viewSingleBanner data =
+viewSingleBanner : Maybe Editing -> Banner -> Html Msg
+viewSingleBanner editing data =
     tr []
         [ td [ style <| columnStyle SilentColumn ] [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
         , td [ style <| columnStyle ImageColumn ] [ viewImage data ]
         , td [ style <| columnStyle StartDateColumn ] [ text <| viewDate data.startDate ]
         , td [ style <| columnStyle EndDateColumn ] [ text <| viewDate data.endDate ]
-        , td [ style <| columnStyle UrlColumn ] [ span [ class "with-tooltip" ] [ text <| viewUrl data.url, span [ class "tooltip-text tooltip-span" ] [ text data.url ] ] ]
-        , td [ style <| columnStyle WeightColumn ] [ viewWeight data.weight ]
+        , td [ style <| columnStyle UrlColumn ] [ viewUrl editing data ]
+        , td [ style <| columnStyle WeightColumn ] [ viewWeight editing data ]
         , td [ style <| columnStyle ActionsColumn ] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
         ]
 
@@ -173,5 +189,5 @@ view model =
                 , th [ style <| columnStyle ActionsColumn ]   [ text "" ]
                 ]
             ]
-        , tbody [] (List.map viewSingleBanner model.banners)
+        , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
         ]

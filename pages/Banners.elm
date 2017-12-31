@@ -1,4 +1,4 @@
-module Banners exposing (Msg(..), Banner, Model, Column(..), init, update)
+module Banners exposing (Msg(..), Banner, Editing, Model, Column(..), init, update)
 
 import Date exposing (Date)
 import Result
@@ -36,7 +36,7 @@ type alias Editing =
     { id : Int
     , column : Column
     , value : String
-    , error : Maybe String
+    , isError : Bool
     }
 
 
@@ -70,4 +70,4 @@ update msg model =
             ( { model | banners = List.map (updateSilent id checked) model.banners }, Cmd.none )
 
         StartEditing id column value ->
-            ( { model | editing = Just (Editing id column value Nothing) }, Cmd.none )
+            ( { model | editing = Just (Editing id column value False) }, Cmd.none )
