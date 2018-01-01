@@ -96,49 +96,53 @@ viewDate mDate =
             "Brak daty"
 
 
-viewInputButtons: Validator -> Html Msg
-viewInputButtons valFun = 
+viewInputButtons: Attribute Msg -> Html Msg
+viewInputButtons onOkClick = 
     div [ class "btn-group right-align" ]
-        [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ], onClick <| ValidateEditing valFun ]
+        [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ], onOkClick ]
             [ glyphicon "ok" NoSpace ]
         , button [ class "btn btn-default btn-sm", style [ ( "color", "red" ) ], onClick CancelEditing ]
             [ glyphicon "remove" NoSpace ]
         ]
 
 
-viewInputWrapper: Validator -> Html Msg -> Html Msg
-viewInputWrapper valFun content =
+viewInputWrapper: Attribute Msg -> Html Msg -> Html Msg
+viewInputWrapper onOkClick content =
     div [ class "full-width" ]
-        [ content, viewInputButtons valFun ]
+        [ content, viewInputButtons onOkClick ]
 
 
-viewInputNormal: Int -> String -> Validator -> Html Msg
-viewInputNormal maxLen val valFun =
+stdEditingInputAttrs: List (Attribute Msg)
+stdEditingInputAttrs = [ type_ "text", class "form-control", id "inPlaceEditor" ]
+
+
+viewInputNormal: List (Attribute Msg) -> Attribute Msg -> Html Msg
+viewInputNormal inputAttrs onOkClick =
     viewInputWrapper
-        valFun
+        onOkClick
         (div [ class "form-group full-width-input" ]
-            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, id "inPlaceEditor" ] [] ])
+            [ input (inputAttrs ++ stdEditingInputAttrs) [] ])
 
 
-viewInputWithError: Int -> String -> Validator -> Html Msg
-viewInputWithError maxLen val valFun =
+viewInputWithError: List (Attribute Msg) -> Attribute Msg -> Html Msg
+viewInputWithError inputAttrs onOkClick =
     viewInputWrapper
-        valFun
+        onOkClick
         (div [ class "form-group has-error has-feedback full-width-input" ]
-            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, id "inPlaceEditor" ] []
+            [ input (inputAttrs ++ stdEditingInputAttrs) []
             , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
             ])
 
 
-viewEditingInput: Maybe Editing -> Int -> Html Msg -> Int -> String -> Column -> Validator -> Html Msg
-viewEditingInput mEditing id nonEditingView maxLen strValue column valFun =
+viewEditingInput: Maybe Editing -> Int -> Html Msg -> Column -> List (Attribute Msg) -> Attribute Msg -> Html Msg
+viewEditingInput mEditing id nonEditingView column inputAttrs onOkClick =
     case mEditing of
         Just editing ->
             if editing.id == id && editing.column == column then
                 if editing.isError then
-                    viewInputWithError maxLen strValue valFun
+                    viewInputWithError inputAttrs onOkClick
                 else
-                    viewInputNormal maxLen strValue valFun
+                    viewInputNormal inputAttrs onOkClick
             else
                 nonEditingView
 
@@ -157,9 +161,14 @@ viewWeight mEditing data =
 
         validator val = False
 
+        modifier _ banner = banner
+
     in
 
-        viewEditingInput mEditing data.id nonEditingView 2 weightAsString WeightColumn validator
+        viewEditingInput
+            mEditing data.id nonEditingView WeightColumn
+            [ maxlength 2, value weightAsString ]
+            (onClick (ValidateEditing validator modifier))
 
 
 shorterUrl : String -> String
@@ -191,10 +200,15 @@ viewUrl mEditing data =
                 ]
            
         validator val = False
+
+        modifier _ banner = banner
  
     in
             
-        viewEditingInput mEditing data.id nonEditingView 500 data.url UrlColumn validator
+        viewEditingInput
+            mEditing data.id nonEditingView UrlColumn
+            [ maxlength 500, value data.url ]
+            (onClick (ValidateEditing validator modifier))
 
 
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg

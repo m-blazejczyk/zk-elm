@@ -19,10 +19,13 @@ type Column
 type alias Validator = String -> Bool
 
 
+type alias Modifier = String -> Banner -> Banner
+
+
 type Msg
     = ChangeSilent Int Bool
     | StartEditing Int Column String
-    | ValidateEditing Validator
+    | ValidateEditing Validator Modifier
     | CancelEditing
     | FocusResult (Result Dom.Error ())
 
@@ -81,8 +84,30 @@ update msg model =
             ( { model | editing = Just (Editing id column value False) }
             , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
 
-        ValidateEditing valFun ->
-            ( model, Cmd.none )
+        ValidateEditing valFun modFun ->
+            let
+                updateField : Editing -> Banner -> Banner
+                updateField editing banner =
+                    if editing.id == banner.id then
+                        modFun editing.value banner
+                    else
+                        banner
+
+                setEditingError editing = { editing | isError = True }
+
+            in
+
+                case model.editing of
+                    Just editing ->
+                        if valFun editing.value then
+                            ( { model | banners = List.map (updateField editing) model.banners
+                                , editing = Nothing }
+                            , Cmd.none )
+                        else
+                            ( { model | editing = Just <| setEditingError editing }, Cmd.none )
+
+                    Nothing ->
+                        ( model, Cmd.none )  -- This should never happen!!!
 
         CancelEditing ->
             ( { model | editing = Nothing }, Cmd.none )
