@@ -17,6 +17,7 @@ type Column
 type Msg
     = ChangeSilent Int Bool
     | StartEditing Int Column String
+    | FocusResult (Result Dom.Error ())
 
 
 type alias Banner =
@@ -70,4 +71,5 @@ update msg model =
             ( { model | banners = List.map (updateSilent id checked) model.banners }, Cmd.none )
 
         StartEditing id column value ->
-            ( { model | editing = Just (Editing id column value False) }, Cmd.none )
+            ( { model | editing = Just (Editing id column value False) }
+            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )

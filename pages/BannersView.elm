@@ -113,14 +113,14 @@ viewInputNormal: Int -> String -> Html Msg
 viewInputNormal maxLen val =
     viewInputWrapper <| 
         div [ class "form-group full-width-input" ]
-            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, autofocus True ] [] ]
+            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, id "inPlaceEditor" ] [] ]
 
 
 viewInputWithError: Int -> String -> Html Msg
 viewInputWithError maxLen val =
     viewInputWrapper <|
         div [ class "form-group has-error has-feedback full-width-input" ]
-            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, autofocus True ] []
+            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, id "inPlaceEditor" ] []
             , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
             ]
 
