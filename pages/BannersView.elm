@@ -103,31 +103,56 @@ viewInputButtons =
         ]
 
 
+viewInputWrapper: Html Msg -> Html Msg
+viewInputWrapper content =
+    div [ class "full-width" ]
+        [ content, viewInputButtons ]
+
+
 viewInputNormal: Int -> String -> Html Msg
 viewInputNormal maxLen val =
-    div [ class "form-group full-width-input" ]
-        [ input [ type_ "text", maxlength maxLen, class "form-control", value val ] [] ]
+    viewInputWrapper <| 
+        div [ class "form-group full-width-input" ]
+            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, autofocus True ] [] ]
+
 
 viewInputWithError: Int -> String -> Html Msg
 viewInputWithError maxLen val =
-    div [ class "form-group has-error has-feedback full-width-input" ]
-        [ input [ type_ "text", maxlength maxLen, class "form-control", value val ] []
-        , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-        ]
+    viewInputWrapper <|
+        div [ class "form-group has-error has-feedback full-width-input" ]
+            [ input [ type_ "text", maxlength maxLen, class "form-control", value val, autofocus True ] []
+            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+            ]
+
+
+viewEditingInput: Maybe Editing -> Int -> Html Msg -> Int -> String -> Column -> Html Msg
+viewEditingInput mEditing id nonEditingView maxLen strValue column =
+    case mEditing of
+        Just editing ->
+            if editing.id == id && editing.column == column then
+                if editing.isError then
+                    viewInputWithError maxLen strValue
+                else
+                    viewInputNormal maxLen strValue
+            else
+                nonEditingView
+
+        Nothing ->
+            nonEditingView
+
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
 viewWeight mEditing data =
     let
-        weightStr = toString data.weight
+        weightAsString = toString data.weight
 
-        viewInput =
-            if data.weight > 10 then
-                viewInputWithError 2 weightStr
-            else
-                viewInputNormal 2 weightStr
+        nonEditingView =
+            span [ onClick <| StartEditing data.id WeightColumn weightAsString ]
+                [ text weightAsString ]
+
     in
-        div [ class "full-width", onClick <| StartEditing data.id WeightColumn weightStr ]
-            [ viewInput, viewInputButtons ]
+
+        viewEditingInput mEditing data.id nonEditingView 2 weightAsString WeightColumn
 
 
 shorterUrl : String -> String
@@ -151,15 +176,16 @@ shorterUrl url =
 
 viewUrl : Maybe Editing -> Banner -> Html Msg
 viewUrl mEditing data = 
-    case mEditing of
-        Just editing ->
-            span [] [ text "Editing!" ]
-
-        Nothing ->            
+    let
+        nonEditingView =
             span [ class "with-tooltip", onClick <| StartEditing data.id UrlColumn data.url ]
                 [ text <| shorterUrl data.url
                 , span [ class "tooltip-text tooltip-span" ] [ text data.url ]
                 ]
+            
+    in
+            
+        viewEditingInput mEditing data.id nonEditingView 500 data.url UrlColumn
 
 
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg
