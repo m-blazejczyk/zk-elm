@@ -1,4 +1,4 @@
-module Banners exposing (Msg(..), Banner, Editing, Model, Column(..), init, update)
+module Banners exposing (Msg(..), Banner, Editing, Validator, Model, Column(..), init, update)
 
 import Date exposing (Date)
 import Dom
@@ -16,9 +16,14 @@ type Column
     | ActionsColumn
 
 
+type alias Validator = String -> Bool
+
+
 type Msg
     = ChangeSilent Int Bool
     | StartEditing Int Column String
+    | ValidateEditing Validator
+    | CancelEditing
     | FocusResult (Result Dom.Error ())
 
 
@@ -75,6 +80,12 @@ update msg model =
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
             , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
+
+        ValidateEditing valFun ->
+            ( model, Cmd.none )
+
+        CancelEditing ->
+            ( { model | editing = Nothing }, Cmd.none )
 
         FocusResult result ->
             ( model, Cmd.none )
