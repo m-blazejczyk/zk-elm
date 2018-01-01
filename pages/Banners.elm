@@ -1,6 +1,8 @@
 module Banners exposing (Msg(..), Banner, Editing, Model, Column(..), init, update)
 
 import Date exposing (Date)
+import Dom
+import Task
 import Result
 
 
@@ -73,3 +75,6 @@ update msg model =
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
             , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
+
+        FocusResult result ->
+            ( model, Cmd.none )
