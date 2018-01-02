@@ -145,7 +145,8 @@ update msg model =
                                 , editing = Nothing }
                             , Cmd.none )
                         else
-                            ( { model | editing = Just <| setEditingError editing }, Cmd.none )
+                            ( { model | editing = Just <| setEditingError editing }
+                            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
 
                     Nothing ->
                         ( model, Cmd.none )  -- This should never happen!!!
