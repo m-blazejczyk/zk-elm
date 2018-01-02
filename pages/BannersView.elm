@@ -196,15 +196,11 @@ viewUrl mEditing data =
                 , span [ class "tooltip-text tooltip-span" ] [ text data.url ]
                 ]
            
-        validator val = False
-
-        modifier _ banner = banner
- 
     in
             
         viewEditingInput
             mEditing data.id nonEditingView UrlColumn 500
-            (onClick (ValidateEditing validator modifier))
+            (onClick (ValidateEditing validateUrl modifyUrl))
 
 
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg

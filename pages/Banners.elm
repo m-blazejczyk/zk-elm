@@ -8,6 +8,7 @@ import Date exposing (Date)
 import Dom
 import Task
 import Result
+import Regex
 
 
 type Column
@@ -98,11 +99,13 @@ modifyWeight strVal banner =
 
 
 validateUrl: Validator
-validateUrl _ = False
+validateUrl _ =
+    True  -- No validation of URLs
 
 
 modifyUrl: Modifier
-modifyUrl _ banner = banner
+modifyUrl newUrl banner =
+    { banner | url = newUrl }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
