@@ -1,4 +1,8 @@
-module Banners exposing (Msg(..), Banner, Editing, Validator, Model, Column(..), init, update)
+module Banners exposing
+    ( Msg(..), Banner, Editing, Validator, Model, Column(..)
+    , init, update
+    , validateWeight, validateUrl, modifyWeight, modifyUrl
+    )
 
 import Date exposing (Date)
 import Dom
@@ -72,6 +76,32 @@ updateSilent id checked banner =
         { banner | isSilent = checked }
     else
         banner
+
+
+validateWeight: Validator
+validateWeight strVal = 
+    case String.toInt strVal of
+        Ok _ ->
+            True
+        Err _ ->
+            False
+
+
+modifyWeight: Modifier
+modifyWeight strVal banner =
+    case String.toInt strVal of
+        Ok intVal ->
+            { banner | weight = intVal }
+        Err _ ->
+            banner
+
+
+validateUrl: Validator
+validateUrl _ = False
+
+
+modifyUrl: Modifier
+modifyUrl _ banner = banner
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

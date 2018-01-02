@@ -157,18 +157,14 @@ viewWeight mEditing data =
 
         nonEditingView =
             span [ onClick <| StartEditing data.id WeightColumn weightAsString ]
-                [ text weightAsString ]
-
-        validator val = False
-
-        modifier _ banner = banner
+                [ text weightAsString ]            
 
     in
 
         viewEditingInput
             mEditing data.id nonEditingView WeightColumn
             [ maxlength 2, value weightAsString ]
-            (onClick (ValidateEditing validator modifier))
+            (onClick (ValidateEditing validateWeight modifyWeight))
 
 
 shorterUrl : String -> String
