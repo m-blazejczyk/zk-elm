@@ -112,37 +112,39 @@ viewInputWrapper onOkClick content =
         [ content, viewInputButtons onOkClick ]
 
 
-stdEditingInputAttrs: List (Attribute Msg)
-stdEditingInputAttrs = [ type_ "text", class "form-control", id "inPlaceEditor" ]
+viewRawInput: Int -> String -> Html Msg
+viewRawInput maxLen val =
+    input [ maxlength maxLen, value val, type_ "text", class "form-control", id "inPlaceEditor", onInput ChangeInput ]
+        []
 
 
-viewInputNormal: List (Attribute Msg) -> Attribute Msg -> Html Msg
-viewInputNormal inputAttrs onOkClick =
+viewInputNormal: Int -> String -> Attribute Msg -> Html Msg
+viewInputNormal maxLen val onOkClick =
     viewInputWrapper
         onOkClick
         (div [ class "form-group full-width-input" ]
-            [ input (inputAttrs ++ stdEditingInputAttrs) [] ])
+            [ viewRawInput maxLen val ])
 
 
-viewInputWithError: List (Attribute Msg) -> Attribute Msg -> Html Msg
-viewInputWithError inputAttrs onOkClick =
+viewInputWithError: Int -> String -> Attribute Msg -> Html Msg
+viewInputWithError maxLen val onOkClick =
     viewInputWrapper
         onOkClick
         (div [ class "form-group has-error has-feedback full-width-input" ]
-            [ input (inputAttrs ++ stdEditingInputAttrs) []
+            [ viewRawInput maxLen val
             , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
             ])
 
 
-viewEditingInput: Maybe Editing -> Int -> Html Msg -> Column -> List (Attribute Msg) -> Attribute Msg -> Html Msg
-viewEditingInput mEditing id nonEditingView column inputAttrs onOkClick =
+viewEditingInput: Maybe Editing -> Int -> Html Msg -> Column -> Int -> Attribute Msg -> Html Msg
+viewEditingInput mEditing id nonEditingView column maxLen onOkClick =
     case mEditing of
         Just editing ->
             if editing.id == id && editing.column == column then
                 if editing.isError then
-                    viewInputWithError inputAttrs onOkClick
+                    viewInputWithError maxLen editing.value onOkClick
                 else
-                    viewInputNormal inputAttrs onOkClick
+                    viewInputNormal maxLen editing.value onOkClick
             else
                 nonEditingView
 
@@ -162,8 +164,7 @@ viewWeight mEditing data =
     in
 
         viewEditingInput
-            mEditing data.id nonEditingView WeightColumn
-            [ maxlength 2, value weightAsString ]
+            mEditing data.id nonEditingView WeightColumn 2
             (onClick (ValidateEditing validateWeight modifyWeight))
 
 
@@ -202,8 +203,7 @@ viewUrl mEditing data =
     in
             
         viewEditingInput
-            mEditing data.id nonEditingView UrlColumn
-            [ maxlength 500, value data.url ]
+            mEditing data.id nonEditingView UrlColumn 500
             (onClick (ValidateEditing validator modifier))
 
 

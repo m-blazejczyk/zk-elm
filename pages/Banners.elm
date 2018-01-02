@@ -29,6 +29,7 @@ type alias Modifier = String -> Banner -> Banner
 type Msg
     = ChangeSilent Int Bool
     | StartEditing Int Column String
+    | ChangeInput String
     | ValidateEditing Validator Modifier
     | CancelEditing
     | FocusResult (Result Dom.Error ())
@@ -113,6 +114,16 @@ update msg model =
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
             , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
+
+        ChangeInput newVal ->
+            case model.editing of
+                Just oldEditing ->
+                    let
+                        newEditing = { oldEditing | value = newVal }
+                    in
+                        ( { model | editing = Just newEditing }, Cmd.none )
+                Nothing ->
+                    ( model, Cmd.none )  -- This should never happen!!!
 
         ValidateEditing valFun modFun ->
             let
