@@ -106,10 +106,20 @@ viewInputButtons onOkClick =
         ]
 
 
-viewInputWrapper: Attribute Msg -> Html Msg -> Html Msg
-viewInputWrapper onOkClick content =
+viewInputWrapper: Attribute Msg -> Maybe String -> Html Msg -> Html Msg
+viewInputWrapper onOkClick hint content =
+    let
+        hintHtml = 
+            case hint of
+                Just actualHint ->
+                    span [ class "tytul" ] [ text <| "(" ++ actualHint ++ ")" ]
+                Nothing ->
+                    text ""
+            
+    in
+            
     div [ class "full-width" ]
-        [ content, viewInputButtons onOkClick ]
+        [ content, hintHtml, viewInputButtons onOkClick ]
 
 
 viewRawInput: Int -> String -> Html Msg
@@ -118,33 +128,35 @@ viewRawInput maxLen val =
         []
 
 
-viewInputNormal: Int -> String -> Attribute Msg -> Html Msg
-viewInputNormal maxLen val onOkClick =
+viewInputNormal: Int -> String -> Maybe String -> Attribute Msg -> Html Msg
+viewInputNormal maxLen val hint onOkClick =
     viewInputWrapper
         onOkClick
+        hint
         (div [ class "form-group full-width-input" ]
             [ viewRawInput maxLen val ])
 
 
-viewInputWithError: Int -> String -> Attribute Msg -> Html Msg
-viewInputWithError maxLen val onOkClick =
+viewInputWithError: Int -> String -> Maybe String -> Attribute Msg -> Html Msg
+viewInputWithError maxLen val hint onOkClick =
     viewInputWrapper
         onOkClick
+        hint
         (div [ class "form-group has-error has-feedback full-width-input" ]
             [ viewRawInput maxLen val
             , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
             ])
 
 
-viewEditingInput: Maybe Editing -> Int -> Html Msg -> Column -> Int -> Attribute Msg -> Html Msg
-viewEditingInput mEditing id nonEditingView column maxLen onOkClick =
+viewEditingInput: Maybe Editing -> Int -> Html Msg -> Column -> Int -> Maybe String -> Attribute Msg -> Html Msg
+viewEditingInput mEditing id nonEditingView column maxLen hint onOkClick =
     case mEditing of
         Just editing ->
             if editing.id == id && editing.column == column then
                 if editing.isError then
-                    viewInputWithError maxLen editing.value onOkClick
+                    viewInputWithError maxLen editing.value hint onOkClick
                 else
-                    viewInputNormal maxLen editing.value onOkClick
+                    viewInputNormal maxLen editing.value hint onOkClick
             else
                 nonEditingView
 
@@ -164,7 +176,7 @@ viewWeight mEditing data =
     in
 
         viewEditingInput
-            mEditing data.id nonEditingView WeightColumn 2
+            mEditing data.id nonEditingView WeightColumn 2 Nothing
             (onClick (ValidateEditing validateWeight modifyWeight))
 
 
@@ -199,7 +211,7 @@ viewUrl mEditing data =
     in
             
         viewEditingInput
-            mEditing data.id nonEditingView UrlColumn 500
+            mEditing data.id nonEditingView UrlColumn 500 Nothing
             (onClick (ValidateEditing validateUrl modifyUrl))
 
 
