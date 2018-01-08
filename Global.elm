@@ -1,6 +1,16 @@
-module Global exposing (domain, dateToStringPl)
+module Global exposing (domain, maybeIsJust, SimpleDate, dateToString, stringToDate)
 
-import Date exposing (..)
+import Array
+import Date exposing (Month (..))
+import Maybe exposing (..)
+import Result
+
+
+type alias SimpleDate =
+    { day : Int
+    , month : Date.Month
+    , year : Int
+    }
 
 
 domain : String
@@ -8,46 +18,165 @@ domain =
     "https://red.zeszytykomiksowe.org/"
 
 
-monthToStringPl : Month -> String
-monthToStringPl month =
+maybeIsJust : Maybe a -> Bool
+maybeIsJust maybe =
+    case maybe of
+        Just _ ->
+            True
+        Nothing ->
+            False
+
+
+maxDayOfMonth : Month -> Int
+maxDayOfMonth month =
     case month of
         Jan ->
-            "Sty"
-
+            31
         Feb ->
-            "Lut"
-
+            29
         Mar ->
-            "Mar"
-
+            31
         Apr ->
-            "Kwi"
-
+            30
         May ->
-            "Maj"
-
+            31
         Jun ->
-            "Cze"
-
+            30
         Jul ->
-            "Lip"
-
+            31
         Aug ->
-            "Sie"
-
+            31
         Sep ->
-            "Wrz"
-
+            30
         Oct ->
-            "Paź"
-
+            31
         Nov ->
-            "Lis"
-
+            30
         Dec ->
-            "Gru"
+            31
 
 
-dateToStringPl : Date -> String
-dateToStringPl date =
-    (toString <| day date) ++ " " ++ (monthToStringPl <| month date) ++ " " ++ (toString <| year date)
+monthToInt : Month -> Int
+monthToInt month =
+    case month of
+        Jan ->
+            1
+        Feb ->
+            2
+        Mar ->
+            3
+        Apr ->
+            4
+        May ->
+            5
+        Jun ->
+            6
+        Jul ->
+            7
+        Aug ->
+            8
+        Sep ->
+            9
+        Oct ->
+            10
+        Nov ->
+            11
+        Dec ->
+            12
+
+
+intToMonth : Int -> Maybe Month
+intToMonth monthInt =
+    case monthInt of
+        1 ->
+            Just Jan
+        2 ->
+            Just Feb
+        3 ->
+            Just Mar
+        4 ->
+            Just Apr
+        5 ->
+            Just May
+        6 ->
+            Just Jun
+        7 ->
+            Just Jul
+        8 ->
+            Just Aug
+        9 ->
+            Just Sep
+        10 ->
+            Just Oct
+        11 ->
+            Just Nov
+        12 ->
+            Just Dec
+        _ ->
+            Nothing
+
+
+dateToString : SimpleDate -> String
+dateToString date =
+    toString (.year date) ++ "-" ++ toString (monthToInt (.month date)) ++ "-" ++ toString (.day date)
+
+
+stringToDate : String -> Maybe SimpleDate
+stringToDate dateStr =
+    let
+        dateArr =
+            Array.fromList <| String.split "-" dateStr
+
+        validateYear y =
+            if y >= 1800 && y <= 2050 then
+                Just y
+            else
+                Nothing
+
+        validateMonth m =
+            if m >= 1 && m <= 12 then
+                Just m
+            else
+                Nothing
+
+        validateDay mMonth d =
+            case mMonth of
+                Just month ->
+                    if d >= 1 && d <= maxDayOfMonth month then
+                        Just d
+                    else 
+                        Nothing
+                Nothing ->
+                    Nothing
+
+        mYear = 
+            Array.get 0 dateArr
+                |> andThen (Result.toMaybe << String.toInt)
+                |> andThen validateYear
+
+        mMonth = 
+            Array.get 1 dateArr
+                |> andThen (Result.toMaybe << String.toInt)
+                |> andThen validateMonth
+                |> andThen intToMonth
+
+        mDay = 
+            Array.get 2 dateArr
+                |> andThen (Result.toMaybe << String.toInt)
+                |> andThen (validateDay mMonth)
+
+    in
+
+        case mYear of
+            Just y ->
+                case mMonth of
+                    Just m ->
+                        case mDay of
+                            Just d ->
+                                Just <| SimpleDate d m y
+                            Nothing ->
+                                Nothing           
+                    Nothing ->
+                        Nothing           
+            Nothing ->
+                Nothing           

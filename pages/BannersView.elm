@@ -1,6 +1,5 @@
 module BannersView exposing (view)
 
-import Date exposing (Date)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
@@ -84,16 +83,6 @@ viewImage data =
             , br [] []
             , span [] [ text (toString data.imageW ++ " × " ++ toString data.imageH ++ " px") ]
             ]
-
-
-viewDate : Maybe Date -> String
-viewDate mDate =
-    case mDate of
-        Just date ->
-            dateToStringPl date
-
-        Nothing ->
-            "Brak daty"
 
 
 viewInputButtons: Attribute Msg -> Html Msg
@@ -215,13 +204,37 @@ viewUrl mEditing data =
             (onClick (ValidateEditing validateUrl modifyUrl))
 
 
+viewDate : Maybe Editing -> Maybe SimpleDate -> Column -> Int -> Html Msg
+viewDate mEditing mDate column id =
+    let
+        dateAsString forEditing =
+            case mDate of
+                Just date ->
+                    dateToString date 
+                Nothing ->
+                    if forEditing then
+                        ""
+                    else
+                        "Brak daty"
+
+        nonEditingView =
+            span [ onClick <| StartEditing id column (dateAsString True) ]
+                [ text <| dateAsString False ]
+
+    in
+
+        viewEditingInput
+            mEditing id nonEditingView column 10 (Just "rrrr-mm-dd")
+            (onClick (ValidateEditing validateDate (modifyDate column)))
+
+
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg
 viewSingleBanner editing data =
     tr []
         [ td [ style <| columnStyle SilentColumn ] [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
         , td [ style <| columnStyle ImageColumn ] [ viewImage data ]
-        , td [ style <| columnStyle StartDateColumn ] [ text <| viewDate data.startDate ]
-        , td [ style <| columnStyle EndDateColumn ] [ text <| viewDate data.endDate ]
+        , td [ style <| columnStyle StartDateColumn ] [ viewDate editing data.startDate StartDateColumn data.id ]
+        , td [ style <| columnStyle EndDateColumn ] [ viewDate editing data.endDate EndDateColumn data.id ]
         , td [ style <| columnStyle UrlColumn ] [ viewUrl editing data ]
         , td [ style <| columnStyle WeightColumn ] [ viewWeight editing data ]
         , td [ style <| columnStyle ActionsColumn ] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]

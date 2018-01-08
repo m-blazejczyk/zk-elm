@@ -1,10 +1,10 @@
 module Banners exposing
     ( Msg(..), Banner, Editing, Validator, Model, Column(..)
     , init, update
-    , validateWeight, validateUrl, modifyWeight, modifyUrl
+    , validateWeight, validateUrl, validateDate, modifyWeight, modifyUrl, modifyDate
     )
 
-import Date exposing (Date)
+import Global exposing (..)
 import Dom
 import Task
 import Result
@@ -39,8 +39,8 @@ type Msg
 type alias Banner =
     { id : Int
     , isSilent : Bool
-    , startDate : Maybe Date
-    , endDate : Maybe Date
+    , startDate : Maybe SimpleDate
+    , endDate : Maybe SimpleDate
     , image : String
     , imageH : Int
     , imageW : Int
@@ -66,8 +66,8 @@ type alias Model =
 init : Model
 init =
     Model
-        [ Banner 1 False Nothing (Result.toMaybe <| Date.fromString "2018/1/15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10
-        , Banner 2 True (Result.toMaybe <| Date.fromString "2018/1/1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
+        [ Banner 1 False Nothing (stringToDate "2018-1-15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10
+        , Banner 2 True (stringToDate "2018-1-1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
         ]
         Nothing
 
@@ -106,6 +106,26 @@ validateUrl _ =
 modifyUrl: Modifier
 modifyUrl newUrl banner =
     { banner | url = newUrl }
+
+
+validateDate: Validator
+validateDate dateStr =
+    if String.length dateStr == 0 then
+        True
+    else
+        maybeIsJust <| stringToDate dateStr
+
+
+modifyDate: Column -> Modifier
+modifyDate column newDateStr banner =
+    let
+        newDate = stringToDate newDateStr
+
+    in
+        if column == StartDateColumn then
+            { banner | startDate = newDate }
+        else
+            { banner | endDate = newDate }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
