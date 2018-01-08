@@ -233,6 +233,7 @@ viewDeleteButton id =
     button [ class "btn btn-danger btn-sm", onClick <| DeleteRow id ]
         [ glyphicon "trash" NoSpace ]
 
+
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg
 viewSingleBanner editing data =
     tr []
@@ -248,17 +249,20 @@ viewSingleBanner editing data =
 
 view : Model -> Html Msg
 view model =
-    table [ class "table table-bordered" ]
-        [ thead []
-            [ tr []
-                [ th [ style <| columnStyle SilentColumn ]    [ glyphiconInfo SpaceRight silentColumnTooltip, text "Ukryj" ]
-                , th [ style <| columnStyle ImageColumn ]     [ text "Obrazek" ]
-                , th [ style <| columnStyle StartDateColumn ] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Od…" ]
-                , th [ style <| columnStyle EndDateColumn ]   [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
-                , th [ style <| columnStyle UrlColumn ]       [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
-                , th [ style <| columnStyle WeightColumn ]    [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
-                , th [ style <| columnStyle ActionsColumn ]   [ text "" ]
+    if List.isEmpty model.banners then
+        br [] []
+    else
+        table [ class "table table-bordered" ]
+            [ thead []
+                [ tr []
+                    [ th [ style <| columnStyle SilentColumn ]    [ glyphiconInfo SpaceRight silentColumnTooltip, text "Ukryj" ]
+                    , th [ style <| columnStyle ImageColumn ]     [ text "Obrazek" ]
+                    , th [ style <| columnStyle StartDateColumn ] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Od…" ]
+                    , th [ style <| columnStyle EndDateColumn ]   [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
+                    , th [ style <| columnStyle UrlColumn ]       [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
+                    , th [ style <| columnStyle WeightColumn ]    [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
+                    , th [ style <| columnStyle ActionsColumn ]   [ text "" ]
+                    ]
                 ]
+            , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
             ]
-        , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
-        ]
