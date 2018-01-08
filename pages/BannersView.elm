@@ -224,7 +224,7 @@ viewDate mEditing mDate column id =
     in
 
         viewEditingInput
-            mEditing id nonEditingView column 10 (Just "rrrr-mm-dd")
+            mEditing id nonEditingView column 10 (Just "rrrr-m-d")
             (onClick (ValidateEditing validateDate (modifyDate column)))
 
 
