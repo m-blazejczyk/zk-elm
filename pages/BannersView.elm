@@ -228,6 +228,11 @@ viewDate mEditing mDate column id =
             (onClick (ValidateEditing validateDate (modifyDate column)))
 
 
+viewDeleteButton : Int -> Html Msg
+viewDeleteButton id =
+    button [ class "btn btn-danger btn-sm", onClick <| DeleteRow id ]
+        [ glyphicon "trash" NoSpace ]
+
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg
 viewSingleBanner editing data =
     tr []
@@ -237,7 +242,7 @@ viewSingleBanner editing data =
         , td [ style <| columnStyle EndDateColumn ] [ viewDate editing data.endDate EndDateColumn data.id ]
         , td [ style <| columnStyle UrlColumn ] [ viewUrl editing data ]
         , td [ style <| columnStyle WeightColumn ] [ viewWeight editing data ]
-        , td [ style <| columnStyle ActionsColumn ] [ button [ class "btn btn-danger btn-sm" ] [ glyphicon "trash" NoSpace ] ]
+        , td [ style <| columnStyle ActionsColumn ] [ viewDeleteButton data.id ]
         ]
 
 

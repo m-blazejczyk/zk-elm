@@ -34,6 +34,8 @@ type Msg
     | ValidateEditing Validator Modifier
     | CancelEditing
     | FocusResult (Result Dom.Error ())
+    | DeleteRow Int
+    | AddRow
 
 
 type alias Banner =
@@ -178,4 +180,12 @@ update msg model =
             ( { model | editing = Nothing }, Cmd.none )
 
         FocusResult result ->
+            ( model, Cmd.none )
+
+        DeleteRow id ->
+            ( { model | banners = List.filter (not << (==) id << .id) model.banners
+              , editing = Nothing }
+            , Cmd.none )
+
+        AddRow ->
             ( model, Cmd.none )
