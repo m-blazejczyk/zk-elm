@@ -188,7 +188,7 @@ update msg model =
             ( model, Cmd.none )
 
         DeleteRow id ->
-            ( { model | banners = List.filter (not << (==) id << .id) model.banners
+            ( { model | banners = List.filter ((/=) id << .id) model.banners
               , editing = Nothing }
             , Cmd.none )
 
