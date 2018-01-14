@@ -5,6 +5,7 @@ module Banners exposing
     )
 
 import Global exposing (..)
+import Dict
 import Dom
 import Task
 import Result
@@ -25,6 +26,12 @@ type alias Validator = String -> Bool
 
 
 type alias Modifier = String -> Banner -> Banner
+
+
+type ColumnOrder
+    = None
+    | Ascending
+    | Descending
 
 
 type Msg
@@ -48,6 +55,7 @@ type alias Banner =
     , imageW : Int
     , url : String
     , weight : Int
+    , sortOrders : Dict.Dict Column ColumnOrder
     }
 
 
@@ -68,15 +76,15 @@ type alias Model =
 init : Model
 init =
     Model
-        [ Banner 1 False Nothing (stringToDate "2018-1-15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10
-        , Banner 2 True (stringToDate "2018-1-1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
+        [ Banner 1 False Nothing (stringToDate "2018-1-15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 Dict.empty
+        , Banner 2 True (stringToDate "2018-1-1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20 Dict.empty
         ]
         Nothing
 
 
 newBanner : Banner
 newBanner =
-    Banner -1 False Nothing Nothing "" 0 0 "" 10
+    Banner -1 False Nothing Nothing "" 0 0 "" 10 Dict.empty
 
 
 updateSilent : Int -> Bool -> Banner -> Banner
