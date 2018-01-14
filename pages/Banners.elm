@@ -74,6 +74,11 @@ init =
         Nothing
 
 
+newBanner : Banner
+newBanner =
+    Banner -1 False Nothing Nothing "" 0 0 "" 10
+
+
 updateSilent : Int -> Bool -> Banner -> Banner
 updateSilent id checked banner =
     if id == banner.id then
@@ -188,4 +193,4 @@ update msg model =
             , Cmd.none )
 
         AddRow ->
-            ( model, Cmd.none )
+            ( { model | banners = newBanner :: model.banners }, Cmd.none )
