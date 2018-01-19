@@ -1,5 +1,5 @@
 module Banners exposing
-    ( Msg(..), Banner, Editing, Validator, Model, Column(..)
+    ( Msg(..), SortOrder(..), Banner, Editing, Validator, Model, Column(..)
     , init, update
     , validateWeight, validateUrl, validateDate, modifyWeight, modifyUrl, modifyDate
     )
@@ -28,9 +28,8 @@ type alias Validator = String -> Bool
 type alias Modifier = String -> Banner -> Banner
 
 
-type ColumnOrder
-    = None
-    | Ascending
+type SortOrder
+    = Ascending
     | Descending
 
 
@@ -55,7 +54,6 @@ type alias Banner =
     , imageW : Int
     , url : String
     , weight : Int
-    , sortOrders : Dict.Dict Column ColumnOrder
     }
 
 
@@ -70,21 +68,23 @@ type alias Editing =
 type alias Model =
     { banners : List Banner
     , editing : Maybe Editing
+    , sortOrder : Maybe (Column, SortOrder)
     }
 
 
 init : Model
 init =
     Model
-        [ Banner 1 False Nothing (stringToDate "2018-1-15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10 Dict.empty
-        , Banner 2 True (stringToDate "2018-1-1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20 Dict.empty
+        [ Banner 1 False Nothing (stringToDate "2018-1-15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10
+        , Banner 2 True (stringToDate "2018-1-1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
         ]
         Nothing
+        (Just ( WeightColumn, Ascending ))
 
 
 newBanner : Banner
 newBanner =
-    Banner -1 False Nothing Nothing "" 0 0 "" 10 Dict.empty
+    Banner -1 False Nothing Nothing "" 0 0 "" 10
 
 
 updateSilent : Int -> Bool -> Banner -> Banner

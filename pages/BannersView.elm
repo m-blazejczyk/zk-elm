@@ -13,29 +13,61 @@ import Ui exposing (..)
 import Banners exposing (..)
 
 
-silentColumnTooltip : String
-silentColumnTooltip =
-    "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
+columnTooltip : Column -> Html Msg
+columnTooltip column =
+    let
+        tooltipText =
+            case column of
+                SilentColumn ->
+                    "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
+
+                StartDateColumn ->
+                    "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
+
+                EndDateColumn ->
+                    "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
+
+                UrlColumn ->
+                    "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
+
+                WeightColumn ->
+                    "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
+
+                _ ->
+                    ""
+    in
+        glyphiconInfo SpaceRight tooltipText
 
 
-startDateColumnTooltip : String
-startDateColumnTooltip =
-    "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
+columnHeader : Column -> Html Msg
+columnHeader column =
+    let
+        headerText =            
+            case column of
+                SilentColumn ->
+                    "Ukryj"
 
+                ImageColumn ->
+                    "Obrazek"
 
-endDateColumnTooltip : String
-endDateColumnTooltip =
-    "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
+                StartDateColumn ->
+                    "Od…"
 
+                EndDateColumn ->
+                    "…do"
 
-urlColumnTooltip : String
-urlColumnTooltip =
-    "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
+                UrlColumn ->
+                    "Link"
 
+                WeightColumn ->
+                    "Waga"
 
-weightColumnTooltip : String
-weightColumnTooltip =
-    "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
+                ActionsColumn ->
+                     ""
+            
+    in
+
+        text headerText
 
 
 columnWidth : Column -> Maybe Int
@@ -249,24 +281,41 @@ viewSingleBanner editing data =
 
 view : Model -> Html Msg
 view model =
-    if List.isEmpty model.banners then
-        br [] []
-    else
-        div [] 
-            [ table [ class "table table-bordered" ]
-                [ thead []
-                    [ tr []
-                        [ th [ style <| columnStyle SilentColumn ]    [ glyphiconInfo SpaceRight silentColumnTooltip, text "Ukryj" ]
-                        , th [ style <| columnStyle ImageColumn ]     [ text "Obrazek" ]
-                        , th [ style <| columnStyle StartDateColumn ] [ glyphiconInfo SpaceRight startDateColumnTooltip, glyphicon "sort" SpaceRight, text "Od…" ]
-                        , th [ style <| columnStyle EndDateColumn ]   [ glyphiconInfo SpaceRight endDateColumnTooltip, glyphicon "sort" SpaceRight, text "…do" ]
-                        , th [ style <| columnStyle UrlColumn ]       [ glyphiconInfo SpaceRight urlColumnTooltip, glyphicon "sort" SpaceRight, text "Link" ]
-                        , th [ style <| columnStyle WeightColumn ]    [ glyphiconInfo SpaceRight weightColumnTooltip, glyphicon "sort" SpaceRight, text "Waga" ]
-                        , th [ style <| columnStyle ActionsColumn ]   [ text "" ]
+    let
+        sortGlyphicon column =
+            case model.sortOrder of
+                Just (sortColumn, order) ->
+                    if sortColumn == column then
+                        if order == Ascending then
+                            glyphicon "arrow-up" SpaceRight
+                        else
+                            glyphicon "arrow-down" SpaceRight
+                    else
+                        span [] []
+
+                Nothing ->
+                    span [] []
+            
+    in
+
+        if List.isEmpty model.banners then
+            br [] []
+        else
+            div [] 
+                [ table [ class "table table-bordered" ]
+                    [ thead []
+                        [ tr []
+                            [ th [ style <| columnStyle SilentColumn ]    [ columnTooltip SilentColumn, sortGlyphicon SilentColumn, columnHeader SilentColumn ]
+                            , th [ style <| columnStyle ImageColumn ]     [ columnHeader ImageColumn ]
+                            , th [ style <| columnStyle StartDateColumn ] [ columnTooltip StartDateColumn, sortGlyphicon StartDateColumn, columnHeader StartDateColumn ]
+                            , th [ style <| columnStyle EndDateColumn ]   [ columnTooltip EndDateColumn, sortGlyphicon EndDateColumn, columnHeader EndDateColumn ]
+                            , th [ style <| columnStyle UrlColumn ]       [ columnTooltip UrlColumn, sortGlyphicon UrlColumn, columnHeader UrlColumn ]
+                            , th [ style <| columnStyle WeightColumn ]    [ columnTooltip WeightColumn, sortGlyphicon WeightColumn, columnHeader WeightColumn ]
+                            , th [ style <| columnStyle ActionsColumn ]   [ columnHeader ActionsColumn ]
+                            ]
                         ]
+                    , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
                     ]
-                , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
+                , button [ class "btn btn-primary", onClick AddRow ]
+                    [ text "Dodaj banner" ]
                 ]
-            , button [ class "btn btn-primary", onClick AddRow ]
-                [ text "Dodaj banner" ]
-            ]
