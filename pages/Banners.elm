@@ -1,6 +1,6 @@
 module Banners exposing
     ( Msg(..), SortOrder(..), Banner, Editing, Validator, Model, Column(..)
-    , init, update
+    , init, update, isColumnSortable
     , validateWeight, validateUrl, validateDate, modifyWeight, modifyUrl, modifyDate
     )
 
@@ -42,6 +42,7 @@ type Msg
     | FocusResult (Result Dom.Error ())
     | DeleteRow Int
     | AddRow
+    | SwitchSort Column
 
 
 type alias Banner =
@@ -85,6 +86,11 @@ init =
 newBanner : Banner
 newBanner =
     Banner -1 False Nothing Nothing "" 0 0 "" 10
+
+
+isColumnSortable : Column -> Bool
+isColumnSortable column =
+    column /= ImageColumn && column /= ActionsColumn
 
 
 updateSilent : Int -> Bool -> Banner -> Banner
@@ -202,3 +208,6 @@ update msg model =
 
         AddRow ->
             ( { model | banners = newBanner :: model.banners }, Cmd.none )
+
+        SwitchSort column ->
+            ( model, Cmd.none )

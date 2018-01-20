@@ -13,30 +13,30 @@ import Ui exposing (..)
 import Banners exposing (..)
 
 
-columnTooltip : Column -> Html Msg
+columnTooltip : Column -> Maybe (Html Msg)
 columnTooltip column =
     let
         tooltipText =
             case column of
                 SilentColumn ->
-                    "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
+                    Just "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
 
                 StartDateColumn ->
-                    "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
+                    Just "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
 
                 EndDateColumn ->
-                    "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
+                    Just "Data, do której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany po wsze czasy."
 
                 UrlColumn ->
-                    "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
+                    Just "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
 
                 WeightColumn ->
-                    "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
+                    Just "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
 
                 _ ->
-                    ""
+                    Nothing
     in
-        glyphiconInfo SpaceRight tooltipText
+        Maybe.map (\tt -> glyphiconInfo SpaceRight tt) tooltipText
 
 
 columnHeader : Column -> Html Msg
@@ -64,10 +64,13 @@ columnHeader column =
 
                 ActionsColumn ->
                      ""
-            
+
     in
 
-        text headerText
+        if isColumnSortable column then
+                a [ href "#", onClick <| SwitchSort column ] [ text headerText ]
+            else
+                text headerText
 
 
 columnWidth : Column -> Maybe Int
@@ -282,20 +285,28 @@ viewSingleBanner editing data =
 view : Model -> Html Msg
 view model =
     let
-        sortGlyphicon column =
+        addSortGlyphicon column =
             case model.sortOrder of
                 Just (sortColumn, order) ->
                     if sortColumn == column then
                         if order == Ascending then
-                            glyphicon "arrow-up" SpaceRight
+                            (glyphicon "arrow-up" SpaceRight) :: [ columnHeader column ]
                         else
-                            glyphicon "arrow-down" SpaceRight
+                            (glyphicon "arrow-down" SpaceRight) :: [ columnHeader column ]
                     else
-                        span [] []
+                        [ columnHeader column ]
 
                 Nothing ->
-                    span [] []
-            
+                    [ columnHeader column ]
+
+        buildHeaderHtml column =
+            case columnTooltip column of
+                Just tt ->
+                    tt :: addSortGlyphicon column
+
+                Nothing ->
+                    addSortGlyphicon column
+
     in
 
         if List.isEmpty model.banners then
@@ -305,13 +316,13 @@ view model =
                 [ table [ class "table table-bordered" ]
                     [ thead []
                         [ tr []
-                            [ th [ style <| columnStyle SilentColumn ]    [ columnTooltip SilentColumn, sortGlyphicon SilentColumn, columnHeader SilentColumn ]
-                            , th [ style <| columnStyle ImageColumn ]     [ columnHeader ImageColumn ]
-                            , th [ style <| columnStyle StartDateColumn ] [ columnTooltip StartDateColumn, sortGlyphicon StartDateColumn, columnHeader StartDateColumn ]
-                            , th [ style <| columnStyle EndDateColumn ]   [ columnTooltip EndDateColumn, sortGlyphicon EndDateColumn, columnHeader EndDateColumn ]
-                            , th [ style <| columnStyle UrlColumn ]       [ columnTooltip UrlColumn, sortGlyphicon UrlColumn, columnHeader UrlColumn ]
-                            , th [ style <| columnStyle WeightColumn ]    [ columnTooltip WeightColumn, sortGlyphicon WeightColumn, columnHeader WeightColumn ]
-                            , th [ style <| columnStyle ActionsColumn ]   [ columnHeader ActionsColumn ]
+                            [ th [ style <| columnStyle SilentColumn ]    (buildHeaderHtml SilentColumn)
+                            , th [ style <| columnStyle ImageColumn ]     (buildHeaderHtml ImageColumn)
+                            , th [ style <| columnStyle StartDateColumn ] (buildHeaderHtml StartDateColumn)
+                            , th [ style <| columnStyle EndDateColumn ]   (buildHeaderHtml EndDateColumn)
+                            , th [ style <| columnStyle UrlColumn ]       (buildHeaderHtml UrlColumn)
+                            , th [ style <| columnStyle WeightColumn ]    (buildHeaderHtml WeightColumn)
+                            , th [ style <| columnStyle ActionsColumn ]   (buildHeaderHtml ActionsColumn)
                             ]
                         ]
                     , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
