@@ -98,14 +98,20 @@ columnWidth col =
             Nothing
 
 
-columnStyle : Column -> List (String, String)
-columnStyle col = 
-    case columnWidth col of
-        Just width ->
-            [ ( "width", (toString width) ++ "px" ) ]
+columnStyle : Column -> List (Html.Attribute Msg)
+columnStyle column = 
+    let
+        attrs =
+            case columnWidth column of
+                Just width ->
+                    [ ( "width", (toString width) ++ "px" ) ]
 
-        Nothing ->
-            []
+                Nothing ->
+                    []
+
+    in
+
+        [ style attrs ]
 
 
 viewImage : Banner -> Html Msg
@@ -272,13 +278,13 @@ viewDeleteButton id =
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg
 viewSingleBanner editing data =
     tr []
-        [ td [ style <| columnStyle SilentColumn ] [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
-        , td [ style <| columnStyle ImageColumn ] [ viewImage data ]
-        , td [ style <| columnStyle StartDateColumn ] [ viewDate editing data.startDate StartDateColumn data.id ]
-        , td [ style <| columnStyle EndDateColumn ] [ viewDate editing data.endDate EndDateColumn data.id ]
-        , td [ style <| columnStyle UrlColumn ] [ viewUrl editing data ]
-        , td [ style <| columnStyle WeightColumn ] [ viewWeight editing data ]
-        , td [ style <| columnStyle ActionsColumn ] [ viewDeleteButton data.id ]
+        [ td (columnStyle SilentColumn) [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
+        , td (columnStyle ImageColumn) [ viewImage data ]
+        , td (columnStyle StartDateColumn) [ viewDate editing data.startDate StartDateColumn data.id ]
+        , td (columnStyle EndDateColumn) [ viewDate editing data.endDate EndDateColumn data.id ]
+        , td (columnStyle UrlColumn) [ viewUrl editing data ]
+        , td (columnStyle WeightColumn) [ viewWeight editing data ]
+        , td (columnStyle ActionsColumn) [ viewDeleteButton data.id ]
         ]
 
 
@@ -316,13 +322,13 @@ view model =
                 [ table [ class "table table-bordered" ]
                     [ thead []
                         [ tr []
-                            [ th [ style <| columnStyle SilentColumn ]    (buildHeaderHtml SilentColumn)
-                            , th [ style <| columnStyle ImageColumn ]     (buildHeaderHtml ImageColumn)
-                            , th [ style <| columnStyle StartDateColumn ] (buildHeaderHtml StartDateColumn)
-                            , th [ style <| columnStyle EndDateColumn ]   (buildHeaderHtml EndDateColumn)
-                            , th [ style <| columnStyle UrlColumn ]       (buildHeaderHtml UrlColumn)
-                            , th [ style <| columnStyle WeightColumn ]    (buildHeaderHtml WeightColumn)
-                            , th [ style <| columnStyle ActionsColumn ]   (buildHeaderHtml ActionsColumn)
+                            [ th (columnStyle SilentColumn)    (buildHeaderHtml SilentColumn)
+                            , th (columnStyle ImageColumn)     (buildHeaderHtml ImageColumn)
+                            , th (columnStyle StartDateColumn) (buildHeaderHtml StartDateColumn)
+                            , th (columnStyle EndDateColumn)   (buildHeaderHtml EndDateColumn)
+                            , th (columnStyle UrlColumn)       (buildHeaderHtml UrlColumn)
+                            , th (columnStyle WeightColumn)    (buildHeaderHtml WeightColumn)
+                            , th (columnStyle ActionsColumn)   (buildHeaderHtml ActionsColumn)
                             ]
                         ]
                     , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
