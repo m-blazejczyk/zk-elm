@@ -149,6 +149,71 @@ modifyDate column newDateStr banner =
             { banner | endDate = newDate }
 
 
+sortBy : Column -> Banner -> Banner -> Order
+sortBy column b1 b2 =
+    case column of
+        SilentColumn ->
+            if b1.isSilent == b2.isSilent then
+                EQ
+            else if b1.isSilent then
+                LT
+            else
+                GT
+
+        ImageColumn ->
+            EQ
+
+        StartDateColumn ->
+            compareMaybeDates b1.startDate b2.startDate
+
+        EndDateColumn ->
+            compareMaybeDates b1.endDate b2.endDate
+
+        UrlColumn ->
+            compare b1.url b2.url
+
+        WeightColumn ->
+            compare b1.weight b2.weight
+
+        ActionsColumn ->
+            EQ
+
+
+switchSort : Column -> Model -> Model
+switchSort column oldModel =
+    let
+        newBanners = 
+            case oldModel.sortOrder of
+                Just (oldColumn, oldSortOrder) ->
+                    -- Properly handle the case when we only need to reverse the list
+                    if oldColumn == column then
+                        List.reverse oldModel.banners
+                    else
+                        List.sortWith (sortBy column) oldModel.banners
+
+                Nothing ->
+                    List.sortWith (sortBy column) oldModel.banners
+        
+        newSortOrder =
+            case oldModel.sortOrder of
+                Just (oldColumn, oldSortOrder) ->
+                    -- Properly handle the case when we only need to reverse the list
+                    if oldColumn == column then
+                        if oldSortOrder == Ascending then
+                            Just ( column, Descending )
+                        else
+                            Just ( column, Ascending )
+                    else
+                        Just ( column, Descending )
+
+                Nothing ->
+                        Just ( column, Descending )
+
+    in
+
+        { oldModel | banners = newBanners, sortOrder = newSortOrder }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -210,4 +275,4 @@ update msg model =
             ( { model | banners = newBanner :: model.banners }, Cmd.none )
 
         SwitchSort column ->
-            ( model, Cmd.none )
+            ( switchSort column model, Cmd.none )

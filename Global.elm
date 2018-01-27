@@ -1,4 +1,4 @@
-module Global exposing (domain, maybeIsJust, SimpleDate, dateToString, stringToDate)
+module Global exposing (domain, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates)
 
 import Array
 import Date exposing (Month (..))
@@ -180,3 +180,14 @@ stringToDate dateStr =
                         Nothing           
             Nothing ->
                 Nothing           
+
+compareMaybeDates : Maybe SimpleDate -> Maybe SimpleDate -> Order
+compareMaybeDates md1 md2 =
+    let
+        dateToNum sd = sd.year * 500 + ( monthToInt sd.month ) * 35 + sd.day
+
+        maybeDateToNum msd = Maybe.withDefault 0 ( Maybe.map dateToNum msd )
+
+    in
+
+        compare ( maybeDateToNum md1 ) ( maybeDateToNum md2 )
