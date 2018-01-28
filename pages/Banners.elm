@@ -45,14 +45,19 @@ type Msg
     | SwitchSort Column
 
 
+type alias Image =
+    { file : String
+    , height : Int
+    , width : Int
+    }
+
+
 type alias Banner =
     { id : Int
     , isSilent : Bool
     , startDate : Maybe SimpleDate
     , endDate : Maybe SimpleDate
-    , image : String
-    , imageH : Int
-    , imageW : Int
+    , image : Maybe Image
     , url : String
     , weight : Int
     }
@@ -76,8 +81,8 @@ type alias Model =
 init : Model
 init =
     Model
-        [ Banner 1 False Nothing (stringToDate "2018-1-15") "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://fundacja-ikp.pl/wydawnictwo/" 10
-        , Banner 2 True (stringToDate "2018-1-1") Nothing "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200 "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
+        [ Banner 1 False Nothing (stringToDate "2018-1-15") (Just (Image "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200)) "http://fundacja-ikp.pl/wydawnictwo/" 10
+        , Banner 2 True (stringToDate "2018-1-1") Nothing (Just (Image "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200)) "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
         ]
         Nothing
         (Just ( WeightColumn, Ascending ))
@@ -85,7 +90,7 @@ init =
 
 newBanner : Banner
 newBanner =
-    Banner -1 False Nothing Nothing "" 0 0 "" 10
+    Banner -1 False Nothing Nothing Nothing "" 10
 
 
 isColumnSortable : Column -> Bool

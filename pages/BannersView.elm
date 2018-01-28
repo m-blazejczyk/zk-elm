@@ -116,14 +116,15 @@ columnStyle column =
 
 viewImage : Banner -> Html Msg
 viewImage data =
-    if String.isEmpty data.image then
-        text "Brak obrazka"
-    else
-        div [ style [ ( "text-align", "center" ) ] ]
-            [ img [ src data.image, width data.imageW, height data.imageH ] []
-            , br [] []
-            , span [] [ text (toString data.imageW ++ " × " ++ toString data.imageH ++ " px") ]
-            ]
+    case data.image of
+        Just image ->
+            div [ style [ ( "text-align", "center" ) ] ]
+                [ img [ src image.file, width image.width, height image.height ] []
+                , br [] []
+                , span [] [ text (toString image.width ++ " × " ++ toString image.height ++ " px") ]
+                ]
+        Nothing ->
+            text "Brak obrazka"
 
 
 viewInputButtons: Attribute Msg -> Html Msg
