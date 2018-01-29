@@ -10,6 +10,8 @@ import Dom
 import Task
 import Result
 import Regex
+import Json.Decode exposing (Decoder, list, string, int, bool, nullable)
+import Json.Decode.Pipeline exposing (decode, required)
 
 
 type Column
@@ -91,6 +93,36 @@ init =
 newBanner : Banner
 newBanner =
     Banner -1 False Nothing Nothing Nothing "" 10
+
+
+simpleDateDecoder : Decoder (Maybe SimpleDate)
+simpleDateDecoder =
+    Json.Decode.map stringToDate string
+
+
+imageDecoder : Decoder Image
+imageDecoder = 
+    decode Image
+        |> required "file" string
+        |> required "height" int
+        |> required "width" int
+
+
+bannerDecoder : Decoder Banner
+bannerDecoder =
+    decode Banner
+        |> required "id" int
+        |> required "isSilent" bool
+        |> required "startDate" simpleDateDecoder
+        |> required "endDate" simpleDateDecoder
+        |> required "image" (nullable imageDecoder)
+        |> required "url" string
+        |> required "weight" int
+
+
+bannerListDecoder : Decoder (List Banner)
+bannerListDecoder =
+    list bannerDecoder
 
 
 isColumnSortable : Column -> Bool

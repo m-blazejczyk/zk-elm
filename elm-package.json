@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "summary": "helpful summary of your project, less than 80 characters",
-    "repository": "https://github.com/user/project.git",
+    "summary": "Zeszyty Komiksowe – Editorial Board’s Portal",
+    "repository": "https://github.com/m-blazejczyk/zk-elm.git",
     "license": "BSD3",
     "source-directories": [
         ".",
@@ -13,7 +13,8 @@
         "elm-lang/dom": "1.1.1 <= v < 2.0.0",
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/http": "1.0.0 <= v < 2.0.0",
-        "rgrempel/elm-http-decorators": "2.0.0 <= v < 3.0.0"
+        "rgrempel/elm-http-decorators": "2.0.0 <= v < 3.0.0",
+        "NoRedInk/elm-decode-pipeline": "3.0.0 <= v < 4.0.0"
     },
     "elm-version": "0.18.0 <= v < 0.19.0"
 }
