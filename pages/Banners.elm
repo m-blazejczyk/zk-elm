@@ -46,8 +46,8 @@ type Msg
     | DeleteRow Int
     | AddRow
     | SwitchSort Column
-    | LoadBanners
-    | LoadBannersHttp (Result Http.Error (List Banner))
+    | LoadBannersClick
+    | LoadBanners (Result Http.Error (List Banner))
 
 
 type alias Image =
@@ -123,9 +123,17 @@ bannerDecoder =
         |> required "weight" int
 
 
-bannerListDecoder : Decoder (List Banner)
-bannerListDecoder =
-    list bannerDecoder
+fetchBanners : Http.Request (List Banner)
+fetchBanners =
+    { method = "GET"
+    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , url = domain ++ "banners"
+    , body = Http.emptyBody
+    , expect = Http.expectJson (list bannerDecoder)
+    , timeout = Nothing
+    , withCredentials = False
+    }
+        |> Http.request
 
 
 isColumnSortable : Column -> Bool
@@ -317,12 +325,11 @@ update msg model =
         SwitchSort column ->
             ( switchSort column model, Cmd.none )
 
-        -- Authorization = s'TTTKKK'
-        LoadBanners ->
-            ( model, Http.send LoadBannersHttp <| Http.get (domain ++ "banners") bannerListDecoder )
+        LoadBannersClick ->
+            ( model, Http.send LoadBanners fetchBanners )
 
-        LoadBannersHttp (Err err) ->
+        LoadBanners (Err err) ->
             ( model, Cmd.none )
 
-        LoadBannersHttp (Ok banners) ->
+        LoadBanners (Ok banners) ->
             ( { model | banners = banners, editing = Nothing, sortOrder = Nothing }, Cmd.none )

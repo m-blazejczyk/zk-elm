@@ -336,6 +336,6 @@ view model =
                     ]
                 , button [ class "btn btn-primary", onClick AddRow ]
                     [ text "Dodaj banner" ]
-                , button [ class "btn btn-primary", onClick LoadBanners ]
+                , button [ class "btn btn-primary", onClick LoadBannersClick ]
                     [ text "Załaduj dane" ]
                 ]
