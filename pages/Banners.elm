@@ -90,7 +90,7 @@ init =
         , Banner 2 True (stringToDate "2018-1-1") Nothing (Just (Image "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200)) "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
         ]
         Nothing
-        (Just ( WeightColumn, Ascending ))
+        Nothing
 
 
 newBanner : Banner
