@@ -7,6 +7,7 @@ module Banners exposing
 import Global exposing (..)
 import Dict
 import Dom
+import Http
 import Task
 import Result
 import Regex
@@ -45,6 +46,8 @@ type Msg
     | DeleteRow Int
     | AddRow
     | SwitchSort Column
+    | LoadBanners
+    | LoadBannersHttp (Result Http.Error (List Banner))
 
 
 type alias Image =
@@ -313,3 +316,13 @@ update msg model =
 
         SwitchSort column ->
             ( switchSort column model, Cmd.none )
+
+        -- Authorization = s'TTTKKK'
+        LoadBanners ->
+            ( model, Http.send LoadBannersHttp <| Http.get (domain ++ "banners") bannerListDecoder )
+
+        LoadBannersHttp (Err err) ->
+            ( model, Cmd.none )
+
+        LoadBannersHttp (Ok banners) ->
+            ( { model | banners = banners, editing = Nothing, sortOrder = Nothing }, Cmd.none )
