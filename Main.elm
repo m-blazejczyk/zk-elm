@@ -59,11 +59,6 @@ authUserReqFormBody model =
         ]
 
 
-authUserCmd : Model -> Cmd Msg
-authUserCmd model =
-    Http.send GetTokenCompleted <| Http.post (domain ++ "auth/login") (authUserReqFormBody model) userDecoder
-
-
 getTokenCompleted : Model -> Result Http.Error User -> ( Model, Cmd Msg )
 getTokenCompleted model result =
     case result of
@@ -80,24 +75,6 @@ getTokenCompleted model result =
             ( { model | errorMsg = (toString error) }, Cmd.none )
 
 
-
--- GET request for random protected quote (authenticated)
-
-
-fetchProtectedQuote : Model -> Http.Request String
-fetchProtectedQuote model =
-    { method = "GET"
-    , headers = [ Http.header "Authorization" ("Token " ++ model.user.token) ]
-    , url = ""
-    , body = Http.emptyBody
-    , expect = Http.expectString
-    , timeout = Nothing
-    , withCredentials = False
-    }
-        |> Http.request
-
-
-
 -- Ports
 
 
@@ -105,7 +82,6 @@ port setStorage : ModelForPorts -> Cmd msg
 
 
 port removeStorage : () -> Cmd msg
-
 
 
 -- Helper to update model and set local storage with the updated model
@@ -120,7 +96,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickLogIn ->
-            ( model, authUserCmd model )
+            ( model, Http.send GetTokenCompleted <| Http.post (domain ++ "auth/login") (authUserReqFormBody model) userDecoder )
 
         SetUsername username ->
             ( setUserNameInModel username model, Cmd.none )
