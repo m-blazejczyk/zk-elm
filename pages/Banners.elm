@@ -5,13 +5,14 @@ module Banners exposing
     )
 
 import Global exposing (..)
+import Debug exposing (log)
 import Dict
 import Dom
 import Http
 import Task
 import Result
 import Regex
-import Json.Decode exposing (Decoder, list, string, int, bool, nullable)
+import Json.Decode exposing (Decoder, list, oneOf, string, int, bool, nullable, null)
 import Json.Decode.Pipeline exposing (decode, required)
 
 
@@ -86,8 +87,8 @@ type alias Model =
 init : Model
 init =
     Model
-        [ Banner 1 False Nothing (stringToDate "2018-1-15") (Just (Image "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200)) "http://fundacja-ikp.pl/wydawnictwo/" 10
-        , Banner 2 True (stringToDate "2018-1-1") Nothing (Just (Image "http://www.zeszytykomiksowe.org/aktualnosci/bannery/dydaktyczny-potencjal.jpg" 89 200)) "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
+        [ Banner 1 False Nothing (stringToDate "2018-1-15") (Just (Image "dydaktyczny-potencjal.jpg" 89 200)) "http://fundacja-ikp.pl/wydawnictwo/" 10
+        , Banner 2 True (stringToDate "2018-1-1") Nothing (Just (Image "dydaktyczny-potencjal.jpg" 89 200)) "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
         ]
         Nothing
         Nothing
@@ -116,8 +117,8 @@ bannerDecoder =
     decode Banner
         |> required "id" int
         |> required "isSilent" bool
-        |> required "startDate" simpleDateDecoder
-        |> required "endDate" simpleDateDecoder
+        |> required "startDate" (oneOf [ simpleDateDecoder, null Nothing ])
+        |> required "endDate" (oneOf [ simpleDateDecoder, null Nothing ])
         |> required "image" (nullable imageDecoder)
         |> required "url" string
         |> required "weight" int

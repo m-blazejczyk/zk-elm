@@ -119,7 +119,7 @@ viewImage data =
     case data.image of
         Just image ->
             div [ style [ ( "text-align", "center" ) ] ]
-                [ img [ src image.file, width image.width, height image.height ] []
+                [ img [ src ("http://www.zeszytykomiksowe.org/aktualnosci/bannery/" ++ image.file), width image.width, height image.height ] []
                 , br [] []
                 , span [] [ text (toString image.width ++ " × " ++ toString image.height ++ " px") ]
                 ]
