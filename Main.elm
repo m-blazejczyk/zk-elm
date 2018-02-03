@@ -95,11 +95,11 @@ openPage : Model -> Page -> ( Model, Cmd Msg )
 openPage model page =
     case page of
         Banners ->
-            ( { model | page = page, pageState = PageLoading }
+            ( { model | page = page, errorMsg = "", pageState = PageLoading }
             , Cmd.map BannersMsg Banners.fetchBannersCmd )
 
         _ ->
-            ( { model | page = page, pageState = PageLoaded }, Cmd.none )
+            ( { model | page = page, errorMsg = "", pageState = PageLoaded }, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -128,8 +128,9 @@ update msg model =
                 ( innerModel, innerCmd ) =
                     Banners.update innerMsg model.banners
 
-                standardResult =
-                    ( { model | banners = innerModel }, Cmd.map BannersMsg innerCmd )
+                standardResult ps =
+                    ( { model | banners = innerModel, errorMsg = "", pageState = ps }
+                    , Cmd.map BannersMsg innerCmd )
                     
             in
                     
@@ -139,9 +140,11 @@ update msg model =
                             ( { model | errorMsg = toString err, pageState = PageLoadError }, Cmd.none )
 
                         _ ->
-                            standardResult
+                            standardResult PageLoaded
+                else if innerMsg == Banners.LoadBannersClick then
+                    standardResult PageLoading
                 else
-                    standardResult
+                    standardResult PageLoaded
 
 
 view : Model -> Html Msg

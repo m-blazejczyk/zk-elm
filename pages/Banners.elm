@@ -78,8 +78,7 @@ type alias Editing =
 
 
 type alias Model =
-    { isLoaded : Bool
-    , banners : List Banner
+    { banners : List Banner
     , editing : Maybe Editing
     , sortOrder : Maybe (Column, SortOrder)
     }
@@ -87,7 +86,7 @@ type alias Model =
 
 init : Model
 init =
-    Model False [] Nothing Nothing
+    Model [] Nothing Nothing
 
 
 newBanner : Banner
@@ -315,10 +314,10 @@ update msg model =
             ( switchSort column model, Cmd.none )
 
         LoadBannersClick ->
-            ( model, fetchBannersCmd )
+            ( { model | banners = [], editing = Nothing, sortOrder = Nothing }, fetchBannersCmd )
 
         LoadBanners (Err err) ->
             ( model, Cmd.none )
 
         LoadBanners (Ok banners) ->
-            ( { model | banners = banners, editing = Nothing, sortOrder = Nothing }, Cmd.none )
+            ( { model | banners = banners }, Cmd.none )

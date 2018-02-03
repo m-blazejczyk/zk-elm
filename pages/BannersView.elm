@@ -332,16 +332,13 @@ view model =
 
     in
 
-        if model.isLoaded then
-            div [] 
-                [ if List.isEmpty model.banners then
-                    br [] []
-                  else
-                    buildTable
-                , button [ class "btn btn-primary", onClick AddRow ]
-                    [ text "Dodaj banner" ]
-                , button [ class "btn btn-primary", onClick LoadBannersClick ]
-                    [ text "Załaduj dane" ]
-                ]
-        else
-            div [] [ text "Loading…" ]
+        div [] 
+            [ if List.isEmpty model.banners then
+                br [] []
+              else
+                buildTable
+            , button [ class "btn btn-primary", onClick AddRow ]
+                [ text "Dodaj banner" ]
+            , button [ class "btn btn-primary", onClick LoadBannersClick ]
+                [ text "Załaduj dane" ]
+            ]
