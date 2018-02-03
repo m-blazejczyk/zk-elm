@@ -1,6 +1,6 @@
 module Banners exposing
     ( Msg(..), SortOrder(..), Banner, Editing, Validator, Model, Column(..)
-    , init, update, isColumnSortable
+    , init, update, fetchBannersCmd, isColumnSortable
     , validateWeight, validateUrl, validateDate, modifyWeight, modifyUrl, modifyDate
     )
 
@@ -78,7 +78,8 @@ type alias Editing =
 
 
 type alias Model =
-    { banners : List Banner
+    { isLoaded : Bool
+    , banners : List Banner
     , editing : Maybe Editing
     , sortOrder : Maybe (Column, SortOrder)
     }
@@ -86,12 +87,7 @@ type alias Model =
 
 init : Model
 init =
-    Model
-        [ Banner 1 False Nothing (stringToDate "2018-1-15") (Just (Image "dydaktyczny-potencjal.jpg" 89 200)) "http://fundacja-ikp.pl/wydawnictwo/" 10
-        , Banner 2 True (stringToDate "2018-1-1") Nothing (Just (Image "dydaktyczny-potencjal.jpg" 89 200)) "http://www.cbc.ca/news/canada/montreal/montreal-together-spaces-reconciliation-1.4117290" 20
-        ]
-        Nothing
-        Nothing
+    Model False [] Nothing Nothing
 
 
 newBanner : Banner
@@ -124,17 +120,9 @@ bannerDecoder =
         |> required "weight" int
 
 
-fetchBanners : Http.Request (List Banner)
-fetchBanners =
-    { method = "GET"
-    , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ "banners"
-    , body = Http.emptyBody
-    , expect = Http.expectJson (list bannerDecoder)
-    , timeout = Nothing
-    , withCredentials = False
-    }
-        |> Http.request
+fetchBannersCmd : Cmd Msg
+fetchBannersCmd =
+    Http.send LoadBanners (authJsonRequest "banners" (list bannerDecoder))
 
 
 isColumnSortable : Column -> Bool
@@ -327,7 +315,7 @@ update msg model =
             ( switchSort column model, Cmd.none )
 
         LoadBannersClick ->
-            ( model, Http.send LoadBanners fetchBanners )
+            ( model, fetchBannersCmd )
 
         LoadBanners (Err err) ->
             ( model, Cmd.none )

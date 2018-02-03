@@ -8,7 +8,6 @@ import Json.Decode as Decode exposing (..)
 import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
-import Msg exposing (..)
 import ViewTemplate exposing (..)
 import Banners
 
@@ -31,10 +30,10 @@ init : Maybe ModelForPorts -> ( Model, Cmd Msg )
 init mModelFP =
     case mModelFP of
         Just modelFP ->
-            ( convertModelFromPort modelFP, Cmd.none )
+            convertModelFromPort modelFP
 
         Nothing ->
-            ( Model "" MainMenu emptyUser Banners.init, Cmd.none )
+            ( Model "" MainMenu PageLoaded emptyUser Banners.init, Cmd.none )
 
 
 
@@ -92,6 +91,17 @@ setStorageHelper model =
     ( model, setStorage <| convertModelForPort model )
 
 
+openPage : Model -> Page -> ( Model, Cmd Msg )
+openPage model page =
+    case page of
+        Banners ->
+            ( { model | page = page, pageState = PageLoading }
+            , Cmd.map BannersMsg Banners.fetchBannersCmd )
+
+        _ ->
+            ( { model | page = page, pageState = PageLoaded }, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -111,25 +121,52 @@ update msg model =
             ( { model | page = MainMenu, user = emptyUser }, removeStorage () )
 
         OpenPage page ->
-            ( { model | page = page }, Cmd.none )
+            openPage model page
 
         BannersMsg innerMsg ->
             let
                 ( innerModel, innerCmd ) =
                     Banners.update innerMsg model.banners
+
+                standardResult =
+                    ( { model | banners = innerModel }, Cmd.map BannersMsg innerCmd )
+                    
             in
-                ( { model | banners = innerModel }, Cmd.map BannersMsg innerCmd )
+                    
+                if model.pageState == PageLoading then
+                    case innerMsg of
+                        Banners.LoadBanners (Err err) ->
+                            ( { model | errorMsg = toString err, pageState = PageLoadError }, Cmd.none )
+
+                        _ ->
+                            standardResult
+                else
+                    standardResult
 
 
 view : Model -> Html Msg
 view model =
-    div [ id "container" ]
-        [ viewHeader <| loggedInUser model
-        , viewTopMenu
-        , div [ id "article" ]
-            [ viewError model.errorMsg
-            , viewTitle model
-            , viewContent model
+    let
+        content =
+            case model.pageState of
+                PageLoading ->
+                    viewSpinner
+
+                PageLoaded ->
+                    viewContent model
+
+                PageLoadError ->
+                    div [] []
+
+    in
+            
+        div [ id "container" ]
+            [ viewHeader <| loggedInUser model
+            , viewTopMenu
+            , div [ id "article" ]
+                [ viewError model.errorMsg
+                , viewTitle model
+                , content
+                ]
+            , viewFooter
             ]
-        , viewFooter
-        ]

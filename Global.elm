@@ -1,9 +1,12 @@
-module Global exposing (domain, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates)
+module Global exposing
+    (domain, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates, authJsonRequest)
 
 import Array
 import Date exposing (Month (..))
 import Maybe exposing (..)
+import Http
 import Result
+import Json.Decode exposing (Decoder)
 
 
 type alias SimpleDate =
@@ -16,6 +19,19 @@ type alias SimpleDate =
 domain : String
 domain =
     "https://red.zeszytykomiksowe.org/"
+
+
+authJsonRequest : String -> Decoder a -> Http.Request a
+authJsonRequest endpoint decoder =
+    { method = "GET"
+    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , url = domain ++ endpoint
+    , body = Http.emptyBody
+    , expect = Http.expectJson decoder
+    , timeout = Nothing
+    , withCredentials = False
+    }
+        |> Http.request
 
 
 maybeIsJust : Maybe a -> Bool

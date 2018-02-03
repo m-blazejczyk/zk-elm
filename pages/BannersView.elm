@@ -314,13 +314,8 @@ view model =
                 Nothing ->
                     addSortGlyphicon column
 
-    in
-
-        if List.isEmpty model.banners then
-            br [] []
-        else
-            div [] 
-                [ table [ class "table table-bordered" ]
+        buildTable =
+            table [ class "table table-bordered" ]
                     [ thead []
                         [ tr []
                             [ th (columnStyle SilentColumn)    (buildHeaderHtml SilentColumn)
@@ -334,8 +329,19 @@ view model =
                         ]
                     , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
                     ]
+
+    in
+
+        if model.isLoaded then
+            div [] 
+                [ if List.isEmpty model.banners then
+                    br [] []
+                  else
+                    buildTable
                 , button [ class "btn btn-primary", onClick AddRow ]
                     [ text "Dodaj banner" ]
                 , button [ class "btn btn-primary", onClick LoadBannersClick ]
                     [ text "Załaduj dane" ]
                 ]
+        else
+            div [] [ text "Loading…" ]

@@ -6,7 +6,6 @@ import Html.Attributes exposing (..)
 import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
-import Msg exposing (..)
 import BannersView as Banners
 
 
@@ -117,6 +116,11 @@ viewError errorMsg =
             [ div [ class "alert alert-danger" ]
                 [ text errorMsg ]
             ]
+
+
+viewSpinner : Html Msg
+viewSpinner = 
+    div [] [ text "Spinner" ]
 
 
 viewTitle : Model -> Html Msg

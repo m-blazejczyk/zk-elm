@@ -1,8 +1,18 @@
 module Model exposing (..)
 
+import Http
 import Json.Decode as Decode exposing (..)
 import Page exposing (..)
 import Banners
+
+type Msg
+    = ClickLogIn
+    | SetUsername String
+    | SetPassword String
+    | GetTokenCompleted (Result Http.Error User)
+    | LogOut
+    | OpenPage Page
+    | BannersMsg Banners.Msg
 
 
 type alias User =
@@ -23,10 +33,10 @@ emptyUser =
 type alias Model =
     { errorMsg : String
     , page : Page
+    , pageState : PageState
     , user : User
     , banners : Banners.Model
     }
-
 
 
 -- Special type used to save/restore state via ports and flags;
@@ -44,7 +54,7 @@ convertModelForPort model =
     ModelForPorts (toString model.errorMsg) model.user
 
 
-convertModelFromPort : ModelForPorts -> Model
+convertModelFromPort : ModelForPorts -> ( Model, Cmd Msg )
 convertModelFromPort modelFP =
     let
         page : Page
@@ -70,9 +80,22 @@ convertModelFromPort modelFP =
 
                 _ ->
                     MainMenu
-    in
-        Model "" page modelFP.user Banners.init
 
+        pageState =
+            if page == Banners then
+                PageLoading
+            else
+                PageLoaded
+
+        cmd =
+            if page == Banners then
+                Cmd.map BannersMsg Banners.fetchBannersCmd
+            else
+                Cmd.none
+
+    in
+
+        ( Model "" page pageState modelFP.user Banners.init, cmd )
 
 
 -- Setters for nested data within the model
