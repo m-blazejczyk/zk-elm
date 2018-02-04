@@ -342,5 +342,5 @@ view model =
             , button [ class "btn btn-primary", onClick AddRow ]
                 [ text "Dodaj banner" ]
             , button [ class "btn btn-primary", style [ ( "margin-left", "20px" ) ], onClick LoadBannersClick ]
-                    [ glyphicon "refresh" NoSpace ]
+                [ glyphicon "refresh" NoSpace ]
             ]
