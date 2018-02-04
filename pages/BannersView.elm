@@ -333,7 +333,7 @@ view model =
     in
 
         div [] 
-            [ viewErrorMsg model.errorMsg
+            [ viewErrorMsg model.errorMsg CloseErrorMsg
             , if model.isLoading then
                 div [] [ text "Spinner" ]
               else

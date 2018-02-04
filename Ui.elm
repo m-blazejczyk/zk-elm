@@ -27,15 +27,17 @@ glyphicon glyph space =
 
 glyphiconInfo : Space -> String -> Html msg
 glyphiconInfo space tooltip =
-    span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ] [ span [ class "tooltip-text tooltip-glyphicon" ] [ text tooltip ] ]
+    span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ]
+        [ span [ class "tooltip-text tooltip-glyphicon" ] [ text tooltip ] ]
 
 
-viewErrorMsg : Maybe String -> Html msg
-viewErrorMsg mError =
+viewErrorMsg : Maybe String -> msg -> Html msg
+viewErrorMsg mError msg =
     case mError of
         Just error ->
             div [ class "alert alert-danger" ]
-                [ text error ]
+                [ button [ type_ "button", class "close", onClick msg ] [ text "×" ]
+                , text error ]
 
         Nothing ->
             text ""

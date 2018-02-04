@@ -125,6 +125,9 @@ update msg model =
         LogOut ->
             ( { model | page = MainMenu, user = emptyUser }, removeStorage () )
 
+        CloseErrorMsg ->
+            ( { model | loginErrorMsg = Nothing }, Cmd.none )
+
         OpenPage page ->
             ( { model | page = page }, openPageCmd page )
 
@@ -162,7 +165,7 @@ view model =
         [ viewHeader <| loggedInUser model
         , viewTopMenu
         , div [ id "article" ]
-            [ viewErrorMsg model.loginErrorMsg
+            [ viewErrorMsg model.loginErrorMsg CloseErrorMsg
             , viewTitle model
             , if isLoggedIn model then
                 viewPage model

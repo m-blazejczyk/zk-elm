@@ -50,6 +50,7 @@ type Msg
     | SwitchSort Column
     | LoadBannersClick
     | LoadBanners (Result Http.Error (List Banner))
+    | CloseErrorMsg
 
 
 type alias Image =
@@ -325,3 +326,6 @@ update msg model =
 
         LoadBanners (Ok banners) ->
             ( { model | banners = banners, errorMsg = Nothing, isLoading = False }, Cmd.none )
+
+        CloseErrorMsg ->
+            ( { model | errorMsg = Nothing }, Cmd.none )

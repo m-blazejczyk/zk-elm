@@ -13,6 +13,7 @@ type Msg
     | SetPassword String
     | GetTokenCompleted (Result Http.Error User)
     | LogOut
+    | CloseErrorMsg
     | OpenPage Page
     | BannersMsg Banners.Msg
 
