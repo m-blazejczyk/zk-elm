@@ -1,4 +1,4 @@
-module Ui exposing (Space(..), glyphicon, glyphiconInfo)
+module Ui exposing (Space(..), glyphicon, glyphiconInfo, viewErrorMsg)
 
 import Html exposing (..)
 import Html.Events exposing (..)
@@ -28,3 +28,14 @@ glyphicon glyph space =
 glyphiconInfo : Space -> String -> Html msg
 glyphiconInfo space tooltip =
     span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ] [ span [ class "tooltip-text tooltip-glyphicon" ] [ text tooltip ] ]
+
+
+viewErrorMsg : Maybe String -> Html msg
+viewErrorMsg mError =
+    case mError of
+        Just error ->
+            div [ class "alert alert-danger" ]
+                [ text error ]
+
+        Nothing ->
+            text ""

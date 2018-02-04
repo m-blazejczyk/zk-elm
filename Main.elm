@@ -8,8 +8,10 @@ import Json.Decode as Decode exposing (..)
 import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
+import Ui exposing (viewErrorMsg)
 import ViewTemplate exposing (..)
 import Banners
+import BannersView
 
 
 main : Program (Maybe ModelForPorts) Model Msg
@@ -30,11 +32,15 @@ init : Maybe ModelForPorts -> ( Model, Cmd Msg )
 init mModelFP =
     case mModelFP of
         Just modelFP ->
-            convertModelFromPort modelFP
+            let
+                model = convertModelFromPort modelFP
+
+            in
+
+                ( model, openPageCmd model.page )
 
         Nothing ->
-            ( Model "" MainMenu PageLoaded emptyUser Banners.init, Cmd.none )
-
+            ( Model Nothing MainMenu emptyUser Banners.init, Cmd.none )
 
 
 {-
@@ -62,16 +68,16 @@ getTokenCompleted : Model -> Result Http.Error User -> ( Model, Cmd Msg )
 getTokenCompleted model result =
     case result of
         Ok newUser ->
-            setStorageHelper { model | page = MainMenu, user = newUser, errorMsg = "" }
+            setStorageHelper { model | page = MainMenu, user = newUser, loginErrorMsg = Nothing }
 
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
-                ( { model | errorMsg = "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
+                ( { model | loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
             else
-                ( { model | errorMsg = "Błąd " ++ (toString response.status.code) }, Cmd.none )
+                ( { model | loginErrorMsg = Just <| "Błąd " ++ (toString response.status.code) }, Cmd.none )
 
         Err error ->
-            ( { model | errorMsg = (toString error) }, Cmd.none )
+            ( { model | loginErrorMsg = Just <| toString error }, Cmd.none )
 
 
 -- Ports
@@ -91,15 +97,14 @@ setStorageHelper model =
     ( model, setStorage <| convertModelForPort model )
 
 
-openPage : Model -> Page -> ( Model, Cmd Msg )
-openPage model page =
+openPageCmd : Page -> Cmd Msg
+openPageCmd page =
     case page of
         Banners ->
-            ( { model | page = page, errorMsg = "", pageState = PageLoading }
-            , Cmd.map BannersMsg Banners.fetchBannersCmd )
+            Cmd.map BannersMsg Banners.switchToPageCmd
 
         _ ->
-            ( { model | page = page, errorMsg = "", pageState = PageLoaded }, Cmd.none )
+            Cmd.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -121,55 +126,48 @@ update msg model =
             ( { model | page = MainMenu, user = emptyUser }, removeStorage () )
 
         OpenPage page ->
-            openPage model page
+            ( { model | page = page }, openPageCmd page )
 
         BannersMsg innerMsg ->
             let
                 ( innerModel, innerCmd ) =
                     Banners.update innerMsg model.banners
 
-                standardResult ps =
-                    ( { model | banners = innerModel, errorMsg = "", pageState = ps }
-                    , Cmd.map BannersMsg innerCmd )
-                    
             in
                     
-                if model.pageState == PageLoading then
-                    case innerMsg of
-                        Banners.LoadBanners (Err err) ->
-                            ( { model | errorMsg = toString err, pageState = PageLoadError }, Cmd.none )
+                ( { model | banners = innerModel }
+                , Cmd.map BannersMsg innerCmd )
 
-                        _ ->
-                            standardResult PageLoaded
-                else if innerMsg == Banners.LoadBannersClick then
-                    standardResult PageLoading
-                else
-                    standardResult PageLoaded
+
+viewPage : Model -> Html Msg
+viewPage model =
+    let
+        noContent =
+            p [ class "text-center" ] [ text "Ta strona jeszcze nie istnieje." ]
+    in
+        case model.page of
+            MainMenu ->
+                viewMainMenu
+
+            Banners ->
+                BannersView.view model.banners |> Html.map BannersMsg
+
+            _ ->
+                noContent
 
 
 view : Model -> Html Msg
 view model =
-    let
-        content =
-            case model.pageState of
-                PageLoading ->
-                    viewSpinner
-
-                PageLoaded ->
-                    viewContent model
-
-                PageLoadError ->
-                    div [] []
-
-    in
-            
-        div [ id "container" ]
-            [ viewHeader <| loggedInUser model
-            , viewTopMenu
-            , div [ id "article" ]
-                [ viewError model.errorMsg
-                , viewTitle model
-                , content
-                ]
-            , viewFooter
+    div [ id "container" ]
+        [ viewHeader <| loggedInUser model
+        , viewTopMenu
+        , div [ id "article" ]
+            [ viewErrorMsg model.loginErrorMsg
+            , viewTitle model
+            , if isLoggedIn model then
+                viewPage model
+              else
+                viewLoginForm model.user
             ]
+        , viewFooter
+        ]

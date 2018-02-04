@@ -1,6 +1,6 @@
 module Banners exposing
     ( Msg(..), SortOrder(..), Banner, Editing, Validator, Model, Column(..)
-    , init, update, fetchBannersCmd, isColumnSortable
+    , init, update, switchToPageCmd, isColumnSortable
     , validateWeight, validateUrl, validateDate, modifyWeight, modifyUrl, modifyDate
     )
 
@@ -10,6 +10,7 @@ import Dict
 import Dom
 import Http
 import Task
+import Time exposing (Time)
 import Result
 import Regex
 import Json.Decode exposing (Decoder, list, oneOf, string, int, bool, nullable, null)
@@ -78,7 +79,9 @@ type alias Editing =
 
 
 type alias Model =
-    { banners : List Banner
+    { isLoading : Bool
+    , errorMsg : Maybe String
+    , banners : List Banner
     , editing : Maybe Editing
     , sortOrder : Maybe (Column, SortOrder)
     }
@@ -86,7 +89,7 @@ type alias Model =
 
 init : Model
 init =
-    Model [] Nothing Nothing
+    Model False Nothing [] Nothing Nothing
 
 
 newBanner : Banner
@@ -119,9 +122,9 @@ bannerDecoder =
         |> required "weight" int
 
 
-fetchBannersCmd : Cmd Msg
-fetchBannersCmd =
-    Http.send LoadBanners (authJsonRequest "banners" (list bannerDecoder))
+switchToPageCmd : Cmd Msg
+switchToPageCmd = 
+    toCmd LoadBannersClick
 
 
 isColumnSortable : Column -> Bool
@@ -314,10 +317,11 @@ update msg model =
             ( switchSort column model, Cmd.none )
 
         LoadBannersClick ->
-            ( { model | banners = [], editing = Nothing, sortOrder = Nothing }, fetchBannersCmd )
+            ( { model | banners = [], editing = Nothing, sortOrder = Nothing, isLoading = True }
+            , Http.send LoadBanners (authJsonRequest "banners" (list bannerDecoder)) )
 
         LoadBanners (Err err) ->
-            ( model, Cmd.none )
+            ( { model | isLoading = False, errorMsg = Just <| toString err }, Cmd.none )
 
         LoadBanners (Ok banners) ->
-            ( { model | banners = banners }, Cmd.none )
+            ( { model | banners = banners, errorMsg = Nothing, isLoading = False }, Cmd.none )

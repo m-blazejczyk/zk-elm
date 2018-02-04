@@ -31,7 +31,7 @@ columnTooltip column =
                     Just "Adres strony, do której będzie odsyłać obrazek bannera.  Jeśli jest pusty to banner nie będzie linkiem."
 
                 WeightColumn ->
-                    Just "Liczba, oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
+                    Just "Liczba oznaczająca, jak często ten banner ma się pojawiać na stronie.  Domyślnie - 10.  5 oznacza „dwa razy rzadziej niż normalnie”, 20 oznacza „dwa razy częściej niż normalnie”."
 
                 _ ->
                     Nothing
@@ -314,7 +314,7 @@ view model =
                 Nothing ->
                     addSortGlyphicon column
 
-        buildTable =
+        displayTable =
             table [ class "table table-bordered" ]
                     [ thead []
                         [ tr []
@@ -333,10 +333,15 @@ view model =
     in
 
         div [] 
-            [ if List.isEmpty model.banners then
-                br [] []
+            [ viewErrorMsg model.errorMsg
+            , if model.isLoading then
+                div [] [ text "Spinner" ]
               else
-                buildTable
+                text ""
+            , if List.isEmpty model.banners then
+                text ""
+              else
+                displayTable
             , button [ class "btn btn-primary", onClick AddRow ]
                 [ text "Dodaj banner" ]
             , button [ class "btn btn-primary", onClick LoadBannersClick ]

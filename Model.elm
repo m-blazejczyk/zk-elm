@@ -2,6 +2,8 @@ module Model exposing (..)
 
 import Http
 import Json.Decode as Decode exposing (..)
+import Task
+import Time exposing (Time)
 import Page exposing (..)
 import Banners
 
@@ -31,9 +33,8 @@ emptyUser =
 
 
 type alias Model =
-    { errorMsg : String
+    { loginErrorMsg : Maybe String
     , page : Page
-    , pageState : PageState
     , user : User
     , banners : Banners.Model
     }
@@ -51,10 +52,10 @@ type alias ModelForPorts =
 
 convertModelForPort : Model -> ModelForPorts
 convertModelForPort model =
-    ModelForPorts (toString model.errorMsg) model.user
+    ModelForPorts (toString model.page) model.user
 
 
-convertModelFromPort : ModelForPorts -> ( Model, Cmd Msg )
+convertModelFromPort : ModelForPorts -> Model
 convertModelFromPort modelFP =
     let
         page : Page
@@ -81,21 +82,9 @@ convertModelFromPort modelFP =
                 _ ->
                     MainMenu
 
-        pageState =
-            if page == Banners then
-                PageLoading
-            else
-                PageLoaded
-
-        cmd =
-            if page == Banners then
-                Cmd.map BannersMsg Banners.fetchBannersCmd
-            else
-                Cmd.none
-
     in
 
-        ( Model "" page pageState modelFP.user Banners.init, cmd )
+        Model Nothing page modelFP.user Banners.init
 
 
 -- Setters for nested data within the model
@@ -123,10 +112,6 @@ setPasswordInModel password model =
             { oldUser | password = password }
     in
         { model | user = newUser }
-
-
-
--- Is the user logged in?
 
 
 isLoggedIn : Model -> Bool

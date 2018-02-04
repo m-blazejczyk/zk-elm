@@ -11,12 +11,6 @@ type Page
     | HomePageContent
 
 
-type PageState
-    = PageLoading
-    | PageLoaded
-    | PageLoadError
-
-
 pageTitles : Page -> ( String, String, String )
 pageTitles page =
     case page of

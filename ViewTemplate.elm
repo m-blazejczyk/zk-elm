@@ -6,7 +6,6 @@ import Html.Attributes exposing (..)
 import Global exposing (..)
 import Page exposing (..)
 import Model exposing (..)
-import BannersView as Banners
 
 
 viewUserMenu : Maybe User -> List (Html Msg)
@@ -102,27 +101,6 @@ viewLoginForm user =
         ]
 
 
-viewError : String -> Html Msg
-viewError errorMsg =
-    let
-        errorClass : String
-        errorClass =
-            if String.isEmpty errorMsg then
-                "hidden"
-            else
-                ""
-    in
-        div [ class errorClass ]
-            [ div [ class "alert alert-danger" ]
-                [ text errorMsg ]
-            ]
-
-
-viewSpinner : Html Msg
-viewSpinner = 
-    div [] [ text "Spinner" ]
-
-
 viewTitle : Model -> Html Msg
 viewTitle model =
     let
@@ -186,40 +164,3 @@ viewMainMenu =
                 , div [ class "col-md-4" ] [ pageButton Repository False ]
                 ]
             ]
-
-
-viewPage : Model -> Html Msg
-viewPage model =
-    let
-        noContent =
-            p [ class "text-center" ] [ text "Przykro mi – ta strona jeszcze nie istnieje" ]
-    in
-        case model.page of
-            MainMenu ->
-                viewMainMenu
-
-            News ->
-                noContent
-
-            Issues ->
-                noContent
-
-            Reviews ->
-                noContent
-
-            Repository ->
-                noContent
-
-            Banners ->
-                Banners.view model.banners |> Html.map BannersMsg
-
-            HomePageContent ->
-                noContent
-
-
-viewContent : Model -> Html Msg
-viewContent model =
-    if isLoggedIn model then
-        viewPage model
-    else
-        viewLoginForm model.user

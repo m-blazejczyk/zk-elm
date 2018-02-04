@@ -1,5 +1,5 @@
 module Global exposing
-    (domain, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates, authJsonRequest)
+    (domain, toCmd, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates, authJsonRequest)
 
 import Array
 import Date exposing (Month (..))
@@ -7,6 +7,7 @@ import Maybe exposing (..)
 import Http
 import Result
 import Json.Decode exposing (Decoder)
+import Task
 
 
 type alias SimpleDate =
@@ -32,6 +33,16 @@ authJsonRequest endpoint decoder =
     , withCredentials = False
     }
         |> Http.request
+
+
+{-| A command to generate a message without performing any action.
+This is useful for implementing components that generate events in the manner
+of HTML elements, but where the event fires from within Elm code, rather than
+by an external trigger.
+-}
+toCmd : msg -> Cmd msg
+toCmd msg =
+    Task.perform identity (Task.succeed msg)
 
 
 maybeIsJust : Maybe a -> Bool
