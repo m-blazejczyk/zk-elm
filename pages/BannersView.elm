@@ -334,10 +334,7 @@ view model =
 
         div [] 
             [ viewErrorMsg model.errorMsg CloseErrorMsg
-            , if model.isLoading then
-                div [] [ text "Spinner" ]
-              else
-                text ""
+            , viewSpinner model.isLoading
             , if List.isEmpty model.banners then
                 text ""
               else
