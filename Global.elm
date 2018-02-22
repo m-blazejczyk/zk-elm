@@ -1,5 +1,6 @@
 module Global exposing
-    (domain, toCmd, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates, authJsonRequest)
+    ( domain, toCmd, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates
+    , authRequestExpectJson, authGetRequestExpectJson, authPostRequestExpectJson )
 
 import Array
 import Date exposing (Month (..))
@@ -22,9 +23,19 @@ domain =
     "https://red.zeszytykomiksowe.org/"
 
 
-authJsonRequest : String -> Decoder a -> Http.Request a
-authJsonRequest endpoint decoder =
-    { method = "GET"
+authGetRequestExpectJson : String -> Decoder a -> Http.Request a
+authGetRequestExpectJson =
+    authRequestExpectJson "GET"
+
+
+authPostRequestExpectJson : String -> Decoder a -> Http.Request a
+authPostRequestExpectJson =
+    authRequestExpectJson "POST"
+
+
+authRequestExpectJson : String -> String -> Decoder a -> Http.Request a
+authRequestExpectJson method endpoint decoder =
+    { method = method
     , headers = [ Http.header "Authorization" "TTTKKK" ]
     , url = domain ++ endpoint
     , body = Http.emptyBody

@@ -339,7 +339,7 @@ view model =
                 text ""
               else
                 displayTable
-            , button [ class "btn btn-primary", onClick AddRow ]
+            , button [ class "btn btn-primary", onClick AddBannerClick ]
                 [ text "Dodaj banner" ]
             , button [ class "btn btn-primary", style [ ( "margin-left", "20px" ) ], onClick LoadBannersClick ]
                 [ glyphicon "refresh" NoSpace ]

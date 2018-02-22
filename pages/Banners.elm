@@ -46,8 +46,9 @@ type Msg
     | CancelEditing
     | FocusResult (Result Dom.Error ())
     | DeleteRow Int
-    | AddRow
     | SwitchSort Column
+    | AddBannerClick
+    | AddBanner (Result Http.Error Banner)
     | LoadBannersClick
     | LoadBanners (Result Http.Error (List Banner))
     | CloseErrorMsg
@@ -311,21 +312,32 @@ update msg model =
               , editing = Nothing }
             , Cmd.none )
 
-        AddRow ->
-            ( { model | banners = newBanner :: model.banners }, Cmd.none )
-
         SwitchSort column ->
             ( switchSort column model, Cmd.none )
 
+        AddBannerClick ->
+            ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
+            , Http.send AddBanner (authPostRequestExpectJson "banners" bannerDecoder) )
+
+        AddBanner (Err err) ->
+            ( { model | isLoading = False, errorMsg = Just <| toString err }
+            , Cmd.none )
+
+        AddBanner (Ok banner) ->
+            ( { model | banners = banner :: model.banners, isLoading = False, errorMsg = Nothing }
+            , Cmd.none )
+
         LoadBannersClick ->
-            ( { model | banners = [], editing = Nothing, sortOrder = Nothing, isLoading = True }
-            , Http.send LoadBanners (authJsonRequest "banners" (list bannerDecoder)) )
+            ( { model | banners = [], isLoading = True, errorMsg = Nothing, editing = Nothing, sortOrder = Nothing }
+            , Http.send LoadBanners (authGetRequestExpectJson "banners" (list bannerDecoder)) )
 
         LoadBanners (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| toString err }, Cmd.none )
+            ( { model | isLoading = False, errorMsg = Just <| toString err }
+            , Cmd.none )
 
         LoadBanners (Ok banners) ->
-            ( { model | banners = banners, errorMsg = Nothing, isLoading = False }, Cmd.none )
+            ( { model | banners = banners, errorMsg = Nothing, isLoading = False }
+            , Cmd.none )
 
         CloseErrorMsg ->
             ( { model | errorMsg = Nothing }, Cmd.none )
