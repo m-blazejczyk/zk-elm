@@ -45,12 +45,13 @@ type Msg
     | ValidateEditing Validator Modifier
     | CancelEditing
     | FocusResult (Result Dom.Error ())
-    | DeleteRow Int
     | SwitchSort Column
     | AddBannerClick
     | AddBanner (Result Http.Error Banner)
     | LoadBannersClick
     | LoadBanners (Result Http.Error (List Banner))
+    | DeleteBannerClick Int
+    | DeleteBanner Int (Result Http.Error ())
     | CloseErrorMsg
 
 
@@ -307,11 +308,6 @@ update msg model =
         FocusResult result ->
             ( model, Cmd.none )
 
-        DeleteRow id ->
-            ( { model | banners = List.filter ((/=) id << .id) model.banners
-              , editing = Nothing }
-            , Cmd.none )
-
         SwitchSort column ->
             ( switchSort column model, Cmd.none )
 
@@ -337,6 +333,19 @@ update msg model =
 
         LoadBanners (Ok banners) ->
             ( { model | banners = banners, errorMsg = Nothing, isLoading = False }
+            , Cmd.none )
+
+        DeleteBannerClick id ->
+            ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
+            , Http.send (DeleteBanner id) (authDeleteRequest "banners" id) )
+
+        DeleteBanner _ (Err err) ->
+            ( { model | isLoading = False, errorMsg = Just <| toString err }
+            , Cmd.none )
+
+        DeleteBanner id (Ok ()) ->
+            ( { model | banners = List.filter ((/=) id << .id) model.banners
+              , errorMsg = Nothing, isLoading = False }
             , Cmd.none )
 
         CloseErrorMsg ->

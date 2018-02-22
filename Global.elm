@@ -1,6 +1,6 @@
 module Global exposing
     ( domain, toCmd, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates
-    , authRequestExpectJson, authGetRequestExpectJson, authPostRequestExpectJson )
+    , authRequestExpectJson, authGetRequestExpectJson, authPostRequestExpectJson, authDeleteRequest )
 
 import Array
 import Date exposing (Month (..))
@@ -40,6 +40,20 @@ authRequestExpectJson method endpoint decoder =
     , url = domain ++ endpoint
     , body = Http.emptyBody
     , expect = Http.expectJson decoder
+    , timeout = Nothing
+    , withCredentials = False
+    }
+        |> Http.request
+
+
+authDeleteRequest : String -> Int -> Http.Request ()
+authDeleteRequest endpoint id =
+    { method = "DELETE"
+    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , url = domain ++ endpoint ++ "/" ++ toString id
+    , body = Http.multipartBody [ Http.stringPart "id" (toString id) ]
+    , expect = Http.expectStringResponse
+        (\response -> if response.status.code == 200 then Ok () else Err response.status.message)
     , timeout = Nothing
     , withCredentials = False
     }

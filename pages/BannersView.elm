@@ -272,7 +272,7 @@ viewDate mEditing mDate column id =
 
 viewDeleteButton : Int -> Html Msg
 viewDeleteButton id =
-    button [ class "btn btn-danger btn-sm", onClick <| DeleteRow id ]
+    button [ class "btn btn-danger btn-sm", onClick <| DeleteBannerClick id ]
         [ glyphicon "trash" NoSpace ]
 
 
