@@ -51,7 +51,7 @@ authDeleteRequest endpoint id =
     { method = "DELETE"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
     , url = domain ++ endpoint ++ "/" ++ toString id
-    , body = Http.multipartBody [ Http.stringPart "id" (toString id) ]
+    , body = Http.emptyBody
     , expect = Http.expectStringResponse
         (\response -> if response.status.code == 200 then Ok () else Err response.status.message)
     , timeout = Nothing
