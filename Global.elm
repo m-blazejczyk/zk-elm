@@ -1,6 +1,6 @@
 module Global exposing
     ( domain, toCmd, maybeIsJust, SimpleDate, dateToString, stringToDate, compareMaybeDates
-    , authRequestExpectJson, authGetRequestExpectJson, authPostRequestExpectJson, authDeleteRequest )
+    , authRequestExpectJson, authGetRequestExpectJson, authPostRequestExpectJson, authDeleteRequest, authPutFieldRequest )
 
 import Array
 import Date exposing (Month (..))
@@ -21,6 +21,12 @@ type alias SimpleDate =
 domain : String
 domain =
     "https://red.zeszytykomiksowe.org/"
+
+
+expectHttpCodeResponse : Http.Expect ()
+expectHttpCodeResponse =
+    Http.expectStringResponse
+        (\response -> if response.status.code == 200 then Ok () else Err response.status.message)
 
 
 authGetRequestExpectJson : String -> Decoder a -> Http.Request a
@@ -52,8 +58,20 @@ authDeleteRequest endpoint id =
     , headers = [ Http.header "Authorization" "TTTKKK" ]
     , url = domain ++ endpoint ++ "/" ++ toString id
     , body = Http.emptyBody
-    , expect = Http.expectStringResponse
-        (\response -> if response.status.code == 200 then Ok () else Err response.status.message)
+    , expect = expectHttpCodeResponse
+    , timeout = Nothing
+    , withCredentials = False
+    }
+        |> Http.request
+
+
+authPutFieldRequest : String -> Int -> ( String, String ) -> Http.Request ()
+authPutFieldRequest endpoint id ( fieldName, fieldValue ) =
+    { method = "PUT"
+    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , url = domain ++ endpoint ++ "/" ++ toString id
+    , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
+    , expect = expectHttpCodeResponse
     , timeout = Nothing
     , withCredentials = False
     }
