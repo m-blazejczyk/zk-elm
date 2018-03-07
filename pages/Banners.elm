@@ -27,9 +27,12 @@ type Column
     | ActionsColumn
 
 
-type alias Validator = String -> Bool
+-- Take raw value, validate it; return Nothing in case of an error,
+-- and a tuple of (field name, field value) in case of a success
+type alias Validator = String -> Maybe ( String, String )
 
 
+-- Take value and banner, modify the banner, and return it
 type alias Modifier = String -> Banner -> Banner
 
 
@@ -146,10 +149,10 @@ updateSilent id checked banner =
 validateWeight: Validator
 validateWeight strVal = 
     case String.toInt strVal of
-        Ok _ ->
-            True
+        Ok v ->
+            Just ( "weight", toString v )
         Err _ ->
-            False
+            Nothing
 
 
 modifyWeight: Modifier
@@ -162,8 +165,8 @@ modifyWeight strVal banner =
 
 
 validateUrl: Validator
-validateUrl _ =
-    True  -- No validation of URLs
+validateUrl strVal =
+    Just ( "url", strVal )  -- No validation of URLs
 
 
 modifyUrl: Modifier
@@ -171,12 +174,17 @@ modifyUrl newUrl banner =
     { banner | url = newUrl }
 
 
-validateDate: Validator
-validateDate dateStr =
+validateDate: String -> Validator
+validateDate fieldName dateStr =
     if String.length dateStr == 0 then
-        True
+        Just ( fieldName, "" )
     else
-        maybeIsJust <| stringToDate dateStr
+        case stringToDate dateStr of
+            Just date ->
+                Just ( fieldName, dateToString date )
+
+            Nothing ->
+                Nothing
 
 
 modifyDate: Column -> Modifier
@@ -260,7 +268,8 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeSilent id checked ->
-            ( { model | banners = List.map (updateSilent id checked) model.banners }, Cmd.none )
+            ( { model | banners = List.map (updateSilent id checked) model.banners }
+              , Cmd.none )  -- Send HTTP request here!!!
 
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
@@ -278,10 +287,10 @@ update msg model =
 
         ValidateEditing valFun modFun ->
             let
-                updateField : Editing -> Banner -> Banner
-                updateField editing banner =
+                updateField : Editing -> String -> Banner -> Banner
+                updateField editing value banner =
                     if editing.id == banner.id then
-                        modFun editing.value banner
+                        modFun value banner
                     else
                         banner
 
@@ -291,13 +300,15 @@ update msg model =
 
                 case model.editing of
                     Just editing ->
-                        if valFun editing.value then
-                            ( { model | banners = List.map (updateField editing) model.banners
-                                , editing = Nothing }
-                            , Cmd.none )
-                        else
-                            ( { model | editing = Just <| setEditingError editing }
-                            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
+                        case valFun editing.value of
+                            Just ( fieldName, fieldValue ) ->
+                                ( { model | banners = List.map (updateField editing fieldValue) model.banners
+                                    , editing = Nothing }
+                                , Cmd.none )  -- Send HTTP request here!
+
+                            Nothing ->
+                                ( { model | editing = Just <| setEditingError editing }
+                                , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
 
                     Nothing ->
                         ( model, Cmd.none )  -- This should never happen!!!

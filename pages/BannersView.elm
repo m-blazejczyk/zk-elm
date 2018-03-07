@@ -246,8 +246,8 @@ viewUrl mEditing data =
             (onClick (ValidateEditing validateUrl modifyUrl))
 
 
-viewDate : Maybe Editing -> Maybe SimpleDate -> Column -> Int -> Html Msg
-viewDate mEditing mDate column id =
+viewDate : Maybe Editing -> Maybe SimpleDate -> Column -> String -> Int -> Html Msg
+viewDate mEditing mDate column fieldName id =
     let
         dateAsString forEditing =
             case mDate of
@@ -267,7 +267,7 @@ viewDate mEditing mDate column id =
 
         viewEditingInput
             mEditing id nonEditingView column 10 (Just "rrrr-m-d")
-            (onClick (ValidateEditing validateDate (modifyDate column)))
+            (onClick (ValidateEditing (validateDate fieldName) (modifyDate column)))
 
 
 viewDeleteButton : Int -> Html Msg
@@ -281,8 +281,8 @@ viewSingleBanner editing data =
     tr []
         [ td (columnStyle SilentColumn) [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
         , td (columnStyle ImageColumn) [ viewImage data ]
-        , td (columnStyle StartDateColumn) [ viewDate editing data.startDate StartDateColumn data.id ]
-        , td (columnStyle EndDateColumn) [ viewDate editing data.endDate EndDateColumn data.id ]
+        , td (columnStyle StartDateColumn) [ viewDate editing data.startDate StartDateColumn "startDate" data.id ]
+        , td (columnStyle EndDateColumn) [ viewDate editing data.endDate EndDateColumn "endDate" data.id ]
         , td (columnStyle UrlColumn) [ viewUrl editing data ]
         , td (columnStyle WeightColumn) [ viewWeight editing data ]
         , td (columnStyle ActionsColumn) [ viewDeleteButton data.id ]
