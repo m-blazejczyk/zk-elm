@@ -28,8 +28,8 @@ type Column
 
 
 -- Take raw value, validate it; return Nothing in case of an error,
--- and a tuple of (field name, field value) in case of a success
-type alias Validator = String -> Maybe ( String, String )
+-- and the cleaned up field value in case of a success
+type alias Validator = String -> Maybe String
 
 
 -- Take value and banner, modify the banner, and return it
@@ -138,6 +138,28 @@ isColumnSortable column =
     column /= ImageColumn && column /= ActionsColumn
 
 
+fieldNameFor : Column -> String
+fieldNameFor column =
+    case column of
+        SilentColumn ->
+            "silent"
+
+        StartDateColumn ->
+            "startDate"
+
+        EndDateColumn ->
+            "endDate"
+
+        UrlColumn ->
+            "url"
+
+        WeightColumn ->
+            "weight"
+
+        _ ->
+            ""
+
+
 updateSilent : Int -> Bool -> Banner -> Banner
 updateSilent id checked banner =
     if id == banner.id then
@@ -150,7 +172,7 @@ validateWeight: Validator
 validateWeight strVal = 
     case String.toInt strVal of
         Ok v ->
-            Just ( "weight", toString v )
+            Just <| toString v
         Err _ ->
             Nothing
 
@@ -166,7 +188,7 @@ modifyWeight strVal banner =
 
 validateUrl: Validator
 validateUrl strVal =
-    Just ( "url", strVal )  -- No validation of URLs
+    Just strVal  -- No validation of URLs
 
 
 modifyUrl: Modifier
@@ -174,14 +196,14 @@ modifyUrl newUrl banner =
     { banner | url = newUrl }
 
 
-validateDate: String -> Validator
-validateDate fieldName dateStr =
+validateDate : Validator
+validateDate dateStr =
     if String.length dateStr == 0 then
-        Just ( fieldName, "" )
+        Just ""
     else
         case stringToDate dateStr of
             Just date ->
-                Just ( fieldName, dateToString date )
+                Just <| dateToString date
 
             Nothing ->
                 Nothing
@@ -301,7 +323,7 @@ update msg model =
                 case model.editing of
                     Just editing ->
                         case valFun editing.value of
-                            Just ( fieldName, fieldValue ) ->
+                            Just fieldValue ->
                                 ( { model | banners = List.map (updateField editing fieldValue) model.banners
                                     , editing = Nothing }
                                 , Cmd.none )  -- Send HTTP request here!
