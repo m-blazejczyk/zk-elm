@@ -65,8 +65,8 @@ authDeleteRequest endpoint id =
         |> Http.request
 
 
-authPutFieldRequest : String -> Int -> ( String, String ) -> Http.Request ()
-authPutFieldRequest endpoint id ( fieldName, fieldValue ) =
+authPutFieldRequest : String -> Int -> String -> String -> Http.Request ()
+authPutFieldRequest endpoint id fieldName fieldValue =
     { method = "PUT"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
     , url = domain ++ endpoint ++ "/" ++ toString id

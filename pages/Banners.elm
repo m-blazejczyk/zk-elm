@@ -46,13 +46,14 @@ type Msg
     | StartEditing Int Column String
     | ChangeInput String
     | ValidateEditing Validator Modifier
+    | SubmitEditing (Result Http.Error ())
     | CancelEditing
     | FocusResult (Result Dom.Error ())
     | SwitchSort Column
     | AddBannerClick
-    | AddBanner (Result Http.Error Banner)
+    | AddBanner (Result Http.Error SerializableBanner)
     | LoadBannersClick
-    | LoadBanners (Result Http.Error (List Banner))
+    | LoadBanners (Result Http.Error (List SerializableBanner))
     | DeleteBannerClick Int
     | DeleteBanner Int (Result Http.Error ())
     | CloseErrorMsg
@@ -71,6 +72,19 @@ type alias Banner =
     , startDate : Maybe SimpleDate
     , endDate : Maybe SimpleDate
     , image : Maybe Image
+    , url : String
+    , weight : Int
+    }
+
+
+type alias SerializableBanner =
+    { id : Int
+    , isSilent : Bool
+    , startDate : Maybe SimpleDate
+    , endDate : Maybe SimpleDate
+    , imageUrl : Maybe String
+    , imageHeight : Maybe Int
+    , imageWidth : Maybe Int
     , url : String
     , weight : Int
     }
@@ -108,24 +122,30 @@ simpleDateDecoder =
     Json.Decode.map stringToDate string
 
 
-imageDecoder : Decoder Image
-imageDecoder = 
-    decode Image
-        |> required "file" string
-        |> required "height" int
-        |> required "width" int
-
-
-bannerDecoder : Decoder Banner
+bannerDecoder : Decoder SerializableBanner
 bannerDecoder =
-    decode Banner
+    decode SerializableBanner
         |> required "id" int
         |> required "isSilent" bool
         |> required "startDate" (oneOf [ simpleDateDecoder, null Nothing ])
         |> required "endDate" (oneOf [ simpleDateDecoder, null Nothing ])
-        |> required "image" (nullable imageDecoder)
+        |> required "imageUrl" (nullable string)
+        |> required "imageHeight" (nullable int)
+        |> required "imageWidth" (nullable int)
         |> required "url" string
         |> required "weight" int
+
+
+deserialize : SerializableBanner -> Banner
+deserialize sb =
+    Banner
+        sb.id
+        sb.isSilent
+        sb.startDate
+        sb.endDate
+        (Maybe.map3 Image sb.imageUrl sb.imageHeight sb.imageHeight)
+        sb.url
+        sb.weight
 
 
 switchToPageCmd : Cmd Msg
@@ -291,7 +311,7 @@ update msg model =
     case msg of
         ChangeSilent id checked ->
             ( { model | banners = List.map (updateSilent id checked) model.banners }
-              , Cmd.none )  -- Send HTTP request here!!!
+              , Http.send SubmitEditing (authPutFieldRequest "banners" id "silent" (toString checked)) )
 
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
@@ -326,7 +346,7 @@ update msg model =
                             Just fieldValue ->
                                 ( { model | banners = List.map (updateField editing fieldValue) model.banners
                                     , editing = Nothing }
-                                , Cmd.none )  -- Send HTTP request here!
+                                , Http.send SubmitEditing (authPutFieldRequest "banners" editing.id (fieldNameFor editing.column) fieldValue) )
 
                             Nothing ->
                                 ( { model | editing = Just <| setEditingError editing }
@@ -334,6 +354,14 @@ update msg model =
 
                     Nothing ->
                         ( model, Cmd.none )  -- This should never happen!!!
+
+        SubmitEditing (Err err) ->
+            ( { model | errorMsg = Just <| toString err }
+            , Cmd.none )
+
+        SubmitEditing (Ok ()) ->
+            ( { model | errorMsg = Nothing }
+            , Cmd.none )
 
         CancelEditing ->
             ( { model | editing = Nothing }, Cmd.none )
@@ -353,7 +381,7 @@ update msg model =
             , Cmd.none )
 
         AddBanner (Ok banner) ->
-            ( { model | banners = banner :: model.banners, isLoading = False, errorMsg = Nothing }
+            ( { model | banners = deserialize banner :: model.banners, isLoading = False, errorMsg = Nothing }
             , Cmd.none )
 
         LoadBannersClick ->
@@ -365,7 +393,7 @@ update msg model =
             , Cmd.none )
 
         LoadBanners (Ok banners) ->
-            ( { model | banners = banners, errorMsg = Nothing, isLoading = False }
+            ( { model | banners = List.map deserialize banners, errorMsg = Nothing, isLoading = False }
             , Cmd.none )
 
         DeleteBannerClick id ->
