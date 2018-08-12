@@ -67,9 +67,9 @@ authDeleteRequest endpoint id =
 
 authPutFieldRequest : String -> Int -> String -> String -> Http.Request ()
 authPutFieldRequest endpoint id fieldName fieldValue =
-    { method = "PUT"
+    { method = "POST"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ endpoint ++ "/" ++ toString id
+    , url = domain ++ endpoint ++ "/" ++ toString id ++ "/edit"
     , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
     , expect = expectHttpCodeResponse
     , timeout = Nothing
