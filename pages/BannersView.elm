@@ -211,32 +211,37 @@ viewWeight mEditing data =
             (onClick (ValidateEditing validateWeight modifyWeight))
 
 
-shorterUrl : String -> String
-shorterUrl url =
-    let
-        urlNoHttp =
-            if String.startsWith "http://" url then
-                String.dropLeft 7 url
-            else if String.startsWith "https://" url then
-                String.dropLeft 8 url
-            else
-                url
-    in
-        if String.isEmpty url then
-            "Brak linka"
-        else if String.length urlNoHttp < 20 then
-            urlNoHttp
-        else
-            (String.left 20 urlNoHttp) ++ "…"
+shorterUrl : Maybe String -> String
+shorterUrl mUrl =
+    case mUrl of
+        Nothing -> "Brak linka"
+
+        Just url ->
+            let
+                urlNoHttp =
+                    if String.startsWith "http://" url then
+                        String.dropLeft 7 url
+                    else if String.startsWith "https://" url then
+                        String.dropLeft 8 url
+                    else
+                        url
+            in
+                if String.length urlNoHttp < 20 then
+                    urlNoHttp
+                else
+                    (String.left 20 urlNoHttp) ++ "…"
 
 
 viewUrl : Maybe Editing -> Banner -> Html Msg
 viewUrl mEditing data = 
     let
         nonEditingView =
-            span [ class "with-tooltip", onClick <| StartEditing data.id UrlColumn data.url ]
+            span [ class "with-tooltip"
+                , onClick <| StartEditing data.id UrlColumn (Maybe.withDefault "" data.url)
+                ]
                 [ text <| shorterUrl data.url
-                , span [ class "tooltip-text tooltip-span" ] [ text data.url ]
+                , span [ class "tooltip-text tooltip-span" ]
+                    [ text (Maybe.withDefault "" data.url) ]
                 ]
            
     in

@@ -72,7 +72,7 @@ type alias Banner =
     , startDate : Maybe SimpleDate
     , endDate : Maybe SimpleDate
     , image : Maybe Image
-    , url : String
+    , url : Maybe String
     , weight : Int
     }
 
@@ -85,7 +85,7 @@ type alias SerializableBanner =
     , imageUrl : Maybe String
     , imageHeight : Maybe Int
     , imageWidth : Maybe Int
-    , url : String
+    , url : Maybe String
     , weight : Int
     }
 
@@ -114,7 +114,7 @@ init =
 
 newBanner : Banner
 newBanner =
-    Banner -1 False Nothing Nothing Nothing "" 10
+    Banner -1 False Nothing Nothing Nothing Nothing 10
 
 
 simpleDateDecoder : Decoder (Maybe SimpleDate)
@@ -132,7 +132,7 @@ bannerDecoder =
         |> required "imageUrl" (nullable string)
         |> required "imageHeight" (nullable int)
         |> required "imageWidth" (nullable int)
-        |> required "url" string
+        |> required "url" (nullable string)
         |> required "weight" int
 
 
@@ -213,7 +213,7 @@ validateUrl strVal =
 
 modifyUrl: Modifier
 modifyUrl newUrl banner =
-    { banner | url = newUrl }
+    { banner | url = (if String.length newUrl == 0 then Nothing else Just newUrl) }
 
 
 validateDate : Validator
@@ -262,7 +262,7 @@ sortBy column b1 b2 =
             compareMaybeDates b1.endDate b2.endDate
 
         UrlColumn ->
-            compare b1.url b2.url
+            compare (Maybe.withDefault "" b1.url) (Maybe.withDefault "" b2.url)
 
         WeightColumn ->
             compare b1.weight b2.weight
