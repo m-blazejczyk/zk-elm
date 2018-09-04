@@ -1,17 +1,17 @@
-port module ZKMain exposing (..)
+port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main, openPageCmd, removeStorage, setStorage, setStorageHelper, update, view, viewPage)
 
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
-import Http
-import Json.Decode as Decode exposing (..)
-import Global exposing (..)
-import Page exposing (..)
-import Model exposing (..)
-import Ui exposing (viewErrorMsg)
-import ViewTemplate exposing (..)
 import Banners
 import BannersView
+import Global exposing (..)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Http
+import Json.Decode as Decode exposing (..)
+import Model exposing (..)
+import Page exposing (..)
+import Ui exposing (viewErrorMsg)
+import ViewTemplate exposing (..)
 
 
 main : Program (Maybe ModelForPorts) Model Msg
@@ -33,14 +33,14 @@ init mModelFP =
     case mModelFP of
         Just modelFP ->
             let
-                model = convertModelFromPort modelFP
-
+                model =
+                    convertModelFromPort modelFP
             in
-
-                ( model, openPageCmd model.page )
+            ( model, openPageCmd model.page )
 
         Nothing ->
             ( Model Nothing MainMenu emptyUser Banners.init, Cmd.none )
+
 
 
 {-
@@ -73,11 +73,13 @@ getTokenCompleted model result =
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
                 ( { model | loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
+
             else
-                ( { model | loginErrorMsg = Just <| "Błąd " ++ (toString response.status.code) }, Cmd.none )
+                ( { model | loginErrorMsg = Just <| "Błąd " ++ toString response.status.code }, Cmd.none )
 
         Err error ->
             ( { model | loginErrorMsg = Just <| toString error }, Cmd.none )
+
 
 
 -- Ports
@@ -87,6 +89,7 @@ port setStorage : ModelForPorts -> Cmd msg
 
 
 port removeStorage : () -> Cmd msg
+
 
 
 -- Helper to update model and set local storage with the updated model
@@ -135,11 +138,10 @@ update msg model =
             let
                 ( innerModel, innerCmd ) =
                     Banners.update innerMsg model.banners
-
             in
-                    
-                ( { model | banners = innerModel }
-                , Cmd.map BannersMsg innerCmd )
+            ( { model | banners = innerModel }
+            , Cmd.map BannersMsg innerCmd
+            )
 
 
 viewPage : Model -> Html Msg
@@ -148,15 +150,15 @@ viewPage model =
         noContent =
             p [ class "text-center" ] [ text "Ta strona jeszcze nie istnieje." ]
     in
-        case model.page of
-            MainMenu ->
-                viewMainMenu
+    case model.page of
+        MainMenu ->
+            viewMainMenu
 
-            Banners ->
-                BannersView.view model.banners |> Html.map BannersMsg
+        Banners ->
+            BannersView.view model.banners |> Html.map BannersMsg
 
-            _ ->
-                noContent
+        _ ->
+            noContent
 
 
 view : Model -> Html Msg
@@ -169,6 +171,7 @@ view model =
             , viewTitle model
             , if isLoggedIn model then
                 viewPage model
+
               else
                 viewLoginForm model.user
             ]

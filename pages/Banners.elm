@@ -1,20 +1,34 @@
 module Banners exposing
-    ( Msg(..), SortOrder(..), Banner, Editing, Validator, Model, Column(..)
-    , init, update, switchToPageCmd, isColumnSortable
-    , validateWeight, validateUrl, validateDate, modifyWeight, modifyUrl, modifyDate
+    ( Banner
+    , Column(..)
+    , Editing
+    , Model
+    , Msg(..)
+    , SortOrder(..)
+    , Validator
+    , init
+    , isColumnSortable
+    , modifyDate
+    , modifyUrl
+    , modifyWeight
+    , switchToPageCmd
+    , update
+    , validateDate
+    , validateUrl
+    , validateWeight
     )
 
-import Global exposing (..)
 import Debug exposing (log)
 import Dict
 import Dom
+import Global exposing (..)
 import Http
+import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string)
+import Json.Decode.Pipeline exposing (decode, required)
+import Regex
+import Result
 import Task
 import Time exposing (Time)
-import Result
-import Regex
-import Json.Decode exposing (Decoder, list, oneOf, string, int, bool, nullable, null)
-import Json.Decode.Pipeline exposing (decode, required)
 
 
 type Column
@@ -27,13 +41,21 @@ type Column
     | ActionsColumn
 
 
+
 -- Take raw value, validate it; return Nothing in case of an error,
 -- and the cleaned up field value in case of a success
-type alias Validator = String -> Maybe String
+
+
+type alias Validator =
+    String -> Maybe String
+
 
 
 -- Take value and banner, modify the banner, and return it
-type alias Modifier = String -> Banner -> Banner
+
+
+type alias Modifier =
+    String -> Banner -> Banner
 
 
 type SortOrder
@@ -103,7 +125,7 @@ type alias Model =
     , errorMsg : Maybe String
     , banners : List Banner
     , editing : Maybe Editing
-    , sortOrder : Maybe (Column, SortOrder)
+    , sortOrder : Maybe ( Column, SortOrder )
     }
 
 
@@ -149,7 +171,7 @@ deserialize sb =
 
 
 switchToPageCmd : Cmd Msg
-switchToPageCmd = 
+switchToPageCmd =
     toCmd LoadBannersClick
 
 
@@ -184,42 +206,57 @@ updateSilent : Int -> Bool -> Banner -> Banner
 updateSilent id checked banner =
     if id == banner.id then
         { banner | isSilent = checked }
+
     else
         banner
 
 
-validateWeight: Validator
-validateWeight strVal = 
+validateWeight : Validator
+validateWeight strVal =
     case String.toInt strVal of
         Ok v ->
             Just <| toString v
+
         Err _ ->
             Nothing
 
 
-modifyWeight: Modifier
+modifyWeight : Modifier
 modifyWeight strVal banner =
     case String.toInt strVal of
         Ok intVal ->
             { banner | weight = intVal }
+
         Err _ ->
             banner
 
 
-validateUrl: Validator
+validateUrl : Validator
 validateUrl strVal =
-    Just strVal  -- No validation of URLs
+    Just strVal
 
 
-modifyUrl: Modifier
+
+-- No validation of URLs
+
+
+modifyUrl : Modifier
 modifyUrl newUrl banner =
-    { banner | url = (if String.length newUrl == 0 then Nothing else Just newUrl) }
+    { banner
+        | url =
+            if String.length newUrl == 0 then
+                Nothing
+
+            else
+                Just newUrl
+    }
 
 
 validateDate : Validator
 validateDate dateStr =
     if String.length dateStr == 0 then
         Just ""
+
     else
         case stringToDate dateStr of
             Just date ->
@@ -229,16 +266,17 @@ validateDate dateStr =
                 Nothing
 
 
-modifyDate: Column -> Modifier
+modifyDate : Column -> Modifier
 modifyDate column newDateStr banner =
     let
-        newDate = stringToDate newDateStr
-
+        newDate =
+            stringToDate newDateStr
     in
-        if column == StartDateColumn then
-            { banner | startDate = newDate }
-        else
-            { banner | endDate = newDate }
+    if column == StartDateColumn then
+        { banner | startDate = newDate }
+
+    else
+        { banner | endDate = newDate }
 
 
 sortBy : Column -> Banner -> Banner -> Order
@@ -247,8 +285,10 @@ sortBy column b1 b2 =
         SilentColumn ->
             if b1.isSilent == b2.isSilent then
                 EQ
+
             else if b1.isSilent then
                 LT
+
             else
                 GT
 
@@ -274,36 +314,37 @@ sortBy column b1 b2 =
 switchSort : Column -> Model -> Model
 switchSort column oldModel =
     let
-        newBanners = 
+        newBanners =
             case oldModel.sortOrder of
-                Just (oldColumn, oldSortOrder) ->
+                Just ( oldColumn, oldSortOrder ) ->
                     -- Properly handle the case when we only need to reverse the list
                     if oldColumn == column then
                         List.reverse oldModel.banners
+
                     else
                         List.sortWith (sortBy column) oldModel.banners
 
                 Nothing ->
                     List.sortWith (sortBy column) oldModel.banners
-        
+
         newSortOrder =
             case oldModel.sortOrder of
-                Just (oldColumn, oldSortOrder) ->
+                Just ( oldColumn, oldSortOrder ) ->
                     -- Properly handle the case when we only need to reverse the list
                     if oldColumn == column then
                         if oldSortOrder == Ascending then
                             Just ( column, Descending )
+
                         else
                             Just ( column, Ascending )
+
                     else
                         Just ( column, Descending )
 
                 Nothing ->
-                        Just ( column, Descending )
-
+                    Just ( column, Descending )
     in
-
-        { oldModel | banners = newBanners, sortOrder = newSortOrder }
+    { oldModel | banners = newBanners, sortOrder = newSortOrder }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -311,57 +352,69 @@ update msg model =
     case msg of
         ChangeSilent id checked ->
             ( { model | banners = List.map (updateSilent id checked) model.banners }
-              , Http.send SubmitEditing (authPutFieldRequest "banners" id "silent" (toString checked)) )
+            , Http.send SubmitEditing (authPutFieldRequest "banners" id "silent" (toString checked))
+            )
 
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
-            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
+            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult
+            )
 
         ChangeInput newVal ->
             case model.editing of
                 Just oldEditing ->
                     let
-                        newEditing = { oldEditing | value = newVal }
+                        newEditing =
+                            { oldEditing | value = newVal }
                     in
-                        ( { model | editing = Just newEditing }, Cmd.none )
-                Nothing ->
-                    ( model, Cmd.none )  -- This should never happen!!!
+                    ( { model | editing = Just newEditing }, Cmd.none )
 
+                Nothing ->
+                    ( model, Cmd.none )
+
+        -- This should never happen!!!
         ValidateEditing valFun modFun ->
             let
                 updateField : Editing -> String -> Banner -> Banner
                 updateField editing value banner =
                     if editing.id == banner.id then
                         modFun value banner
+
                     else
                         banner
 
-                setEditingError editing = { editing | isError = True }
-
+                setEditingError editing =
+                    { editing | isError = True }
             in
+            case model.editing of
+                Just editing ->
+                    case valFun editing.value of
+                        Just fieldValue ->
+                            ( { model
+                                | banners = List.map (updateField editing fieldValue) model.banners
+                                , editing = Nothing
+                              }
+                            , Http.send SubmitEditing (authPutFieldRequest "banners" editing.id (fieldNameFor editing.column) fieldValue)
+                            )
 
-                case model.editing of
-                    Just editing ->
-                        case valFun editing.value of
-                            Just fieldValue ->
-                                ( { model | banners = List.map (updateField editing fieldValue) model.banners
-                                    , editing = Nothing }
-                                , Http.send SubmitEditing (authPutFieldRequest "banners" editing.id (fieldNameFor editing.column) fieldValue) )
+                        Nothing ->
+                            ( { model | editing = Just <| setEditingError editing }
+                            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult
+                            )
 
-                            Nothing ->
-                                ( { model | editing = Just <| setEditingError editing }
-                                , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult )
+                Nothing ->
+                    ( model, Cmd.none )
 
-                    Nothing ->
-                        ( model, Cmd.none )  -- This should never happen!!!
-
+        -- This should never happen!!!
         SubmitEditing (Err err) ->
             ( { model | errorMsg = Just <| toString err }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         SubmitEditing (Ok ()) ->
             ( { model | errorMsg = Nothing }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         CancelEditing ->
             ( { model | editing = Nothing }, Cmd.none )
@@ -374,40 +427,52 @@ update msg model =
 
         AddBannerClick ->
             ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
-            , Http.send AddBanner (authPostRequestExpectJson "banners" bannerDecoder) )
+            , Http.send AddBanner (authPostRequestExpectJson "banners" bannerDecoder)
+            )
 
         AddBanner (Err err) ->
             ( { model | isLoading = False, errorMsg = Just <| toString err }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         AddBanner (Ok banner) ->
             ( { model | banners = deserialize banner :: model.banners, isLoading = False, errorMsg = Nothing }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         LoadBannersClick ->
             ( { model | banners = [], isLoading = True, errorMsg = Nothing, editing = Nothing, sortOrder = Nothing }
-            , Http.send LoadBanners (authGetRequestExpectJson "banners" (list bannerDecoder)) )
+            , Http.send LoadBanners (authGetRequestExpectJson "banners" (list bannerDecoder))
+            )
 
         LoadBanners (Err err) ->
             ( { model | isLoading = False, errorMsg = Just <| toString err }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         LoadBanners (Ok banners) ->
             ( { model | banners = List.map deserialize banners, errorMsg = Nothing, isLoading = False }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         DeleteBannerClick id ->
             ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
-            , Http.send (DeleteBanner id) (authDeleteRequest "banners" id) )
+            , Http.send (DeleteBanner id) (authDeleteRequest "banners" id)
+            )
 
         DeleteBanner _ (Err err) ->
             ( { model | isLoading = False, errorMsg = Just <| toString err }
-            , Cmd.none )
+            , Cmd.none
+            )
 
         DeleteBanner id (Ok ()) ->
-            ( { model | banners = List.filter ((/=) id << .id) model.banners
-              , errorMsg = Nothing, isLoading = False }
-            , Cmd.none )
+            ( { model
+                | banners = List.filter ((/=) id << .id) model.banners
+                , errorMsg = Nothing
+                , isLoading = False
+              }
+            , Cmd.none
+            )
 
         CloseErrorMsg ->
             ( { model | errorMsg = Nothing }, Cmd.none )

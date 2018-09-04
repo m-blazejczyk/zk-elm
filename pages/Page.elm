@@ -1,4 +1,4 @@
-module Page exposing (..)
+module Page exposing (Page(..), editingPages, pageTitles)
 
 
 type Page

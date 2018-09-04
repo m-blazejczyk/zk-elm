@@ -1,11 +1,11 @@
-module ViewTemplate exposing (..)
+module ViewTemplate exposing (viewFooter, viewHeader, viewLoginForm, viewMainMenu, viewTitle, viewTopMenu, viewUserMenu)
 
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
 import Global exposing (..)
-import Page exposing (..)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Model exposing (..)
+import Page exposing (..)
 
 
 viewUserMenu : Maybe User -> List (Html Msg)
@@ -38,30 +38,31 @@ viewTopMenu : Html Msg
 viewTopMenu =
     let
         midIndex =
-            ((List.length editingPages) // 2) - 1
+            (List.length editingPages // 2) - 1
 
         buildLi page =
             let
                 ( short, _, long ) =
                     pageTitles page
             in
-                li [] [ a [ href "#", title long, onClick (OpenPage page) ] [ text short ] ]
+            li [] [ a [ href "#", title long, onClick (OpenPage page) ] [ text short ] ]
 
         mapper page t =
             let
                 ( index, newList ) =
                     t
             in
-                if index == midIndex then
-                    ( index + 1, (li [ attribute "style" "width: 150px;" ] []) :: (buildLi page) :: newList )
-                else
-                    ( index + 1, (buildLi page) :: newList )
+            if index == midIndex then
+                ( index + 1, li [ attribute "style" "width: 150px;" ] [] :: buildLi page :: newList )
+
+            else
+                ( index + 1, buildLi page :: newList )
 
         ( _, lis ) =
             List.foldr mapper ( 0, [] ) editingPages
     in
-        div [ id "nav-menu" ]
-            [ ul [] lis ]
+    div [ id "nav-menu" ]
+        [ ul [] lis ]
 
 
 viewFooter : Html Msg
@@ -107,13 +108,14 @@ viewTitle model =
         page =
             if isLoggedIn model then
                 model.page
+
             else
                 MainMenu
 
         ( _, _, title ) =
             pageTitles page
     in
-        h2 [ id "title" ] [ text title ]
+    h2 [ id "title" ] [ text title ]
 
 
 viewMainMenu : Html Msg
@@ -132,6 +134,7 @@ viewMainMenu =
                 buttonClass active =
                     if active then
                         "btn-primary"
+
                     else
                         "btn-default"
 
@@ -141,26 +144,27 @@ viewMainMenu =
                 buttonText active =
                     if active then
                         text title
+
                     else
                         em [] [ text title ]
             in
-                button
-                    [ class "btn"
-                    , class (buttonClass active)
-                    , style buttonStyle
-                    , onClick (OpenPage page)
-                    ]
-                    [ buttonText active ]
+            button
+                [ class "btn"
+                , class (buttonClass active)
+                , style buttonStyle
+                , onClick (OpenPage page)
+                ]
+                [ buttonText active ]
     in
-        div [ id "main-menu" ]
-            [ div [ class "row" ]
-                [ div [ class "col-md-4" ] [ pageButton Banners True ]
-                , div [ class "col-md-4" ] [ pageButton HomePageContent False ]
-                , div [ class "col-md-4" ] [ pageButton News False ]
-                ]
-            , div [ class "row" ]
-                [ div [ class "col-md-4" ] [ pageButton Issues False ]
-                , div [ class "col-md-4" ] [ pageButton Reviews False ]
-                , div [ class "col-md-4" ] [ pageButton Repository False ]
-                ]
+    div [ id "main-menu" ]
+        [ div [ class "row" ]
+            [ div [ class "col-md-4" ] [ pageButton Banners True ]
+            , div [ class "col-md-4" ] [ pageButton HomePageContent False ]
+            , div [ class "col-md-4" ] [ pageButton News False ]
             ]
+        , div [ class "row" ]
+            [ div [ class "col-md-4" ] [ pageButton Issues False ]
+            , div [ class "col-md-4" ] [ pageButton Reviews False ]
+            , div [ class "col-md-4" ] [ pageButton Repository False ]
+            ]
+        ]

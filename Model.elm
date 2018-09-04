@@ -1,11 +1,12 @@
-module Model exposing (..)
+module Model exposing (Model, ModelForPorts, Msg(..), User, convertModelForPort, convertModelFromPort, emptyUser, isLoggedIn, loggedInUser, setPasswordInModel, setUserNameInModel, userDecoder)
 
+import Banners
 import Http
 import Json.Decode as Decode exposing (..)
+import Page exposing (..)
 import Task
 import Time exposing (Time)
-import Page exposing (..)
-import Banners
+
 
 type Msg
     = ClickLogIn
@@ -39,6 +40,7 @@ type alias Model =
     , user : User
     , banners : Banners.Model
     }
+
 
 
 -- Special type used to save/restore state via ports and flags;
@@ -82,10 +84,9 @@ convertModelFromPort modelFP =
 
                 _ ->
                     MainMenu
-
     in
+    Model Nothing page modelFP.user Banners.init
 
-        Model Nothing page modelFP.user Banners.init
 
 
 -- Setters for nested data within the model
@@ -100,7 +101,7 @@ setUserNameInModel username model =
         newUser =
             { oldUser | userName = username }
     in
-        { model | user = newUser }
+    { model | user = newUser }
 
 
 setPasswordInModel : String -> Model -> Model
@@ -112,7 +113,7 @@ setPasswordInModel password model =
         newUser =
             { oldUser | password = password }
     in
-        { model | user = newUser }
+    { model | user = newUser }
 
 
 isLoggedIn : Model -> Bool
@@ -124,6 +125,7 @@ loggedInUser : Model -> Maybe User
 loggedInUser model =
     if isLoggedIn model then
         Just model.user
+
     else
         Nothing
 
@@ -134,10 +136,10 @@ userDecoder =
         makeUser token userId userName fullName initials =
             User token userId userName "" fullName initials
     in
-        Decode.map5
-            makeUser
-            (Decode.field "token" Decode.string)
-            (Decode.field "userId" Decode.int)
-            (Decode.field "userName" Decode.string)
-            (Decode.field "fullName" Decode.string)
-            (Decode.field "initials" Decode.string)
+    Decode.map5
+        makeUser
+        (Decode.field "token" Decode.string)
+        (Decode.field "userId" Decode.int)
+        (Decode.field "userName" Decode.string)
+        (Decode.field "fullName" Decode.string)
+        (Decode.field "initials" Decode.string)

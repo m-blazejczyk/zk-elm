@@ -1,16 +1,13 @@
 module BannersView exposing (view)
 
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
-
-import Global exposing (..)
-import Ui exposing (..)
-
-
 -- Model, Msg, ...
 
 import Banners exposing (..)
+import Global exposing (..)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Ui exposing (..)
 
 
 columnTooltip : Column -> Maybe (Html Msg)
@@ -36,13 +33,13 @@ columnTooltip column =
                 _ ->
                     Nothing
     in
-        Maybe.map (\tt -> glyphiconInfo SpaceRight tt) tooltipText
+    Maybe.map (\tt -> glyphiconInfo SpaceRight tt) tooltipText
 
 
 columnHeader : Column -> Html Msg
 columnHeader column =
     let
-        headerText =            
+        headerText =
             case column of
                 SilentColumn ->
                     "Ukryj"
@@ -63,14 +60,13 @@ columnHeader column =
                     "Waga"
 
                 ActionsColumn ->
-                     ""
-
+                    ""
     in
+    if isColumnSortable column then
+        a [ href "#", onClick <| SwitchSort column ] [ text headerText ]
 
-        if isColumnSortable column then
-                a [ href "#", onClick <| SwitchSort column ] [ text headerText ]
-            else
-                text headerText
+    else
+        text headerText
 
 
 columnWidth : Column -> Maybe Int
@@ -99,19 +95,17 @@ columnWidth col =
 
 
 columnStyle : Column -> List (Html.Attribute Msg)
-columnStyle column = 
+columnStyle column =
     let
         attrs =
             case columnWidth column of
                 Just width ->
-                    [ ( "width", (toString width) ++ "px" ) ]
+                    [ ( "width", toString width ++ "px" ) ]
 
                 Nothing ->
                     []
-
     in
-
-        [ style attrs ]
+    [ style attrs ]
 
 
 viewImage : Banner -> Html Msg
@@ -123,12 +117,13 @@ viewImage data =
                 , br [] []
                 , span [] [ text (toString image.width ++ " × " ++ toString image.height ++ " px") ]
                 ]
+
         Nothing ->
             text "Brak obrazka"
 
 
-viewInputButtons: Attribute Msg -> Html Msg
-viewInputButtons onOkClick = 
+viewInputButtons : Attribute Msg -> Html Msg
+viewInputButtons onOkClick =
     div [ class "btn-group right-align" ]
         [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ], onOkClick ]
             [ glyphicon "ok" NoSpace ]
@@ -137,38 +132,38 @@ viewInputButtons onOkClick =
         ]
 
 
-viewInputWrapper: Attribute Msg -> Maybe String -> Html Msg -> Html Msg
+viewInputWrapper : Attribute Msg -> Maybe String -> Html Msg -> Html Msg
 viewInputWrapper onOkClick hint content =
     let
-        hintHtml = 
+        hintHtml =
             case hint of
                 Just actualHint ->
                     span [ class "tytul" ] [ text <| "(" ++ actualHint ++ ")" ]
+
                 Nothing ->
                     text ""
-            
     in
-            
     div [ class "full-width" ]
         [ content, hintHtml, viewInputButtons onOkClick ]
 
 
-viewRawInput: Int -> String -> Html Msg
+viewRawInput : Int -> String -> Html Msg
 viewRawInput maxLen val =
     input [ maxlength maxLen, value val, type_ "text", class "form-control", id "inPlaceEditor", onInput ChangeInput ]
         []
 
 
-viewInputNormal: Int -> String -> Maybe String -> Attribute Msg -> Html Msg
+viewInputNormal : Int -> String -> Maybe String -> Attribute Msg -> Html Msg
 viewInputNormal maxLen val hint onOkClick =
     viewInputWrapper
         onOkClick
         hint
         (div [ class "form-group full-width-input" ]
-            [ viewRawInput maxLen val ])
+            [ viewRawInput maxLen val ]
+        )
 
 
-viewInputWithError: Int -> String -> Maybe String -> Attribute Msg -> Html Msg
+viewInputWithError : Int -> String -> Maybe String -> Attribute Msg -> Html Msg
 viewInputWithError maxLen val hint onOkClick =
     viewInputWrapper
         onOkClick
@@ -176,18 +171,21 @@ viewInputWithError maxLen val hint onOkClick =
         (div [ class "form-group has-error has-feedback full-width-input" ]
             [ viewRawInput maxLen val
             , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-            ])
+            ]
+        )
 
 
-viewEditingInput: Maybe Editing -> Int -> Html Msg -> Column -> Int -> Maybe String -> Attribute Msg -> Html Msg
+viewEditingInput : Maybe Editing -> Int -> Html Msg -> Column -> Int -> Maybe String -> Attribute Msg -> Html Msg
 viewEditingInput mEditing id nonEditingView column maxLen hint onOkClick =
     case mEditing of
         Just editing ->
             if editing.id == id && editing.column == column then
                 if editing.isError then
                     viewInputWithError maxLen editing.value hint onOkClick
+
                 else
                     viewInputNormal maxLen editing.value hint onOkClick
+
             else
                 nonEditingView
 
@@ -198,57 +196,69 @@ viewEditingInput mEditing id nonEditingView column maxLen hint onOkClick =
 viewWeight : Maybe Editing -> Banner -> Html Msg
 viewWeight mEditing data =
     let
-        weightAsString = toString data.weight
+        weightAsString =
+            toString data.weight
 
         nonEditingView =
             span [ onClick <| StartEditing data.id WeightColumn weightAsString ]
-                [ text weightAsString ]            
-
+                [ text weightAsString ]
     in
-
-        viewEditingInput
-            mEditing data.id nonEditingView WeightColumn 2 Nothing
-            (onClick (ValidateEditing validateWeight modifyWeight))
+    viewEditingInput
+        mEditing
+        data.id
+        nonEditingView
+        WeightColumn
+        2
+        Nothing
+        (onClick (ValidateEditing validateWeight modifyWeight))
 
 
 shorterUrl : Maybe String -> String
 shorterUrl mUrl =
     case mUrl of
-        Nothing -> "Brak linka"
+        Nothing ->
+            "Brak linka"
 
         Just url ->
             let
                 urlNoHttp =
                     if String.startsWith "http://" url then
                         String.dropLeft 7 url
+
                     else if String.startsWith "https://" url then
                         String.dropLeft 8 url
+
                     else
                         url
             in
-                if String.length urlNoHttp < 20 then
-                    urlNoHttp
-                else
-                    (String.left 20 urlNoHttp) ++ "…"
+            if String.length urlNoHttp < 20 then
+                urlNoHttp
+
+            else
+                String.left 20 urlNoHttp ++ "…"
 
 
 viewUrl : Maybe Editing -> Banner -> Html Msg
-viewUrl mEditing data = 
+viewUrl mEditing data =
     let
         nonEditingView =
-            span [ class "with-tooltip"
+            span
+                [ class "with-tooltip"
                 , onClick <| StartEditing data.id UrlColumn (Maybe.withDefault "" data.url)
                 ]
                 [ text <| shorterUrl data.url
                 , span [ class "tooltip-text tooltip-span" ]
                     [ text (Maybe.withDefault "" data.url) ]
                 ]
-           
     in
-            
-        viewEditingInput
-            mEditing data.id nonEditingView UrlColumn 500 Nothing
-            (onClick (ValidateEditing validateUrl modifyUrl))
+    viewEditingInput
+        mEditing
+        data.id
+        nonEditingView
+        UrlColumn
+        500
+        Nothing
+        (onClick (ValidateEditing validateUrl modifyUrl))
 
 
 viewDate : Maybe Editing -> Maybe SimpleDate -> Column -> Int -> Html Msg
@@ -257,22 +267,27 @@ viewDate mEditing mDate column id =
         dateAsString forEditing =
             case mDate of
                 Just date ->
-                    dateToString date 
+                    dateToString date
+
                 Nothing ->
                     if forEditing then
                         ""
+
                     else
                         "Brak daty"
 
         nonEditingView =
             span [ onClick <| StartEditing id column (dateAsString True) ]
                 [ text <| dateAsString False ]
-
     in
-
-        viewEditingInput
-            mEditing id nonEditingView column 10 (Just "rrrr-m-d")
-            (onClick (ValidateEditing validateDate (modifyDate column)))
+    viewEditingInput
+        mEditing
+        id
+        nonEditingView
+        column
+        10
+        (Just "rrrr-m-d")
+        (onClick (ValidateEditing validateDate (modifyDate column)))
 
 
 viewDeleteButton : Int -> Html Msg
@@ -299,12 +314,14 @@ view model =
     let
         addSortGlyphicon column =
             case model.sortOrder of
-                Just (sortColumn, order) ->
+                Just ( sortColumn, order ) ->
                     if sortColumn == column then
                         if order == Ascending then
-                            (glyphicon "arrow-up" SpaceRight) :: [ columnHeader column ]
+                            glyphicon "arrow-up" SpaceRight :: [ columnHeader column ]
+
                         else
-                            (glyphicon "arrow-down" SpaceRight) :: [ columnHeader column ]
+                            glyphicon "arrow-down" SpaceRight :: [ columnHeader column ]
+
                     else
                         [ columnHeader column ]
 
@@ -321,31 +338,30 @@ view model =
 
         displayTable =
             table [ class "table table-bordered" ]
-                    [ thead []
-                        [ tr []
-                            [ th (columnStyle SilentColumn)    (buildHeaderHtml SilentColumn)
-                            , th (columnStyle ImageColumn)     (buildHeaderHtml ImageColumn)
-                            , th (columnStyle StartDateColumn) (buildHeaderHtml StartDateColumn)
-                            , th (columnStyle EndDateColumn)   (buildHeaderHtml EndDateColumn)
-                            , th (columnStyle UrlColumn)       (buildHeaderHtml UrlColumn)
-                            , th (columnStyle WeightColumn)    (buildHeaderHtml WeightColumn)
-                            , th (columnStyle ActionsColumn)   (buildHeaderHtml ActionsColumn)
-                            ]
+                [ thead []
+                    [ tr []
+                        [ th (columnStyle SilentColumn) (buildHeaderHtml SilentColumn)
+                        , th (columnStyle ImageColumn) (buildHeaderHtml ImageColumn)
+                        , th (columnStyle StartDateColumn) (buildHeaderHtml StartDateColumn)
+                        , th (columnStyle EndDateColumn) (buildHeaderHtml EndDateColumn)
+                        , th (columnStyle UrlColumn) (buildHeaderHtml UrlColumn)
+                        , th (columnStyle WeightColumn) (buildHeaderHtml WeightColumn)
+                        , th (columnStyle ActionsColumn) (buildHeaderHtml ActionsColumn)
                         ]
-                    , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
                     ]
-
+                , tbody [] (List.map (viewSingleBanner model.editing) model.banners)
+                ]
     in
+    div []
+        [ viewErrorMsg model.errorMsg CloseErrorMsg
+        , viewSpinner model.isLoading
+        , if List.isEmpty model.banners then
+            text ""
 
-        div [] 
-            [ viewErrorMsg model.errorMsg CloseErrorMsg
-            , viewSpinner model.isLoading
-            , if List.isEmpty model.banners then
-                text ""
-              else
-                displayTable
-            , button [ class "btn btn-primary", onClick AddBannerClick ]
-                [ text "Dodaj banner" ]
-            , button [ class "btn btn-primary", style [ ( "margin-left", "20px" ) ], onClick LoadBannersClick ]
-                [ glyphicon "refresh" NoSpace ]
-            ]
+          else
+            displayTable
+        , button [ class "btn btn-primary", onClick AddBannerClick ]
+            [ text "Dodaj banner" ]
+        , button [ class "btn btn-primary", style [ ( "margin-left", "20px" ) ], onClick LoadBannersClick ]
+            [ glyphicon "refresh" NoSpace ]
+        ]
