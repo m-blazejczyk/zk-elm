@@ -20,15 +20,14 @@ module Banners exposing
 
 import Debug exposing (log)
 import Dict
-import Dom
 import Global exposing (..)
 import Http
-import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed)
+import Json.Decode.Pipeline exposing (required)
 import Regex
 import Result
 import Task
-import Time exposing (Time)
+import Browser.Dom as Dom
 
 
 type Column
@@ -146,7 +145,7 @@ simpleDateDecoder =
 
 bannerDecoder : Decoder SerializableBanner
 bannerDecoder =
-    decode SerializableBanner
+    succeed SerializableBanner
         |> required "id" int
         |> required "isSilent" bool
         |> required "startDate" (oneOf [ simpleDateDecoder, null Nothing ])
@@ -214,20 +213,20 @@ updateSilent id checked banner =
 validateWeight : Validator
 validateWeight strVal =
     case String.toInt strVal of
-        Ok v ->
-            Just <| toString v
+        Just v ->
+            Just <| String.fromInt v
 
-        Err _ ->
+        Nothing ->
             Nothing
 
 
 modifyWeight : Modifier
 modifyWeight strVal banner =
     case String.toInt strVal of
-        Ok intVal ->
+        Just intVal ->
             { banner | weight = intVal }
 
-        Err _ ->
+        Nothing ->
             banner
 
 
@@ -352,7 +351,7 @@ update msg model =
     case msg of
         ChangeSilent id checked ->
             ( { model | banners = List.map (updateSilent id checked) model.banners }
-            , Http.send SubmitEditing (authPutFieldRequest "banners" id "silent" (toString checked))
+            , Http.send SubmitEditing (authPutFieldRequest "banners" id "silent" (boolToString checked))
             )
 
         StartEditing id column value ->
@@ -407,7 +406,7 @@ update msg model =
 
         -- This should never happen!!!
         SubmitEditing (Err err) ->
-            ( { model | errorMsg = Just <| toString err }
+            ( { model | errorMsg = Just <| httpErrToString err }
             , Cmd.none
             )
 
@@ -431,7 +430,7 @@ update msg model =
             )
 
         AddBanner (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| toString err }
+            ( { model | isLoading = False, errorMsg = Just <| httpErrToString err }
             , Cmd.none
             )
 
@@ -446,7 +445,7 @@ update msg model =
             )
 
         LoadBanners (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| toString err }
+            ( { model | isLoading = False, errorMsg = Just <| httpErrToString err }
             , Cmd.none
             )
 
@@ -461,7 +460,7 @@ update msg model =
             )
 
         DeleteBanner _ (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| toString err }
+            ( { model | isLoading = False, errorMsg = Just <| httpErrToString err }
             , Cmd.none
             )
 

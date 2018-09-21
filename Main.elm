@@ -3,6 +3,7 @@ port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main,
 import Banners
 import BannersView
 import Global exposing (..)
+import Browser exposing (Document, document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -16,7 +17,7 @@ import ViewTemplate exposing (..)
 
 main : Program (Maybe ModelForPorts) Model Msg
 main =
-    Html.programWithFlags
+    Browser.document
         { init = init
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -75,10 +76,10 @@ getTokenCompleted model result =
                 ( { model | loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
 
             else
-                ( { model | loginErrorMsg = Just <| "Błąd " ++ toString response.status.code }, Cmd.none )
+                ( { model | loginErrorMsg = Just <| "Błąd " ++ String.fromInt response.status.code }, Cmd.none )
 
         Err error ->
-            ( { model | loginErrorMsg = Just <| toString error }, Cmd.none )
+            ( { model | loginErrorMsg = Just <| httpErrToString error }, Cmd.none )
 
 
 
@@ -161,19 +162,23 @@ viewPage model =
             noContent
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-    div [ id "container" ]
-        [ viewHeader <| loggedInUser model
-        , viewTopMenu
-        , div [ id "article" ]
-            [ viewErrorMsg model.loginErrorMsg CloseErrorMsg
-            , viewTitle model
-            , if isLoggedIn model then
-                viewPage model
+    { title = "Portal redakcyjny „Zeszytów komiksowych”"
+    , body = 
+        [ div
+            [ id "container" ]
+            [ viewHeader <| loggedInUser model
+            , viewTopMenu
+            , div [ id "article" ]
+                [ viewErrorMsg model.loginErrorMsg CloseErrorMsg
+                , viewTitle model
+                , if isLoggedIn model then
+                    viewPage model
 
-              else
-                viewLoginForm model.user
+                  else
+                    viewLoginForm model.user
+                ]
+            , viewFooter
             ]
-        , viewFooter
-        ]
+        ] }

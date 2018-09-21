@@ -1,4 +1,4 @@
-module Page exposing (Page(..), editingPages, pageTitles)
+module Page exposing (Page(..), editingPages, pageTitles, toString, fromString)
 
 
 type Page
@@ -39,3 +39,53 @@ pageTitles page =
 editingPages : List Page
 editingPages =
     [ Banners, HomePageContent, News, Issues, Reviews, Repository ]
+
+
+fromString : String -> Page
+fromString str =
+    case str of
+        "News" ->
+            News
+
+        "Issues" ->
+            Issues
+
+        "Reviews" ->
+            Reviews
+
+        "Repository" ->
+            Repository
+
+        "Banners" ->
+            Banners
+
+        "HomePageContent" ->
+            HomePageContent
+
+        _ ->
+            MainMenu
+
+
+toString : Page -> String
+toString page =
+    case page of
+        News ->
+            "News"
+
+        Issues ->
+            "Issues"
+
+        Reviews ->
+            "Reviews"
+
+        Repository ->
+            "Repository"
+
+        Banners ->
+            "Banners"
+
+        HomePageContent ->
+            "HomePageContent"
+
+        MainMenu ->
+            "MainMenu"

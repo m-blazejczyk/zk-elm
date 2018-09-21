@@ -11,24 +11,24 @@ type Space
     | NoSpace
 
 
-spaceStyle : Space -> Attribute msg
+spaceStyle : Space -> List (Attribute msg)
 spaceStyle space =
     case space of
         SpaceRight ->
-            style [ ( "margin-right", "10px" ) ]
+            [ style "margin-right" "10px"]
 
         NoSpace ->
-            style []
+            []
 
 
 glyphicon : String -> Space -> Html msg
 glyphicon glyph space =
-    span [ class "glyphicon", class ("glyphicon-" ++ glyph), spaceStyle space ] []
+    span ([ class "glyphicon", class ("glyphicon-" ++ glyph) ] ++ spaceStyle space) []
 
 
 glyphiconInfo : Space -> String -> Html msg
 glyphiconInfo space tooltip =
-    span [ class "glyphicon", class "glyphicon-info-sign", spaceStyle space ]
+    span ([ class "glyphicon", class "glyphicon-info-sign" ] ++ spaceStyle space)
         [ span [ class "tooltip-text tooltip-glyphicon" ] [ text tooltip ] ]
 
 
@@ -48,8 +48,8 @@ viewErrorMsg mError msg =
 viewSpinner : Bool -> Html msg
 viewSpinner shouldView =
     if shouldView then
-        div [ style [ ( "width", "100%" ) ] ]
-            [ img [ src (domain ++ "static/ajax-loader.gif"), width 32, height 32, class "center-block", style [ ( "margin-bottom", "20px" ) ] ] [] ]
+        div [ style "width" "100%" ]
+            [ img [ src (domain ++ "static/ajax-loader.gif"), width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
 
     else
         text ""

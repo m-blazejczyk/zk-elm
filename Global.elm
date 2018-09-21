@@ -1,5 +1,7 @@
 module Global exposing
-    ( SimpleDate
+    ( boolToString
+    , httpErrToString
+    , SimpleDate
     , authDeleteRequest
     , authGetRequestExpectJson
     , authPostRequestExpectJson
@@ -14,7 +16,7 @@ module Global exposing
     )
 
 import Array
-import Date exposing (Month(..))
+import Time exposing (Month(..))
 import Http
 import Json.Decode exposing (Decoder)
 import Maybe exposing (..)
@@ -24,9 +26,33 @@ import Task
 
 type alias SimpleDate =
     { day : Int
-    , month : Date.Month
+    , month : Time.Month
     , year : Int
     }
+
+
+boolToString : Bool -> String
+boolToString b = 
+    if b then "True" else "False"
+
+
+httpErrToString : Http.Error -> String
+httpErrToString err =
+    case err of
+        Http.BadUrl url ->
+            "BadUrl " ++ url
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "NetworkError"
+
+        Http.BadStatus response ->
+            "BadStatus " ++ String.fromInt response.status.code
+
+        Http.BadPayload reason _ ->
+            "BadPayload: " ++ reason
 
 
 domain : String
@@ -73,7 +99,7 @@ authDeleteRequest : String -> Int -> Http.Request ()
 authDeleteRequest endpoint id =
     { method = "DELETE"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ endpoint ++ "/" ++ toString id
+    , url = domain ++ endpoint ++ "/" ++ String.fromInt id
     , body = Http.emptyBody
     , expect = expectHttpCodeResponse
     , timeout = Nothing
@@ -86,7 +112,7 @@ authPutFieldRequest : String -> Int -> String -> String -> Http.Request ()
 authPutFieldRequest endpoint id fieldName fieldValue =
     { method = "POST"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ endpoint ++ "/" ++ toString id ++ "/edit"
+    , url = domain ++ endpoint ++ "/" ++ String.fromInt id ++ "/edit"
     , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
     , expect = expectHttpCodeResponse
     , timeout = Nothing
@@ -240,7 +266,9 @@ intToMonth monthInt =
 
 dateToString : SimpleDate -> String
 dateToString date =
-    toString (.year date) ++ "-" ++ toString (monthToInt (.month date)) ++ "-" ++ toString (.day date)
+    String.fromInt (.year date) ++ "-" 
+ ++ String.fromInt (monthToInt (.month date)) ++ "-"
+ ++ String.fromInt (.day date)
 
 
 stringToDate : String -> Maybe SimpleDate
@@ -263,8 +291,8 @@ stringToDate dateStr =
             else
                 Nothing
 
-        validateDay mMonth d =
-            case mMonth of
+        validateDay mMonth1 d =
+            case mMonth1 of
                 Just month ->
                     if d >= 1 && d <= maxDayOfMonth month then
                         Just d
@@ -277,18 +305,18 @@ stringToDate dateStr =
 
         mYear =
             Array.get 0 dateArr
-                |> andThen (Result.toMaybe << String.toInt)
+                |> andThen String.toInt
                 |> andThen validateYear
 
         mMonth =
             Array.get 1 dateArr
-                |> andThen (Result.toMaybe << String.toInt)
+                |> andThen String.toInt
                 |> andThen validateMonth
                 |> andThen intToMonth
 
         mDay =
             Array.get 2 dateArr
-                |> andThen (Result.toMaybe << String.toInt)
+                |> andThen String.toInt
                 |> andThen (validateDay mMonth)
     in
     case mYear of

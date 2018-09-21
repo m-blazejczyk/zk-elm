@@ -5,7 +5,6 @@ import Http
 import Json.Decode as Decode exposing (..)
 import Page exposing (..)
 import Task
-import Time exposing (Time)
 
 
 type Msg
@@ -55,37 +54,12 @@ type alias ModelForPorts =
 
 convertModelForPort : Model -> ModelForPorts
 convertModelForPort model =
-    ModelForPorts (toString model.page) model.user
+    ModelForPorts (Page.toString model.page) model.user
 
 
 convertModelFromPort : ModelForPorts -> Model
 convertModelFromPort modelFP =
-    let
-        page : Page
-        page =
-            case modelFP.pageStr of
-                "News" ->
-                    News
-
-                "Issues" ->
-                    Issues
-
-                "Reviews" ->
-                    Reviews
-
-                "Repository" ->
-                    Repository
-
-                "Banners" ->
-                    Banners
-
-                "HomePageContent" ->
-                    HomePageContent
-
-                _ ->
-                    MainMenu
-    in
-    Model Nothing page modelFP.user Banners.init
+    Model Nothing (Page.fromString modelFP.pageStr) modelFP.user Banners.init
 
 
 

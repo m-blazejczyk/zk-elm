@@ -123,16 +123,8 @@ viewMainMenu =
     let
         pageButton page active =
             let
-                buttonStyle =
-                    [ ( "width", "100%" )
-                    , ( "padding-top", "15px" )
-                    , ( "padding-bottom", "15px" )
-                    , ( "margin-top", "15px" )
-                    , ( "margin-bottom", "15px" )
-                    ]
-
-                buttonClass active =
-                    if active then
+                buttonClass isActive =
+                    if isActive then
                         "btn-primary"
 
                     else
@@ -141,8 +133,8 @@ viewMainMenu =
                 ( _, title, _ ) =
                     pageTitles page
 
-                buttonText active =
-                    if active then
+                buttonText isActive =
+                    if isActive then
                         text title
 
                     else
@@ -151,8 +143,12 @@ viewMainMenu =
             button
                 [ class "btn"
                 , class (buttonClass active)
-                , style buttonStyle
                 , onClick (OpenPage page)
+                , style "width" "100%"
+                , style "padding-top" "15px"
+                , style "padding-bottom" "15px"
+                , style "margin-top" "15px"
+                , style "margin-bottom" "15px"
                 ]
                 [ buttonText active ]
     in

@@ -96,26 +96,22 @@ columnWidth col =
 
 columnStyle : Column -> List (Html.Attribute Msg)
 columnStyle column =
-    let
-        attrs =
-            case columnWidth column of
-                Just width ->
-                    [ ( "width", toString width ++ "px" ) ]
+    case columnWidth column of
+        Just width ->
+            [ style "width" (String.fromInt width ++ "px") ]
 
-                Nothing ->
-                    []
-    in
-    [ style attrs ]
+        Nothing ->
+            []
 
 
 viewImage : Banner -> Html Msg
 viewImage data =
     case data.image of
         Just image ->
-            div [ style [ ( "text-align", "center" ) ] ]
+            div [ style "text-align" "center" ]
                 [ img [ src ("http://www.zeszytykomiksowe.org/aktualnosci/bannery/" ++ image.file), width image.width, height image.height ] []
                 , br [] []
-                , span [] [ text (toString image.width ++ " × " ++ toString image.height ++ " px") ]
+                , span [] [ text (String.fromInt image.width ++ " × " ++ String.fromInt image.height ++ " px") ]
                 ]
 
         Nothing ->
@@ -125,9 +121,9 @@ viewImage data =
 viewInputButtons : Attribute Msg -> Html Msg
 viewInputButtons onOkClick =
     div [ class "btn-group right-align" ]
-        [ button [ class "btn btn-default btn-sm", style [ ( "color", "green" ) ], onOkClick ]
+        [ button [ class "btn btn-default btn-sm", style "color" "green", onOkClick ]
             [ glyphicon "ok" NoSpace ]
-        , button [ class "btn btn-default btn-sm", style [ ( "color", "red" ) ], onClick CancelEditing ]
+        , button [ class "btn btn-default btn-sm", style "color" "red", onClick CancelEditing ]
             [ glyphicon "remove" NoSpace ]
         ]
 
@@ -197,7 +193,7 @@ viewWeight : Maybe Editing -> Banner -> Html Msg
 viewWeight mEditing data =
     let
         weightAsString =
-            toString data.weight
+            String.fromInt data.weight
 
         nonEditingView =
             span [ onClick <| StartEditing data.id WeightColumn weightAsString ]
@@ -362,6 +358,6 @@ view model =
             displayTable
         , button [ class "btn btn-primary", onClick AddBannerClick ]
             [ text "Dodaj banner" ]
-        , button [ class "btn btn-primary", style [ ( "margin-left", "20px" ) ], onClick LoadBannersClick ]
+        , button [ class "btn btn-primary", style "margin-left" "20px", onClick LoadBannersClick ]
             [ glyphicon "refresh" NoSpace ]
         ]
