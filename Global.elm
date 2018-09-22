@@ -22,6 +22,7 @@ import Json.Decode exposing (Decoder)
 import Maybe exposing (..)
 import Result
 import Task
+import Url.Builder as Url
 
 
 type alias SimpleDate =
@@ -72,21 +73,21 @@ expectHttpCodeResponse =
         )
 
 
-authGetRequestExpectJson : String -> Decoder a -> Http.Request a
+authGetRequestExpectJson : List String -> Decoder a -> Http.Request a
 authGetRequestExpectJson =
     authRequestExpectJson "GET"
 
 
-authPostRequestExpectJson : String -> Decoder a -> Http.Request a
+authPostRequestExpectJson : List String -> Decoder a -> Http.Request a
 authPostRequestExpectJson =
     authRequestExpectJson "POST"
 
 
-authRequestExpectJson : String -> String -> Decoder a -> Http.Request a
+authRequestExpectJson : String -> List String -> Decoder a -> Http.Request a
 authRequestExpectJson method endpoint decoder =
     { method = method
     , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ endpoint
+    , url = Url.crossOrigin domain endpoint []
     , body = Http.emptyBody
     , expect = Http.expectJson decoder
     , timeout = Nothing
@@ -95,11 +96,11 @@ authRequestExpectJson method endpoint decoder =
         |> Http.request
 
 
-authDeleteRequest : String -> Int -> Http.Request ()
+authDeleteRequest : List String -> Int -> Http.Request ()
 authDeleteRequest endpoint id =
     { method = "DELETE"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ endpoint ++ "/" ++ String.fromInt id
+    , url = Url.crossOrigin domain (endpoint ++ [ String.fromInt id ]) []
     , body = Http.emptyBody
     , expect = expectHttpCodeResponse
     , timeout = Nothing
@@ -108,11 +109,11 @@ authDeleteRequest endpoint id =
         |> Http.request
 
 
-authPutFieldRequest : String -> Int -> String -> String -> Http.Request ()
+authPutFieldRequest : List String -> Int -> String -> String -> Http.Request ()
 authPutFieldRequest endpoint id fieldName fieldValue =
     { method = "POST"
     , headers = [ Http.header "Authorization" "TTTKKK" ]
-    , url = domain ++ endpoint ++ "/" ++ String.fromInt id ++ "/edit"
+    , url = Url.crossOrigin domain (endpoint ++ [ String.fromInt id, "edit" ]) []
     , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
     , expect = expectHttpCodeResponse
     , timeout = Nothing
