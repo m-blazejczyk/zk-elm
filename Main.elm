@@ -1,4 +1,4 @@
-port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main, openPageCmd, removeStorage, setStorage, setStorageHelper, update, view, viewPage)
+port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main, openPageCmd, removeStorage, setStorage, update, view, viewPage)
 
 import Banners
 import BannersView
@@ -9,6 +9,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode exposing (..)
+import Url.Builder as Url
 import Model exposing (..)
 import Page exposing (..)
 import Ui exposing (viewErrorMsg)
@@ -40,7 +41,7 @@ init mModelFP =
             ( model, openPageCmd model.page )
 
         Nothing ->
-            ( Model Nothing MainMenu emptyUser Banners.init, Cmd.none )
+            ( Model "" "" Nothing MainMenu Nothing Banners.init, Cmd.none )
 
 
 
@@ -60,8 +61,8 @@ init mModelFP =
 authUserReqFormBody : Model -> Http.Body
 authUserReqFormBody model =
     Http.multipartBody
-        [ Http.stringPart "user" model.user.userName
-        , Http.stringPart "password" model.user.password
+        [ Http.stringPart "user" model.loginUserName
+        , Http.stringPart "password" model.loginPassword
         ]
 
 
@@ -69,17 +70,19 @@ getTokenCompleted : Model -> Result Http.Error User -> ( Model, Cmd Msg )
 getTokenCompleted model result =
     case result of
         Ok newUser ->
-            setStorageHelper { model | page = MainMenu, user = newUser, loginErrorMsg = Nothing }
+            ( { model | page = MainMenu, mUser = Just newUser,
+                loginErrorMsg = Nothing, loginUserName = "", loginPassword = "" }
+            , setStorage <| convertModelForPort model )
 
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
-                ( { model | loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
+                ( { model | mUser = Nothing, loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
 
             else
-                ( { model | loginErrorMsg = Just <| "Błąd " ++ String.fromInt response.status.code }, Cmd.none )
+                ( { model | mUser = Nothing, loginErrorMsg = Just <| "Błąd " ++ String.fromInt response.status.code }, Cmd.none )
 
         Err error ->
-            ( { model | loginErrorMsg = Just <| httpErrToString error }, Cmd.none )
+            ( { model | mUser = Nothing, loginErrorMsg = Just <| httpErrToString error }, Cmd.none )
 
 
 
@@ -90,15 +93,6 @@ port setStorage : ModelForPorts -> Cmd msg
 
 
 port removeStorage : () -> Cmd msg
-
-
-
--- Helper to update model and set local storage with the updated model
-
-
-setStorageHelper : Model -> ( Model, Cmd Msg )
-setStorageHelper model =
-    ( model, setStorage <| convertModelForPort model )
 
 
 openPageCmd : Page -> Cmd Msg
@@ -115,19 +109,23 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickLogIn ->
-            ( model, Http.send GetTokenCompleted <| Http.post (domain ++ "auth/login") (authUserReqFormBody model) userDecoder )
+            let
+                loginUrl = Url.crossOrigin domain [ "auth", "login" ] []
+                    
+            in
+                ( model, Http.send GetTokenCompleted <| Http.post loginUrl (authUserReqFormBody model) userDecoder )
 
         SetUsername username ->
-            ( setUserNameInModel username model, Cmd.none )
+            ( { model | loginUserName = username }, Cmd.none )
 
         SetPassword password ->
-            ( setPasswordInModel password model, Cmd.none )
+            ( { model | loginPassword = password }, Cmd.none )
 
         GetTokenCompleted result ->
             getTokenCompleted model result
 
         LogOut ->
-            ( { model | page = MainMenu, user = emptyUser }, removeStorage () )
+            ( { model | page = MainMenu, mUser = Nothing }, removeStorage () )
 
         CloseErrorMsg ->
             ( { model | loginErrorMsg = Nothing }, Cmd.none )
@@ -136,13 +134,18 @@ update msg model =
             ( { model | page = page }, openPageCmd page )
 
         BannersMsg innerMsg ->
-            let
-                ( innerModel, innerCmd ) =
-                    Banners.update innerMsg model.banners
-            in
-            ( { model | banners = innerModel }
-            , Cmd.map BannersMsg innerCmd
-            )
+            case model.mUser of
+                Just user ->
+                    let
+                        ( innerModel, innerCmd ) =
+                            Banners.update innerMsg model.banners user.token
+                    in
+                    ( { model | banners = innerModel }
+                    , Cmd.map BannersMsg innerCmd
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 viewPage : Model -> Html Msg
@@ -168,16 +171,16 @@ view model =
     , body = 
         [ div
             [ id "container" ]
-            [ viewHeader <| loggedInUser model
+            [ viewHeader model.mUser
             , viewTopMenu
             , div [ id "article" ]
                 [ viewErrorMsg model.loginErrorMsg CloseErrorMsg
                 , viewTitle model
-                , if isLoggedIn model then
+                , if maybeIsJust model.mUser then
                     viewPage model
 
                   else
-                    viewLoginForm model.user
+                    viewLoginForm model.loginUserName model.loginPassword
                 ]
             , viewFooter
             ]

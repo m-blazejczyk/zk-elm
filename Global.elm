@@ -58,7 +58,7 @@ httpErrToString err =
 
 domain : String
 domain =
-    "https://red.zeszytykomiksowe.org/"
+    "https://red.zeszytykomiksowe.org"
 
 
 expectHttpCodeResponse : Http.Expect ()
@@ -73,20 +73,25 @@ expectHttpCodeResponse =
         )
 
 
-authGetRequestExpectJson : List String -> Decoder a -> Http.Request a
+authHeader : String -> List Http.Header
+authHeader token =
+    [ Http.header "Authorization" token ]
+
+
+authGetRequestExpectJson : List String -> String -> Decoder a -> Http.Request a
 authGetRequestExpectJson =
     authRequestExpectJson "GET"
 
 
-authPostRequestExpectJson : List String -> Decoder a -> Http.Request a
+authPostRequestExpectJson : List String -> String -> Decoder a -> Http.Request a
 authPostRequestExpectJson =
     authRequestExpectJson "POST"
 
 
-authRequestExpectJson : String -> List String -> Decoder a -> Http.Request a
-authRequestExpectJson method endpoint decoder =
+authRequestExpectJson : String -> List String -> String -> Decoder a -> Http.Request a
+authRequestExpectJson method endpoint token decoder =
     { method = method
-    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , headers = authHeader token
     , url = Url.crossOrigin domain endpoint []
     , body = Http.emptyBody
     , expect = Http.expectJson decoder
@@ -96,10 +101,10 @@ authRequestExpectJson method endpoint decoder =
         |> Http.request
 
 
-authDeleteRequest : List String -> Int -> Http.Request ()
-authDeleteRequest endpoint id =
+authDeleteRequest : List String -> String -> Int -> Http.Request ()
+authDeleteRequest endpoint token id =
     { method = "DELETE"
-    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , headers = authHeader token
     , url = Url.crossOrigin domain (endpoint ++ [ String.fromInt id ]) []
     , body = Http.emptyBody
     , expect = expectHttpCodeResponse
@@ -109,10 +114,10 @@ authDeleteRequest endpoint id =
         |> Http.request
 
 
-authPutFieldRequest : List String -> Int -> String -> String -> Http.Request ()
-authPutFieldRequest endpoint id fieldName fieldValue =
+authPutFieldRequest : List String -> String -> Int -> String -> String -> Http.Request ()
+authPutFieldRequest endpoint token id fieldName fieldValue =
     { method = "POST"
-    , headers = [ Http.header "Authorization" "TTTKKK" ]
+    , headers = authHeader token
     , url = Url.crossOrigin domain (endpoint ++ [ String.fromInt id, "edit" ]) []
     , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
     , expect = expectHttpCodeResponse

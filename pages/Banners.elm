@@ -350,12 +350,12 @@ switchSort column oldModel =
     { oldModel | banners = newBanners, sortOrder = newSortOrder }
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> String -> ( Model, Cmd Msg )
+update msg model token =
     case msg of
         ChangeSilent id checked ->
             ( { model | banners = List.map (updateSilent id checked) model.banners }
-            , Http.send SubmitEditing (authPutFieldRequest endpoint id "silent" (boolToString checked))
+            , Http.send SubmitEditing (authPutFieldRequest endpoint token id "silent" (boolToString checked))
             )
 
         StartEditing id column value ->
@@ -397,7 +397,7 @@ update msg model =
                                 | banners = List.map (updateField editing fieldValue) model.banners
                                 , editing = Nothing
                               }
-                            , Http.send SubmitEditing (authPutFieldRequest endpoint editing.id (fieldNameFor editing.column) fieldValue)
+                            , Http.send SubmitEditing (authPutFieldRequest endpoint token editing.id (fieldNameFor editing.column) fieldValue)
                             )
 
                         Nothing ->
@@ -430,7 +430,7 @@ update msg model =
 
         AddBannerClick ->
             ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
-            , Http.send AddBanner (authPostRequestExpectJson endpoint bannerDecoder)
+            , Http.send AddBanner (authPostRequestExpectJson endpoint token bannerDecoder)
             )
 
         AddBanner (Err err) ->
@@ -445,7 +445,7 @@ update msg model =
 
         LoadBannersClick ->
             ( { model | banners = [], isLoading = True, errorMsg = Nothing, editing = Nothing, sortOrder = Nothing }
-            , Http.send LoadBanners (authGetRequestExpectJson endpoint (list bannerDecoder))
+            , Http.send LoadBanners (authGetRequestExpectJson endpoint token (list bannerDecoder))
             )
 
         LoadBanners (Err err) ->
@@ -460,7 +460,7 @@ update msg model =
 
         DeleteBannerClick id ->
             ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
-            , Http.send (DeleteBanner id) (authDeleteRequest endpoint id)
+            , Http.send (DeleteBanner id) (authDeleteRequest endpoint token id)
             )
 
         DeleteBanner _ (Err err) ->

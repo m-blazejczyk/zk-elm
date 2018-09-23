@@ -79,20 +79,20 @@ viewFooter =
         ]
 
 
-viewLoginForm : User -> Html Msg
-viewLoginForm user =
+viewLoginForm : String -> String -> Html Msg
+viewLoginForm userName password =
     div [ class "jumbotron text-left" ]
         [ div [ id "form" ]
             [ div [ class "form-group row" ]
                 [ div [ class "col-md-offset-2 col-md-8" ]
                     [ label [ for "username" ] [ text "Kto?" ]
-                    , input [ id "username", type_ "text", class "form-control", Html.Attributes.value user.userName, onInput SetUsername ] []
+                    , input [ id "username", type_ "text", class "form-control", Html.Attributes.value userName, onInput SetUsername ] []
                     ]
                 ]
             , div [ class "form-group row" ]
                 [ div [ class "col-md-offset-2 col-md-8" ]
                     [ label [ for "password" ] [ text "Hasło:" ]
-                    , input [ id "password", type_ "password", class "form-control", Html.Attributes.value user.password, onInput SetPassword ] []
+                    , input [ id "password", type_ "password", class "form-control", Html.Attributes.value password, onInput SetPassword ] []
                     ]
                 ]
             , div [ class "text-center" ]
@@ -106,7 +106,7 @@ viewTitle : Model -> Html Msg
 viewTitle model =
     let
         page =
-            if isLoggedIn model then
+            if maybeIsJust model.mUser then
                 model.page
 
             else
