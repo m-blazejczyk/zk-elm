@@ -36,7 +36,7 @@ init mModelFP =
         Just modelFP ->
             let
                 model =
-                    convertModelFromPort modelFP
+                    modelFromPort modelFP
             in
             ( model, openPageCmd model.page )
 
@@ -72,17 +72,20 @@ getTokenCompleted model result =
         Ok newUser ->
             ( { model | page = MainMenu, mUser = Just newUser,
                 loginErrorMsg = Nothing, loginUserName = "", loginPassword = "" }
-            , setStorage <| convertModelForPort model )
+            , setStorage <| ModelForPorts (Page.toString MainMenu) newUser )
 
         Err (Http.BadStatus response) ->
             if response.status.code == 401 then
-                ( { model | mUser = Nothing, loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }, Cmd.none )
+                ( { model | mUser = Nothing, loginErrorMsg = Just "Niewłaściwy użytkownik albo hasło" }
+                , Cmd.none )
 
             else
-                ( { model | mUser = Nothing, loginErrorMsg = Just <| "Błąd " ++ String.fromInt response.status.code }, Cmd.none )
+                ( { model | mUser = Nothing, loginErrorMsg = Just <| "Błąd " ++ String.fromInt response.status.code }
+                , Cmd.none )
 
         Err error ->
-            ( { model | mUser = Nothing, loginErrorMsg = Just <| httpErrToString error }, Cmd.none )
+            ( { model | mUser = Nothing, loginErrorMsg = Just <| httpErrToString error }
+            , Cmd.none )
 
 
 

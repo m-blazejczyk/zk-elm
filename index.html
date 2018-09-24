@@ -16,14 +16,12 @@
     
     <script>
         var storedState = localStorage.getItem('ZKmodel');
-        console.log("Retrieving: " + storedState);
         var startingState = storedState ? JSON.parse(storedState) : null;
         var elmApp = Elm.ZKMain.init({
           node: document.getElementById('elm-area'),
           flags: startingState
         });
         elmApp.ports.setStorage.subscribe(function(state) {
-            console.log("Saving: " + JSON.stringify(state));
             localStorage.setItem('ZKmodel', JSON.stringify(state));
         });
         elmApp.ports.removeStorage.subscribe(function() {

@@ -1,5 +1,5 @@
 module Model exposing (
-    Model, ModelForPorts, Msg(..), User, convertModelForPort, convertModelFromPort, userDecoder)
+    Model, ModelForPorts, Msg(..), User, modelFromPort, userDecoder)
 
 import Banners
 import Http
@@ -40,24 +40,19 @@ type alias Model =
 
 
 
--- Special type used to save/restore state via ports and flags;
--- Cannot use union types, and there's no need to keep the error message
+-- Special type used to save/restore state via ports and flags.
+-- Cannot use union types, and 'Maybe' also doesn't work.
 
 
 type alias ModelForPorts =
     { pageStr : String
-    , mUser : Maybe User
+    , user : User
     }
 
 
-convertModelForPort : Model -> ModelForPorts
-convertModelForPort model =
-    ModelForPorts (Page.toString model.page) model.mUser
-
-
-convertModelFromPort : ModelForPorts -> Model
-convertModelFromPort modelFP =
-    Model "" "" Nothing (Page.fromString modelFP.pageStr) modelFP.mUser Banners.init
+modelFromPort : ModelForPorts -> Model
+modelFromPort modelFP =
+    Model "" "" Nothing (Page.fromString modelFP.pageStr) (Just modelFP.user) Banners.init
 
 
 userDecoder : Decoder User
