@@ -28,6 +28,7 @@ import Regex
 import Result
 import Task
 import Browser.Dom as Dom
+import Url
 
 
 type Column
@@ -236,11 +237,12 @@ modifyWeight strVal banner =
 
 validateUrl : Validator
 validateUrl strVal =
-    Just strVal
+    case Url.fromString strVal of
+        Nothing ->
+            Nothing
 
-
-
--- No validation of URLs
+        Just _ ->
+            Just strVal
 
 
 modifyUrl : Modifier
