@@ -104,20 +104,6 @@ columnStyle column =
             []
 
 
-viewImage : Banner -> Html Msg
-viewImage data =
-    case data.image of
-        Just image ->
-            div [ style "text-align" "center" ]
-                [ img [ src ("http://www.zeszytykomiksowe.org/aktualnosci/bannery/" ++ image.file), width image.width, height image.height ] []
-                , br [] []
-                , span [] [ text (String.fromInt image.width ++ " × " ++ String.fromInt image.height ++ " px") ]
-                ]
-
-        Nothing ->
-            text "Brak obrazka"
-
-
 viewInputButtons : Attribute Msg -> Html Msg
 viewInputButtons onOkClick =
     div [ class "btn-group right-align" ]
@@ -187,6 +173,52 @@ viewEditingInput mEditing id nonEditingView column maxLen hint onOkClick =
 
         Nothing ->
             nonEditingView
+
+
+viewImage : Maybe Editing -> Banner -> Html Msg
+viewImage mEditing data =
+    let
+        viewJustImage =
+            case data.image of
+                Just image ->
+                    div [ style "text-align" "center" ]
+                        [ img [ src ("http://www.zeszytykomiksowe.org/aktualnosci/bannery/" ++ image.file), width image.width, height image.height ] []
+                        , br [] []
+                        , span [] [ text (String.fromInt image.width ++ " × " ++ String.fromInt image.height ++ " px") ]
+                        ]
+
+                Nothing ->
+                    text "Brak obrazka"
+
+        editingText =
+            case data.image of
+                Just _ ->
+                    "Zmień obrazek"
+
+                Nothing ->
+                    "Dodaj obrazek"
+
+        nonEditingView =
+            div []
+                [ p []
+                    [ viewJustImage ]
+                , p []
+                    [ button [ class "btn btn-primary btn-sm"
+                             , onClick <| StartEditing data.id ImageColumn "dummy"
+                             ]
+                             [ text editingText ] 
+                    ]
+                ]
+
+    in
+    viewEditingInput
+        mEditing
+        data.id
+        nonEditingView
+        ImageColumn
+        5
+        Nothing
+        (onClick <| ValidateEditing validateWeight modifyWeight)
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
@@ -296,7 +328,7 @@ viewSingleBanner : Maybe Editing -> Banner -> Html Msg
 viewSingleBanner editing data =
     tr []
         [ td (columnStyle SilentColumn) [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
-        , td (columnStyle ImageColumn) [ viewImage data ]
+        , td (columnStyle ImageColumn) [ viewImage editing data ]
         , td (columnStyle StartDateColumn) [ viewDate editing data.startDate StartDateColumn data.id ]
         , td (columnStyle EndDateColumn) [ viewDate editing data.endDate EndDateColumn data.id ]
         , td (columnStyle UrlColumn) [ viewUrl editing data ]
