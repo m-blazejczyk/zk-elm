@@ -140,46 +140,60 @@ viewInputWrapper onOkClick hint content =
         [ content, hintHtml, viewInputButtons onOkClick ]
 
 
-viewRawInput : Int -> String -> Html Msg
-viewRawInput maxLen val =
-    input [ maxlength maxLen, value val, type_ "text", class "form-control", id "inPlaceEditor", onInput ChangeInput ]
-        []
+textEditorView : Bool -> String -> ForText a -> Html Msg
+textEditorView isError val { maxLen } =
+    let
+        viewRawInput =
+            input [ maxlength maxLen
+                  , value val
+                  , type_ "text"
+                  , class "form-control"
+                  , id "inPlaceEditor"
+                  , onInput ChangeInput ]
+                []
+            
+    in
+            
+    if isError then
+        div [ class "form-group has-error has-feedback full-width-input" ]
+            [ viewRawInput
+            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+            ]
+    else
+        div [ class "form-group full-width-input" ]
+            [ viewRawInput ]
 
 
-textEditorView : Bool -> String -> BasicEditConfig( ForText a ) -> Html Msg
-textEditorView isError val { mHint, onOkClick, maxLen } =
-    case isError of
-        True ->
-            viewInputWrapper
-                onOkClick
-                mHint
-                (div [ class "form-group has-error has-feedback full-width-input" ]
-                    [ viewRawInput maxLen val
-                    , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-                    ]
-                )
-
-        False ->
-            viewInputWrapper
-                onOkClick
-                mHint
-                (div [ class "form-group full-width-input" ]
-                    [ viewRawInput maxLen val ]
-                )
+uploadEditorView : Bool -> String -> BasicEditConfig a -> Html Msg
+uploadEditorView isError val _ =
+    if isError then
+        div [] [ text "Błąd…" ]
+    else
+        div [] [ text "Halo!" ]
 
 
 viewEditableField : Maybe Editing -> Column -> Int -> Html Msg -> EditorView a -> BasicEditConfig a -> Html Msg
 viewEditableField mEditing column id nonEditingView editorView editConfig =
-    case mEditing of
-        Just editing ->
-            if editing.id == id && editing.column == column then
-                editorView editing.isError editing.value editConfig
+    let
+        -- We only need this function to pattern match on editConfig while keeping this variable around
+        -- to be used when calling editorView.
+        viewInputWrapper_ isError val { mHint, onOkClick } =
+            viewInputWrapper
+                onOkClick
+                mHint
+                (editorView isError val editConfig)
+            
+    in
+        case mEditing of
+            Just editing ->
+                if editing.id == id && editing.column == column then
+                    viewInputWrapper_ editing.isError editing.value editConfig 
 
-            else
+                else
+                    nonEditingView
+
+            Nothing ->
                 nonEditingView
-
-        Nothing ->
-            nonEditingView
 
 
 viewImage : Maybe Editing -> Banner -> Html Msg
@@ -223,8 +237,8 @@ viewImage mEditing data =
         ImageColumn
         data.id
         nonEditingView
-        textEditorView
-        { maxLen = 5, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
+        uploadEditorView
+        { mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
