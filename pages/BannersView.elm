@@ -10,6 +10,17 @@ import Html.Events exposing (..)
 import Ui exposing (..)
 
 
+type alias BasicEditConfig a =
+    { a | mHint : Maybe String, onOkClick : Attribute Msg }
+
+
+type alias ForText a =
+    { a | maxLen : Int }
+
+
+type alias EditorView a = Bool -> String -> BasicEditConfig a -> Html Msg
+
+
 columnTooltip : Column -> Maybe (Html Msg)
 columnTooltip column =
     let
@@ -135,38 +146,34 @@ viewRawInput maxLen val =
         []
 
 
-viewInputNormal : Int -> String -> Maybe String -> Attribute Msg -> Html Msg
-viewInputNormal maxLen val hint onOkClick =
-    viewInputWrapper
-        onOkClick
-        hint
-        (div [ class "form-group full-width-input" ]
-            [ viewRawInput maxLen val ]
-        )
+textEditorView : Bool -> String -> BasicEditConfig( ForText a ) -> Html Msg
+textEditorView isError val { mHint, onOkClick, maxLen } =
+    case isError of
+        True ->
+            viewInputWrapper
+                onOkClick
+                mHint
+                (div [ class "form-group has-error has-feedback full-width-input" ]
+                    [ viewRawInput maxLen val
+                    , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+                    ]
+                )
+
+        False ->
+            viewInputWrapper
+                onOkClick
+                mHint
+                (div [ class "form-group full-width-input" ]
+                    [ viewRawInput maxLen val ]
+                )
 
 
-viewInputWithError : Int -> String -> Maybe String -> Attribute Msg -> Html Msg
-viewInputWithError maxLen val hint onOkClick =
-    viewInputWrapper
-        onOkClick
-        hint
-        (div [ class "form-group has-error has-feedback full-width-input" ]
-            [ viewRawInput maxLen val
-            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-            ]
-        )
-
-
-viewEditingInput : Maybe Editing -> Int -> Html Msg -> Column -> Int -> Maybe String -> Attribute Msg -> Html Msg
-viewEditingInput mEditing id nonEditingView column maxLen hint onOkClick =
+viewEditableField : Maybe Editing -> Column -> Int -> Html Msg -> EditorView a -> BasicEditConfig a -> Html Msg
+viewEditableField mEditing column id nonEditingView editorView editConfig =
     case mEditing of
         Just editing ->
             if editing.id == id && editing.column == column then
-                if editing.isError then
-                    viewInputWithError maxLen editing.value hint onOkClick
-
-                else
-                    viewInputNormal maxLen editing.value hint onOkClick
+                editorView editing.isError editing.value editConfig
 
             else
                 nonEditingView
@@ -211,14 +218,13 @@ viewImage mEditing data =
                 ]
 
     in
-    viewEditingInput
+    viewEditableField
         mEditing
+        ImageColumn
         data.id
         nonEditingView
-        ImageColumn
-        5
-        Nothing
-        (onClick <| ValidateEditing validateWeight modifyWeight)
+        textEditorView
+        { maxLen = 5, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
@@ -231,14 +237,13 @@ viewWeight mEditing data =
             span [ onClick <| StartEditing data.id WeightColumn weightAsString ]
                 [ text weightAsString ]
     in
-    viewEditingInput
+    viewEditableField
         mEditing
+        WeightColumn
         data.id
         nonEditingView
-        WeightColumn
-        2
-        Nothing
-        (onClick (ValidateEditing validateWeight modifyWeight))
+        textEditorView
+        { maxLen = 2, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
 
 
 shorterUrl : Maybe String -> String
@@ -279,14 +284,13 @@ viewUrl mEditing data =
                     [ text (Maybe.withDefault "" data.url) ]
                 ]
     in
-    viewEditingInput
+    viewEditableField
         mEditing
+        UrlColumn
         data.id
         nonEditingView
-        UrlColumn
-        500
-        Nothing
-        (onClick (ValidateEditing validateUrl modifyUrl))
+        textEditorView
+        { maxLen = 500, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateUrl modifyUrl }
 
 
 viewDate : Maybe Editing -> Maybe SimpleDate -> Column -> Int -> Html Msg
@@ -308,14 +312,13 @@ viewDate mEditing mDate column id =
             span [ onClick <| StartEditing id column (dateAsString True) ]
                 [ text <| dateAsString False ]
     in
-    viewEditingInput
+    viewEditableField
         mEditing
+        column
         id
         nonEditingView
-        column
-        10
-        (Just "rrrr-m-d")
-        (onClick (ValidateEditing validateDate (modifyDate column)))
+        textEditorView
+        { maxLen = 10, mHint = Just "rrrr-m-d", onOkClick = onClick <| ValidateEditing validateDate (modifyDate column) }
 
 
 viewDeleteButton : Int -> Html Msg
