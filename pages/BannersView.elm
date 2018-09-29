@@ -166,10 +166,24 @@ textEditorView isError val { maxLen } =
 
 uploadEditorView : Bool -> String -> BasicEditConfig a -> Html Msg
 uploadEditorView isError val _ =
+    let
+        viewRawFile =
+            input [ type_ "file"
+                  , class "form-control"
+                  , id "inPlaceEditor"
+                  , onInput ChangeInput ]
+                []
+            
+    in
+            
     if isError then
-        div [] [ text "Błąd…" ]
+        div [ class "form-group has-error has-feedback full-width-input" ]
+            [ viewRawFile
+            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
+            ]
     else
-        div [] [ text "Halo!" ]
+        div [ class "form-group full-width-input" ]
+            [ viewRawFile ]
 
 
 viewEditableField : Maybe Editing -> Column -> Int -> Html Msg -> EditorView a -> BasicEditConfig a -> Html Msg
@@ -225,11 +239,17 @@ viewImage mEditing data =
                     [ viewJustImage ]
                 , p []
                     [ button [ class "btn btn-primary btn-sm"
-                             , onClick <| StartEditing data.id ImageColumn "dummy"
+                             , onClick <| StartEditing data.id ImageColumn ""
                              ]
                              [ text editingText ] 
                     ]
                 ]
+
+        validateFile val = 
+            if String.isEmpty val then
+                Nothing
+            else
+                Just val
 
     in
     viewEditableField
@@ -238,7 +258,7 @@ viewImage mEditing data =
         data.id
         nonEditingView
         uploadEditorView
-        { mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
+        { mHint = Nothing, onOkClick = onClick <| ValidateEditing validateFile modifyWeight }
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
