@@ -1,4 +1,4 @@
-module Banners exposing
+port module Banners exposing
     ( Banner
     , Column(..)
     , Editing
@@ -68,6 +68,7 @@ type Msg
     | StartEditing Int Column String
     | ChangeInput String
     | ValidateEditing Validator Modifier
+    | SubmitFileUpload Validator Modifier
     | SubmitEditing (Result Http.Error ())
     | CancelEditing
     | FocusResult (Result Dom.Error ())
@@ -129,6 +130,14 @@ type alias Model =
     }
 
 
+port initiateFileUpload : String -> Cmd msg
+
+
+inPlaceEditorId : String
+inPlaceEditorId =
+    "inPlaceEditor"
+
+
 init : Model
 init =
     Model False Nothing [] Nothing Nothing
@@ -172,6 +181,11 @@ deserialize sb =
         (Maybe.map3 Image sb.imageUrl sb.imageHeight sb.imageHeight)
         sb.url
         sb.weight
+
+
+setEditingError : Editing -> Editing
+setEditingError editing =
+    { editing | isError = True }
 
 
 switchToPageCmd : Cmd Msg
@@ -362,7 +376,7 @@ update msg model token =
 
         StartEditing id column value ->
             ( { model | editing = Just (Editing id column value False) }
-            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult
+            , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
             )
 
         ChangeInput newVal ->
@@ -374,10 +388,10 @@ update msg model token =
                     in
                     ( { model | editing = Just newEditing }, Cmd.none )
 
+                -- This should never happen!!!
                 Nothing ->
                     ( model, Cmd.none )
 
-        -- This should never happen!!!
         ValidateEditing valFun modFun ->
             let
                 updateField : Editing -> String -> Banner -> Banner
@@ -388,8 +402,6 @@ update msg model token =
                     else
                         banner
 
-                setEditingError editing =
-                    { editing | isError = True }
             in
             case model.editing of
                 Just editing ->
@@ -404,13 +416,29 @@ update msg model token =
 
                         Nothing ->
                             ( { model | editing = Just <| setEditingError editing }
-                            , Dom.focus "inPlaceEditor" |> Task.attempt FocusResult
+                            , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
                             )
 
+                -- This should never happen!!!
                 Nothing ->
                     ( model, Cmd.none )
 
-        -- This should never happen!!!
+        SubmitFileUpload _ _ ->
+            case model.editing of
+                Just editing ->
+                    if String.isEmpty editing.value then
+                        ( { model | editing = Just <| setEditingError editing }
+                        , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
+                        )
+                    else
+                        ( { model | editing = Nothing }
+                        , initiateFileUpload inPlaceEditorId
+                        )
+
+                -- This should never happen!!!
+                Nothing ->
+                    ( model, Cmd.none )
+
         SubmitEditing (Err err) ->
             ( { model | errorMsg = Just <| httpErrToString err }
             , Cmd.none

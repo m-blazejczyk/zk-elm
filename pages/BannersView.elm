@@ -245,11 +245,13 @@ viewImage mEditing data =
                     ]
                 ]
 
-        validateFile val = 
-            if String.isEmpty val then
-                Nothing
-            else
-                Just val
+        fakeValidator : String -> Maybe String
+        fakeValidator _ =
+            Nothing
+
+        fakeModifier : String -> Banner -> Banner
+        fakeModifier _ banner =
+            banner
 
     in
     viewEditableField
@@ -258,7 +260,7 @@ viewImage mEditing data =
         data.id
         nonEditingView
         uploadEditorView
-        { mHint = Nothing, onOkClick = onClick <| ValidateEditing validateFile modifyWeight }
+        { mHint = Nothing, onOkClick = onClick <| SubmitFileUpload fakeValidator fakeModifier }
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg

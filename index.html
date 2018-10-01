@@ -27,5 +27,8 @@
         elmApp.ports.removeStorage.subscribe(function() {
             localStorage.removeItem('ZKmodel');
         });
+        elmApp.ports.initiateFileUpload.subscribe(function() {
+            console.log("Hello!");
+        });
     </script>
 </html> 
