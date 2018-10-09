@@ -1,4 +1,4 @@
-port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main, removeStorage, setStorage, update, view, viewPage)
+port module ZKMain exposing (main)
 
 import Banners
 import BannersView
