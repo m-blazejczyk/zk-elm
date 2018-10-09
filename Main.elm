@@ -1,4 +1,4 @@
-port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main, openPageCmd, removeStorage, setStorage, update, view, viewPage)
+port module ZKMain exposing (authUserReqFormBody, getTokenCompleted, init, main, removeStorage, setStorage, update, view, viewPage)
 
 import Banners
 import BannersView
@@ -109,6 +109,16 @@ openPageCmd page =
             Cmd.none
 
 
+setStorageCmd : Page -> Maybe User -> Cmd Msg
+setStorageCmd page mUser =
+    case mUser of
+        Just user ->
+            setStorage <| ModelForPorts (Page.toString page) user
+
+        Nothing ->
+            Cmd.none
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.page of
@@ -146,7 +156,8 @@ update msg model =
             ( { model | loginErrorMsg = Nothing }, Cmd.none )
 
         OpenPage page ->
-            ( { model | page = page }, openPageCmd page )
+            ( { model | page = page }
+            , Cmd.batch [ openPageCmd page, setStorageCmd page model.mUser ] )
 
         BannersMsg innerMsg ->
             case model.mUser of
