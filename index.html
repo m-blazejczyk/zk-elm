@@ -57,6 +57,9 @@
                             message: 'Wystąpił błąd HTTP: ' + request.status
                         };
                     }
+
+                    elmApp.ports.fileUploadStatus.send(resp);
+
                     console.log('Finished! Result: ' + resp.message);
                 }
             };

@@ -9,6 +9,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode exposing (..)
+import Json.Encode as E
 import Url.Builder as Url
 import Model exposing (..)
 import Page exposing (..)
@@ -21,7 +22,7 @@ main =
     Browser.document
         { init = init
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         , view = view
         }
 
@@ -98,6 +99,9 @@ port setStorage : ModelForPorts -> Cmd msg
 port removeStorage : () -> Cmd msg
 
 
+port fileUploadStatus : (E.Value -> msg) -> Sub msg
+
+
 openPageCmd : Page -> Cmd Msg
 openPageCmd page =
     case page of
@@ -106,6 +110,11 @@ openPageCmd page =
 
         _ ->
             Cmd.none
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    fileUploadStatus FileUploadStatus
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -149,6 +158,16 @@ update msg model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        FileUploadStatus json ->
+            case model.page of
+                Page.Banners ->
+                    ( model, Cmd.map BannersMsg (toCmd (Banners.FileUploadStatus json)) )
+    
+                -- Should never happen!
+                _ ->
+                    ( model, Cmd.none )
+
 
 
 viewPage : Model -> Html Msg

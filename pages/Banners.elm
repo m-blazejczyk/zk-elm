@@ -24,6 +24,7 @@ import Global exposing (..)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (required)
+import Json.Encode as E
 import Regex
 import Result
 import Task
@@ -69,6 +70,7 @@ type Msg
     | ChangeInput String
     | ValidateEditing Validator Modifier
     | SubmitFileUpload Validator Modifier
+    | FileUploadStatus E.Value
     | SubmitEditing (Result Http.Error ())
     | CancelEditing
     | FocusResult (Result Dom.Error ())
@@ -438,6 +440,9 @@ update msg model token =
                 -- This should never happen!!!
                 Nothing ->
                     ( model, Cmd.none )
+
+        FileUploadStatus jsonVal ->
+            Debug.log "We have liftoff!" ( model, Cmd.none )
 
         SubmitEditing (Err err) ->
             ( { model | errorMsg = Just <| httpErrToString err }

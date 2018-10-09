@@ -4,6 +4,7 @@ module Model exposing (
 import Banners
 import Http
 import Json.Decode as Decode exposing (..)
+import Json.Encode as E
 import Page exposing (..)
 import Task
 
@@ -17,6 +18,7 @@ type Msg
     | CloseErrorMsg
     | OpenPage Page
     | BannersMsg Banners.Msg
+    | FileUploadStatus E.Value
 
 
 type alias User =
