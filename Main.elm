@@ -22,7 +22,7 @@ main =
     Browser.document
         { init = init
         , update = update
-        , subscriptions = subscriptions2
+        , subscriptions = subscriptions
         , view = view
         }
 
@@ -109,8 +109,8 @@ openPageCmd page =
             Cmd.none
 
 
-subscriptions2 : Model -> Sub Msg
-subscriptions2 model =
+subscriptions : Model -> Sub Msg
+subscriptions model =
     case model.page of
         Page.Banners ->
             Sub.map BannersMsg (Banners.fileUploadStatus Banners.FileUploadStatus)
