@@ -18,7 +18,6 @@ type Msg
     | CloseErrorMsg
     | OpenPage Page
     | BannersMsg Banners.Msg
-    | FileUploadStatus E.Value
 
 
 type alias User =

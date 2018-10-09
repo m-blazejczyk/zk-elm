@@ -7,6 +7,7 @@ port module Banners exposing
     , SortOrder(..)
     , Validator
     , init
+    , fileUploadStatus
     , isColumnSortable
     , modifyDate
     , modifyUrl
@@ -133,6 +134,9 @@ type alias Model =
 
 
 port initiateFileUpload : String -> Cmd msg
+
+
+port fileUploadStatus : (E.Value -> msg) -> Sub msg
 
 
 inPlaceEditorId : String
