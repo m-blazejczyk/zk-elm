@@ -140,6 +140,19 @@ viewInputWrapper onOkClick hint content =
         [ content, hintHtml, viewInputButtons onOkClick ]
 
 
+viewUploadStatus : UploadStatus -> Html Msg
+viewUploadStatus uploadStatus =
+    case uploadStatus of
+        Uploading progress ->
+            text <| "Nagrywanie pliku… " ++ String.fromInt progress ++ "%"
+
+        UploadFinished (Ok image) ->
+            text <| "Plik nagrany: " ++ image.file
+
+        UploadFinished (Err error) ->
+            text <| "Błąd: " ++ error
+
+
 textEditorView : Bool -> String -> ForText a -> Html Msg
 textEditorView isError val { maxLen } =
     let
@@ -189,19 +202,21 @@ uploadEditorView isError val _ =
 viewEditableField : Maybe Editing -> Column -> Int -> Html Msg -> EditorView a -> BasicEditConfig a -> Html Msg
 viewEditableField mEditing column id nonEditingView editorView editConfig =
     let
-        -- We only need this function to pattern match on editConfig while keeping this variable around
-        -- to be used when calling editorView.
-        viewInputWrapper_ isError val { mHint, onOkClick } =
-            viewInputWrapper
-                onOkClick
-                mHint
-                (editorView isError val editConfig)
+        { mHint, onOkClick } = editConfig
             
     in
         case mEditing of
             Just editing ->
                 if editing.id == id && editing.column == column then
-                    viewInputWrapper_ editing.isError editing.value editConfig 
+                    case editing.mUploadStatus of
+                        Just uploadStatus ->
+                            viewUploadStatus uploadStatus
+
+                        Nothing ->
+                            viewInputWrapper
+                                onOkClick
+                                mHint
+                                (editorView editing.isError editing.value editConfig)
 
                 else
                     nonEditingView

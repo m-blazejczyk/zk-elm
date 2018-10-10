@@ -47,33 +47,35 @@
                         } catch(e) {
                             console.log(e);
                             var resp = {
-                                status: 'error',
-                                message: 'Nie zrozumiałem odpowiedzi serwera… :('
+                                errorMsg: 'Serwer odpowiedział w niewłaściwym formacie'
                             };
                         }
                     } else {
                         var resp =  {
-                            status: 'error',
-                            message: 'Wystąpił błąd HTTP: ' + request.status
+                            errorMsg: 'Wystąpił błąd HTTP: ' + request.status
                         };
                     }
 
                     elmApp.ports.fileUploadStatus.send(resp);
-
-                    console.log('Finished! Result: ' + resp.message);
                 }
             };
 
             request.upload.addEventListener('progress', function(e) {
-                console.log(Math.ceil(e.loaded / e.total * 100) + '%');
+                elmApp.ports.fileUploadStatus.send({
+                    progress: Math.ceil(e.loaded / e.total * 100)
+                });
             });
 
             request.addEventListener("error", function(e) {
-                console.log("An error occurred while transferring the file.");
+                elmApp.ports.fileUploadStatus.send({
+                    errorMsg: "Wystąpił błąd podczas nagrywania pliku"
+                });
             });
 
             request.addEventListener("abort", function(e) {
-                console.log("The transfer has been canceled by the user.");
+                elmApp.ports.fileUploadStatus.send({
+                    errorMsg: "Nagrywanie pliku zostało przerwane"
+                });
             });
 
             request.open('POST', 'https://red.zeszytykomiksowe.org/banners/1/upload');

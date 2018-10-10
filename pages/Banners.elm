@@ -2,6 +2,7 @@ port module Banners exposing
     ( Banner
     , Column(..)
     , Editing
+    , UploadStatus(..)
     , Model
     , Msg(..)
     , SortOrder(..)
@@ -23,9 +24,8 @@ import Debug exposing (log)
 import Dict
 import Global exposing (..)
 import Http
-import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed)
+import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, field, decodeValue)
 import Json.Decode.Pipeline exposing (required)
-import Json.Encode as E
 import Regex
 import Result
 import Task
@@ -71,7 +71,7 @@ type Msg
     | ChangeInput String
     | ValidateEditing Validator Modifier
     | SubmitFileUpload Validator Modifier
-    | FileUploadStatus E.Value
+    | FileUploadStatus Json.Decode.Value
     | SubmitEditing (Result Http.Error ())
     | CancelEditing
     | FocusResult (Result Dom.Error ())
@@ -116,11 +116,17 @@ type alias SerializableBanner =
     }
 
 
+type UploadStatus
+    = Uploading Int
+    | UploadFinished (Result String Image)
+
+
 type alias Editing =
     { id : Int
     , column : Column
     , value : String
     , isError : Bool
+    , mUploadStatus : Maybe UploadStatus
     }
 
 
@@ -136,7 +142,7 @@ type alias Model =
 port initiateFileUpload : String -> Cmd msg
 
 
-port fileUploadStatus : (E.Value -> msg) -> Sub msg
+port fileUploadStatus : (Json.Decode.Value -> msg) -> Sub msg
 
 
 inPlaceEditorId : String
@@ -189,9 +195,48 @@ deserialize sb =
         sb.weight
 
 
+imageDecoder : Decoder Image
+imageDecoder =
+    succeed Image
+        |> required "file" string
+        |> required "height" int
+        |> required "width" int
+
+
+uploadStatusProgressDecoder : Decoder UploadStatus
+uploadStatusProgressDecoder =
+    Json.Decode.map
+        (\progress -> Uploading progress)
+        (field "progress" int)
+
+
+uploadStatusSuccessDecoder : Decoder UploadStatus
+uploadStatusSuccessDecoder =
+    Json.Decode.map
+        (\image -> UploadFinished (Ok image))
+        imageDecoder
+
+
+uploadStatusErrorDecoder : Decoder UploadStatus
+uploadStatusErrorDecoder =
+    Json.Decode.map
+        (\err -> UploadFinished (Err err))
+        (field "errorMsg" string)
+
+
+uploadStatusDecoder : Decoder UploadStatus
+uploadStatusDecoder =
+    oneOf [ uploadStatusProgressDecoder, uploadStatusSuccessDecoder, uploadStatusErrorDecoder ]
+
+
 setEditingError : Editing -> Editing
 setEditingError editing =
     { editing | isError = True }
+
+
+setEditingFileUploadStatus : UploadStatus -> Editing -> Editing
+setEditingFileUploadStatus status editing =
+    { editing | isError = False, mUploadStatus = Just status }
 
 
 switchToPageCmd : Cmd Msg
@@ -381,7 +426,7 @@ update msg model token =
             )
 
         StartEditing id column value ->
-            ( { model | editing = Just (Editing id column value False) }
+            ( { model | editing = Just (Editing id column value False Nothing) }
             , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
             )
 
@@ -437,7 +482,7 @@ update msg model token =
                         , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
                         )
                     else
-                        ( { model | editing = Nothing }
+                        ( { model | editing = Just <| setEditingFileUploadStatus (Uploading 0) editing }
                         , initiateFileUpload inPlaceEditorId
                         )
 
@@ -446,7 +491,20 @@ update msg model token =
                     ( model, Cmd.none )
 
         FileUploadStatus jsonVal ->
-            Debug.log "We have liftoff!" ( model, Cmd.none )
+            case model.editing of
+                Just editing ->
+                    case decodeValue uploadStatusDecoder jsonVal of
+                        Ok uploadStatus ->
+                            ( { model | editing = Just <| setEditingFileUploadStatus uploadStatus editing }
+                            , Cmd.none )
+
+                        Err error ->
+                            ( { model | editing = Just <| setEditingFileUploadStatus (UploadFinished <| Err "Nie zrozumiałem odpowiedzi serwera… :(") editing }
+                            , Cmd.none )
+
+                -- This should never happen!!!
+                Nothing ->
+                    ( model, Cmd.none )
 
         SubmitEditing (Err err) ->
             ( { model | errorMsg = Just <| httpErrToString err }
@@ -461,7 +519,7 @@ update msg model token =
         CancelEditing ->
             ( { model | editing = Nothing }, Cmd.none )
 
-        FocusResult result ->
+        FocusResult _ ->
             ( model, Cmd.none )
 
         SwitchSort column ->
