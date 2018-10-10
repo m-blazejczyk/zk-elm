@@ -144,7 +144,10 @@ viewUploadStatus : UploadStatus -> Html Msg
 viewUploadStatus uploadStatus =
     case uploadStatus of
         Uploading progress ->
-            text <| "Nagrywanie pliku… " ++ String.fromInt progress ++ "%"
+            if progress == 100 then
+                text <| "Plik nagrany. Przetwarzanie na serwerze…"
+            else
+                text <| "Nagrywanie pliku… " ++ String.fromInt progress ++ "%"
 
         UploadFinished (Ok image) ->
             text <| "Plik nagrany: " ++ image.file
