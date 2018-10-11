@@ -95,10 +95,10 @@ type alias Image =
 type alias Banner =
     { id : Int
     , isSilent : Bool
-    , startDate : Maybe SimpleDate
-    , endDate : Maybe SimpleDate
-    , image : Maybe Image
-    , url : Maybe String
+    , mStartDate : Maybe SimpleDate
+    , mEndDate : Maybe SimpleDate
+    , mImage : Maybe Image
+    , mUrl : Maybe String
     , weight : Int
     }
 
@@ -106,12 +106,12 @@ type alias Banner =
 type alias SerializableBanner =
     { id : Int
     , isSilent : Bool
-    , startDate : Maybe SimpleDate
-    , endDate : Maybe SimpleDate
-    , imageUrl : Maybe String
-    , imageHeight : Maybe Int
-    , imageWidth : Maybe Int
-    , url : Maybe String
+    , mStartDate : Maybe SimpleDate
+    , mEndDate : Maybe SimpleDate
+    , mImageUrl : Maybe String
+    , mImageHeight : Maybe Int
+    , mImageWidth : Maybe Int
+    , mUrl : Maybe String
     , weight : Int
     }
 
@@ -188,10 +188,10 @@ deserialize sb =
     Banner
         sb.id
         sb.isSilent
-        sb.startDate
-        sb.endDate
-        (Maybe.map3 Image sb.imageUrl sb.imageHeight sb.imageHeight)
-        sb.url
+        sb.mStartDate
+        sb.mEndDate
+        (Maybe.map3 Image sb.mImageUrl sb.mImageHeight sb.mImageHeight)
+        sb.mUrl
         sb.weight
 
 
@@ -313,7 +313,7 @@ validateUrl strVal =
 modifyUrl : Modifier
 modifyUrl newUrl banner =
     { banner
-        | url =
+        | mUrl =
             if String.length newUrl == 0 then
                 Nothing
 
@@ -339,14 +339,14 @@ validateDate dateStr =
 modifyDate : Column -> Modifier
 modifyDate column newDateStr banner =
     let
-        newDate =
+        mNewDate =
             stringToDate newDateStr
     in
     if column == StartDateColumn then
-        { banner | startDate = newDate }
+        { banner | mStartDate = mNewDate }
 
     else
-        { banner | endDate = newDate }
+        { banner | mEndDate = mNewDate }
 
 
 sortBy : Column -> Banner -> Banner -> Order
@@ -366,13 +366,13 @@ sortBy column b1 b2 =
             EQ
 
         StartDateColumn ->
-            compareMaybeDates b1.startDate b2.startDate
+            compareMaybeDates b1.mStartDate b2.mStartDate
 
         EndDateColumn ->
-            compareMaybeDates b1.endDate b2.endDate
+            compareMaybeDates b1.mEndDate b2.mEndDate
 
         UrlColumn ->
-            compare (Maybe.withDefault "" b1.url) (Maybe.withDefault "" b2.url)
+            compare (Maybe.withDefault "" b1.mUrl) (Maybe.withDefault "" b2.mUrl)
 
         WeightColumn ->
             compare b1.weight b2.weight
@@ -507,7 +507,7 @@ update msg model token =
                                 updateImage : Banner -> Banner
                                 updateImage banner =
                                     if editing.id == banner.id then
-                                        { banner | image = Just image }
+                                        { banner | mImage = Just image }
 
                                     else
                                         banner

@@ -229,10 +229,10 @@ viewEditableField mEditing column id nonEditingView editorView editConfig =
 
 
 viewImage : Maybe Editing -> Banner -> Html Msg
-viewImage mEditing data =
+viewImage mEditing banner =
     let
         viewJustImage =
-            case data.image of
+            case banner.mImage of
                 Just image ->
                     div [ style "text-align" "center" ]
                         [ img [ src ("http://www.zeszytykomiksowe.org/aktualnosci/bannery/" ++ image.file), width image.width, height image.height ] []
@@ -244,7 +244,7 @@ viewImage mEditing data =
                     text "Brak obrazka"
 
         editingText =
-            case data.image of
+            case banner.mImage of
                 Just _ ->
                     "Zmień obrazek"
 
@@ -257,7 +257,7 @@ viewImage mEditing data =
                     [ viewJustImage ]
                 , p []
                     [ button [ class "btn btn-primary btn-sm"
-                             , onClick <| StartEditing data.id ImageColumn ""
+                             , onClick <| StartEditing banner.id ImageColumn ""
                              ]
                              [ text editingText ] 
                     ]
@@ -268,33 +268,33 @@ viewImage mEditing data =
             Nothing
 
         fakeModifier : String -> Banner -> Banner
-        fakeModifier _ banner =
-            banner
+        fakeModifier _ b =
+            b
 
     in
     viewEditableField
         mEditing
         ImageColumn
-        data.id
+        banner.id
         nonEditingView
         uploadEditorView
         { mHint = Nothing, onOkClick = onClick <| SubmitFileUpload fakeValidator fakeModifier }
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
-viewWeight mEditing data =
+viewWeight mEditing banner =
     let
         weightAsString =
-            String.fromInt data.weight
+            String.fromInt banner.weight
 
         nonEditingView =
-            span [ onClick <| StartEditing data.id WeightColumn weightAsString ]
+            span [ onClick <| StartEditing banner.id WeightColumn weightAsString ]
                 [ text weightAsString ]
     in
     viewEditableField
         mEditing
         WeightColumn
-        data.id
+        banner.id
         nonEditingView
         textEditorView
         { maxLen = 2, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
@@ -326,22 +326,22 @@ shorterUrl mUrl =
 
 
 viewUrl : Maybe Editing -> Banner -> Html Msg
-viewUrl mEditing data =
+viewUrl mEditing banner =
     let
         nonEditingView =
             span
                 [ class "with-tooltip"
-                , onClick <| StartEditing data.id UrlColumn (Maybe.withDefault "" data.url)
+                , onClick <| StartEditing banner.id UrlColumn (Maybe.withDefault "" banner.mUrl)
                 ]
-                [ text <| shorterUrl data.url
+                [ text <| shorterUrl banner.mUrl
                 , span [ class "tooltip-text tooltip-span" ]
-                    [ text (Maybe.withDefault "" data.url) ]
+                    [ text (Maybe.withDefault "" banner.mUrl) ]
                 ]
     in
     viewEditableField
         mEditing
         UrlColumn
-        data.id
+        banner.id
         nonEditingView
         textEditorView
         { maxLen = 500, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateUrl modifyUrl }
@@ -382,15 +382,15 @@ viewDeleteButton id =
 
 
 viewSingleBanner : Maybe Editing -> Banner -> Html Msg
-viewSingleBanner editing data =
+viewSingleBanner editing banner =
     tr []
-        [ td (columnStyle SilentColumn) [ input [ type_ "checkBox", checked data.isSilent, onCheck (ChangeSilent data.id) ] [], text " Ukryj" ]
-        , td (columnStyle ImageColumn) [ viewImage editing data ]
-        , td (columnStyle StartDateColumn) [ viewDate editing data.startDate StartDateColumn data.id ]
-        , td (columnStyle EndDateColumn) [ viewDate editing data.endDate EndDateColumn data.id ]
-        , td (columnStyle UrlColumn) [ viewUrl editing data ]
-        , td (columnStyle WeightColumn) [ viewWeight editing data ]
-        , td (columnStyle ActionsColumn) [ viewDeleteButton data.id ]
+        [ td (columnStyle SilentColumn) [ input [ type_ "checkBox", checked banner.isSilent, onCheck (ChangeSilent banner.id) ] [], text " Ukryj" ]
+        , td (columnStyle ImageColumn) [ viewImage editing banner ]
+        , td (columnStyle StartDateColumn) [ viewDate editing banner.mStartDate StartDateColumn banner.id ]
+        , td (columnStyle EndDateColumn) [ viewDate editing banner.mEndDate EndDateColumn banner.id ]
+        , td (columnStyle UrlColumn) [ viewUrl editing banner ]
+        , td (columnStyle WeightColumn) [ viewWeight editing banner ]
+        , td (columnStyle ActionsColumn) [ viewDeleteButton banner.id ]
         ]
 
 
