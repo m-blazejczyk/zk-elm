@@ -234,9 +234,9 @@ setEditingError editing =
     { editing | isError = True }
 
 
-setEditingFileUploadStatus : UploadStatus -> Editing -> Editing
-setEditingFileUploadStatus status editing =
-    { editing | isError = False, mUploadStatus = Just status }
+setEditingUploadStatus : Editing -> UploadStatus -> Maybe Editing
+setEditingUploadStatus editing uploadStatus =
+    Just { editing | isError = False, mUploadStatus = Just uploadStatus }
 
 
 switchToPageCmd : Cmd Msg
@@ -482,7 +482,7 @@ update msg model token =
                         , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
                         )
                     else
-                        ( { model | editing = Just <| setEditingFileUploadStatus (Uploading 0) editing }
+                        ( { model | editing = setEditingUploadStatus editing (Uploading 0) }
                         , initiateFileUpload inPlaceEditorId
                         )
 
@@ -494,12 +494,30 @@ update msg model token =
             case model.editing of
                 Just editing ->
                     case decodeValue uploadStatusDecoder jsonVal of
-                        Ok uploadStatus ->
-                            ( { model | editing = Just <| setEditingFileUploadStatus uploadStatus editing }
+                        Ok (Uploading progress) ->
+                            ( { model | editing = setEditingUploadStatus editing (Uploading progress) }
                             , Cmd.none )
 
+                        Ok (UploadFinished (Err err)) ->
+                            ( { model | editing = setEditingUploadStatus editing (UploadFinished (Err err)) }
+                            , Cmd.none )
+
+                        Ok (UploadFinished (Ok image)) ->
+                            let
+                                updateImage : Banner -> Banner
+                                updateImage banner =
+                                    if editing.id == banner.id then
+                                        { banner | image = Just image }
+
+                                    else
+                                        banner
+                                    
+                            in                                    
+                                ( { model | editing = Nothing, banners = List.map updateImage model.banners }
+                                , Cmd.none )
+
                         Err error ->
-                            ( { model | editing = Just <| setEditingFileUploadStatus (UploadFinished <| Err "Nie zrozumiałem odpowiedzi serwera… :(") editing }
+                            ( { model | editing = setEditingUploadStatus editing (UploadFinished <| Err "Nie zrozumiałem odpowiedzi serwera… :(") }
                             , Cmd.none )
 
                 -- This should never happen!!!
