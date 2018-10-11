@@ -83,6 +83,7 @@ type Msg
     | DeleteBannerClick Int
     | DeleteBanner Int (Result Http.Error ())
     | CloseErrorMsg
+    | CloseUploadErrorMsg
 
 
 type alias Image =
@@ -594,3 +595,6 @@ update msg model token =
 
         CloseErrorMsg ->
             ( { model | errorMsg = Nothing }, Cmd.none )
+
+        CloseUploadErrorMsg ->
+            ( { model | editing = Nothing }, Cmd.none )

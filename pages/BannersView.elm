@@ -87,7 +87,7 @@ columnWidth col =
             Just 80
 
         ImageColumn ->
-            Nothing
+            Just 250
 
         StartDateColumn ->
             Just 100
@@ -147,13 +147,17 @@ viewUploadStatus uploadStatus =
             if progress == 100 then
                 text <| "Plik nagrany. Przetwarzanie na serwerze…"
             else
-                text <| "Nagrywanie pliku… " ++ String.fromInt progress ++ "%"
+                div []
+                    [ text <| "Nagrywanie pliku… "
+                    , div [ class "progress" ]
+                        [ div [ class "progress-bar", style "width" (String.fromInt progress ++ "%") ]
+                            [ span [ class "sr-only" ] [] ] ] ]
 
         UploadFinished (Ok image) ->
             text <| "Plik nagrany: " ++ image.file
 
         UploadFinished (Err error) ->
-            text <| "Błąd: " ++ error
+            viewErrorMsg (Just error) CloseUploadErrorMsg
 
 
 textEditorView : Bool -> String -> ForText a -> Html Msg
