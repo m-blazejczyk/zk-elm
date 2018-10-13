@@ -10,7 +10,6 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode exposing (..)
 import Json.Encode as E
-import Url.Builder as Url
 import Model exposing (..)
 import Page exposing (..)
 import Ui exposing (viewErrorMsg)
@@ -135,7 +134,7 @@ update msg model =
     case msg of
         ClickLogIn ->
             let
-                loginUrl = Url.crossOrigin domain [ "auth", "login" ] []
+                loginUrl = fileUrl [ "auth", "login" ]
                     
             in
                 ( model, Http.send GetTokenCompleted <| Http.post loginUrl (authUserReqFormBody model) userDecoder )

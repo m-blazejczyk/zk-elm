@@ -9,7 +9,7 @@ module Global exposing
     , authRequestExpectJson
     , compareMaybeDates
     , dateToString
-    , domain
+    , fileUrl
     , maybeIsJust
     , stringToDate
     , toCmd
@@ -61,6 +61,11 @@ domain =
     "https://red.zeszytykomiksowe.org"
 
 
+fileUrl : List String -> String
+fileUrl pathElements =
+    Url.crossOrigin domain pathElements []
+
+
 expectHttpCodeResponse : Http.Expect ()
 expectHttpCodeResponse =
     Http.expectStringResponse
@@ -92,7 +97,7 @@ authRequestExpectJson : String -> List String -> String -> Decoder a -> Http.Req
 authRequestExpectJson method endpoint token decoder =
     { method = method
     , headers = authHeader token
-    , url = Url.crossOrigin domain endpoint []
+    , url = fileUrl endpoint
     , body = Http.emptyBody
     , expect = Http.expectJson decoder
     , timeout = Nothing
@@ -105,7 +110,7 @@ authDeleteRequest : List String -> String -> Int -> Http.Request ()
 authDeleteRequest endpoint token id =
     { method = "DELETE"
     , headers = authHeader token
-    , url = Url.crossOrigin domain (endpoint ++ [ String.fromInt id ]) []
+    , url = fileUrl <| endpoint ++ [ String.fromInt id ]
     , body = Http.emptyBody
     , expect = expectHttpCodeResponse
     , timeout = Nothing
@@ -118,7 +123,7 @@ authPutFieldRequest : List String -> String -> Int -> String -> String -> Http.R
 authPutFieldRequest endpoint token id fieldName fieldValue =
     { method = "POST"
     , headers = authHeader token
-    , url = Url.crossOrigin domain (endpoint ++ [ String.fromInt id, "edit" ]) []
+    , url = fileUrl <| endpoint ++ [ String.fromInt id, "edit" ]
     , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
     , expect = expectHttpCodeResponse
     , timeout = Nothing

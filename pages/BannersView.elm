@@ -239,7 +239,7 @@ viewImage mEditing banner =
             case banner.mImage of
                 Just image ->
                     div [ style "text-align" "center" ]
-                        [ img [ src ("http://www.zeszytykomiksowe.org/aktualnosci/bannery/" ++ image.file), width image.width, height image.height ] []
+                        [ img [ src <| fileUrl [ image.file ], width image.width, height image.height ] []
                         , br [] []
                         , span [] [ text (String.fromInt image.width ++ " × " ++ String.fromInt image.height ++ " px") ]
                         ]

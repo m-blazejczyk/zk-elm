@@ -1,6 +1,6 @@
 module Ui exposing (Space(..), glyphicon, glyphiconInfo, viewErrorMsg, viewSpinner)
 
-import Global exposing (domain)
+import Global exposing (fileUrl)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -49,7 +49,7 @@ viewSpinner : Bool -> Html msg
 viewSpinner shouldView =
     if shouldView then
         div [ style "width" "100%" ]
-            [ img [ src (domain ++ "static/ajax-loader.gif"), width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
+            [ img [ src <| fileUrl [ "static", "ajax-loader.gif" ], width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
 
     else
         text ""
