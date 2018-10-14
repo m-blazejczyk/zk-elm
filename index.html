@@ -27,9 +27,9 @@
         elmApp.ports.removeStorage.subscribe(function() {
             localStorage.removeItem('ZKmodel');
         });
-        elmApp.ports.initiateFileUpload.subscribe(function(id) {
+        elmApp.ports.initiateFileUpload.subscribe(function(tuple) {
 
-            var fileElem = document.getElementById(id);
+            var fileElem = document.getElementById(tuple[0]);
             if(fileElem.files.length === 0){
                 console.log('No file selected!');
                 return;
@@ -78,7 +78,7 @@
                 });
             });
 
-            request.open('POST', 'https://red.zeszytykomiksowe.org/banners/1/upload');
+            request.open('POST', 'https://red.zeszytykomiksowe.org/banners/'+tuple[1]+'/upload');
 
             var modelData = JSON.parse(localStorage.getItem('ZKmodel'));
             request.setRequestHeader('Authorization', modelData.user.token);

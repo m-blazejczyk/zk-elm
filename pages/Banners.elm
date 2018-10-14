@@ -140,7 +140,7 @@ type alias Model =
     }
 
 
-port initiateFileUpload : String -> Cmd msg
+port initiateFileUpload : ( String, Int ) -> Cmd msg
 
 
 port fileUploadStatus : (Json.Decode.Value -> msg) -> Sub msg
@@ -191,7 +191,7 @@ deserialize sb =
         sb.isSilent
         sb.mStartDate
         sb.mEndDate
-        (Maybe.map3 Image sb.mImageUrl sb.mImageHeight sb.mImageHeight)
+        (Maybe.map3 Image sb.mImageUrl sb.mImageHeight sb.mImageWidth)
         sb.mUrl
         sb.weight
 
@@ -484,7 +484,7 @@ update msg model token =
                         )
                     else
                         ( { model | editing = setEditingUploadStatus editing (Uploading 0) }
-                        , initiateFileUpload inPlaceEditorId
+                        , initiateFileUpload ( inPlaceEditorId, editing.id )
                         )
 
                 -- This should never happen!!!
