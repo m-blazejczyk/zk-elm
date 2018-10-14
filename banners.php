@@ -1,5 +1,6 @@
 <?php
 
+// mysql> desc Bannery;
 // +-----------+---------------+-----+-----+------+----------------+
 // |        Id |       int(11) |  NO | PRI | NULL | auto_increment |
 // |  IsSilent |    tinyint(4) |  NO |     |    0 |                |
@@ -10,27 +11,43 @@
 // | ObrazekId |       int(11) | YES |     | NULL |                |
 // +-----------+---------------+-----+-----+------+----------------+
 
+// mysql> desc Obrazki;
+// +-----------+-------------+----+-----+------+----------------+
+// |        Id |     int(11) | NO | PRI | NULL | auto_increment |
+// |      Plik | varchar(30) | NO |     | NULL |                |
+// | Szerokosc |     int(11) | NO |     | NULL |                |
+// |  Wysokosc |     int(11) | NO |     | NULL |                |
+// +-----------+-------------+----+-----+------+----------------+
+
 /////////////////////////////////////////////////
 // Get all banners
 // Returns JSON
 $router->map( 'GET', '/banners', withAuth0( function( $query ) {
 
-    $query->setTable( "Bannery" );
-    $result = $query->getStar();
+    $query->setTable( 'Bannery' );
+    $query->addSelect( 'Bannery.*' );
+    $query->addSelect( 'Obrazki.Plik' );
+    $query->addSelect( 'Obrazki.Szerokosc' );
+    $query->addSelect( 'Obrazki.Wysokosc' );
+    $query->addLeftJoin( 'Obrazki', 'Bannery.ObrazekId = Obrazki.Id' );
+    $result = $query->getAll();
+
     $response = array();
     while( $row = mysql_fetch_assoc( $result ) ) {
         $banner = array(
-            'id' => intval( $row[ "Id" ] ),
-            'isSilent' => ( $row[ "IsSilent" ] == "1" ),
-            'startDate' => $row[ "StartDate" ],
-            'endDate' => $row[ "EndDate" ],
-            'imageUrl' => $row[ "ImageUrl" ],
-            'imageHeight' => ( is_null( $row[ "ImageHeight" ] ) ? NULL : intval( $row[ "ImageHeight" ] ) ),
-            'imageWidth' => ( is_null( $row[ "ImageWidth" ] ) ? NULL : intval( $row[ "ImageWidth" ] ) ),
-            'url' => $row[ "Url" ],
-            'weight' => intval( $row[ "Weight" ] ) );
+            'id' => intval( $row[ 'Id' ] ),
+            'isSilent' => ( $row[ 'IsSilent' ] == '1' ),
+            'startDate' => $row[ 'StartDate' ],
+            'endDate' => $row[ 'EndDate' ],
+            'imageUrl' => 'static/upload/' . $row[ 'Plik' ],
+            'imageHeight' => ( is_null( $row[ 'Wysokosc' ] ) ? NULL : intval( $row[ 'Wysokosc' ] ) ),
+            'imageWidth' => ( is_null( $row[ 'Szerokosc' ] ) ? NULL : intval( $row[ 'Szerokosc' ] ) ),
+            'url' => $row[ 'Url' ],
+            'weight' => intval( $row[ 'Weight' ] ) );
         array_push( $response, $banner );
     }
+
+    $query->close();
 
     header( 'Content-Type: application/json' );
     echo json_encode( $response );
@@ -65,8 +82,23 @@ $router->map( 'POST', '/banners', withAuth0( function( $query ) {
 // Returns HTTP code
 $router->map( 'DELETE', '/banners/[i:id]', withAuth1Id( function( $query, $id ) {
 
-    $query->setTable( "Bannery" );
-    http_response_code( $query->deleteEx( "Id = " . $id ) ? 200 : 400 );
+    $query->setTable( 'Bannery' );
+
+    $obrazekId = $query->getEx( 'ObrazekId', 'Id = ' . $id );
+
+    http_response_code( $query->deleteEx( 'Id = ' . $id ) ? 200 : 400 );
+
+    if( $obrazekId ) {
+      $query->setTable( 'Obrazki' );
+
+      // First, delete the file.
+      $file = $query->getEx( 'Plik', 'Id = ' . $obrazekId );
+      unlink( 'static/upload/' . $file );
+
+      // Then, delete the image record.
+      $query->deleteEx( 'Id = ' . $obrazekId );
+    }
+
     $query->close();
 
   } ) );
@@ -145,7 +177,8 @@ $router->map( 'POST', '/banners/[i:id]/upload', withAuth1Id( function( $query, $
         // Generate a random file name for the target.
         while( true ) {
           $random = randomUploadPath( 20 );
-          $targetFull = 'static/upload/' . $random . $resizedExt;
+          $targetFilenameOnly = $random . $resizedExt;
+          $targetFull = 'static/upload/' . $targetFilenameOnly;
 
           // Check if the file exists
           if( !file_exists( $targetFull ) ) {
@@ -160,13 +193,41 @@ $router->map( 'POST', '/banners/[i:id]/upload', withAuth1Id( function( $query, $
         }
         $img->destroy();
 
-        // Success!
-        jsonUploadSuccess( $targetFull, $resizedW, $resizedH );
+        // Add image to the database.
+        $query->setTable( 'Obrazki' );
+        $query->addInsert( 'Plik', $query->prepareStringBasic( $targetFilenameOnly ) );
+        $query->addInsert( 'Szerokosc', $resizedW );
+        $query->addInsert( 'Wysokosc', $resizedH );
+        if( $query->insertEx() )
+        {
+          $obrazekId = intval( $query->lastInsertId() );
+
+          // Modify the banner in the database.
+          $query->setTable( 'Bannery' );
+          $query->addWhere( 'Id = ' . $id );
+          $query->addInsert( 'ObrazekId', $obrazekId );
+          if( $query->updateEx() ) {
+            // Success!
+            jsonUploadSuccess( $targetFull, $resizedW, $resizedH );
+          } else {
+            unlink( $targetFull );
+            error_log( 'File upload: Updating the Bannery table failed.' );
+            error_log( $query->getUpdateSql() );
+            http_response_code( 500 );
+          }
+        } else {
+          unlink( $targetFull );
+          error_log( 'File upload: Inserting image into the database failed.' );
+          error_log( $query->getInsertSql() );
+          http_response_code( 500 );
+        }
       }
     } else {
       error_log( 'File upload: Missing form field SelectedFile.' );
       http_response_code( 500 );
     }
+
+    $query->close();
   } ) );
 
 ?>
