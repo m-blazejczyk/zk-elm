@@ -29,6 +29,9 @@ columnTooltip column =
                 SilentColumn ->
                     Just "Zaznaczenie pola wyboru w tej kolumnie spowoduje, że dany banner nie będzie wyświetlany."
 
+                ImageColumn ->
+                    Just "Można nagrywać pliki PNG i JPG.  Obrazki zostaną przeskalowane do szerokości 200 pikseli."
+
                 StartDateColumn ->
                     Just "Data, od której banner powinien być wyświetlany.  Jeśli jest jej brak, banner będzie wyświetlany od momentu jego utworzenia."
 
