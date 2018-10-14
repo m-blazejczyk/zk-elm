@@ -202,6 +202,20 @@ $router->map( 'POST', '/banners/[i:id]/upload', withAuth1Id( function( $query, $
         {
           $obrazekId = intval( $query->lastInsertId() );
 
+          // Delete the previous image.
+          $query->setTable( 'Bannery' );
+          $oldObrazekId = $query->getEx( 'ObrazekId', 'Id = ' . $id );
+          if( $oldObrazekId ) {
+            $query->setTable( 'Obrazki' );
+
+            // First, delete the file.
+            $file = $query->getEx( 'Plik', 'Id = ' . $oldObrazekId );
+            unlink( 'static/upload/' . $file );
+
+            // Then, delete the image record.
+            $query->deleteEx( 'Id = ' . $oldObrazekId );
+          }
+
           // Modify the banner in the database.
           $query->setTable( 'Bannery' );
           $query->addWhere( 'Id = ' . $id );
