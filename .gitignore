@@ -2,6 +2,10 @@
 elm-stuff
 # elm-repl generated files
 repl-temp-*
-Main.js
-index.red.zk.php
+node_modules
+static/main.js
+query.php
+index.php
 .gitconfig
+.DS_Store
+package-lock.json
