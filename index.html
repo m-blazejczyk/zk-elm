@@ -4,10 +4,10 @@
         <meta charset="utf-8">
         <meta name="description" content="Portal redakcyjny magazynu „Zeszyty Komiksowe”">
         <title>Portal redakcyjny „Zeszytów Komiksowych”</title>
-        <script src="static/main.js"></script>
+        <script src="elm.js"></script>
         <link rel=stylesheet href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel=stylesheet href="static/styles.css">
-        <link rel=icon href="static/favicon.ico" sizes="16x16" type="image/vnd.microsoft.icon">
+        <link rel=stylesheet href="styles.css">
+        <link rel=icon href="https://www.zeszytykomiksowe.org/favicon.ico" sizes="16x16" type="image/vnd.microsoft.icon">
     </head>
     
     <body>
@@ -78,7 +78,7 @@
                 });
             });
 
-            request.open('POST', 'https://red.zeszytykomiksowe.org/banners/'+tuple[1]+'/upload');
+            request.open('POST', tuple[1]);
 
             var modelData = JSON.parse(localStorage.getItem('ZKmodel'));
             request.setRequestHeader('Authorization', modelData.user.token);

@@ -3,9 +3,8 @@ elm-stuff
 # elm-repl generated files
 repl-temp-*
 node_modules
-static/main.js
-query.php
-index.php
+elm.js
+*.php
 .gitconfig
 .DS_Store
 package-lock.json

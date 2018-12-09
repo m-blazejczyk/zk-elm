@@ -140,7 +140,7 @@ type alias Model =
     }
 
 
-port initiateFileUpload : ( String, Int ) -> Cmd msg
+port initiateFileUpload : ( String, String ) -> Cmd msg
 
 
 port fileUploadStatus : (Json.Decode.Value -> msg) -> Sub msg
@@ -254,13 +254,13 @@ fieldNameFor : Column -> String
 fieldNameFor column =
     case column of
         SilentColumn ->
-            "silent"
+            "is_silent"
 
         StartDateColumn ->
-            "startDate"
+            "start_date"
 
         EndDateColumn ->
-            "endDate"
+            "end_date"
 
         UrlColumn ->
             "url"
@@ -285,7 +285,10 @@ validateWeight : Validator
 validateWeight strVal =
     case String.toInt strVal of
         Just v ->
-            Just <| String.fromInt v
+            if v > 0 then
+                Just <| String.fromInt v
+            else
+                Nothing
 
         Nothing ->
             Nothing
@@ -423,7 +426,7 @@ update msg model token =
     case msg of
         ChangeSilent id checked ->
             ( { model | banners = List.map (updateSilent id checked) model.banners }
-            , Http.send SubmitEditing (authPutFieldRequest endpoint token id "silent" (boolToString checked))
+            , Http.send SubmitEditing (authPutFieldRequest endpoint token id (fieldNameFor SilentColumn) (boolToString checked))
             )
 
         StartEditing id column value ->
@@ -483,8 +486,9 @@ update msg model token =
                         , Dom.focus inPlaceEditorId |> Task.attempt FocusResult
                         )
                     else
+                        -- /banners/:id/upload
                         ( { model | editing = setEditingUploadStatus editing (Uploading 0) }
-                        , initiateFileUpload ( inPlaceEditorId, editing.id )
+                        , initiateFileUpload ( inPlaceEditorId, fileUrl (endpoint ++ [String.fromInt editing.id, "upload"]) )
                         )
 
                 -- This should never happen!!!
@@ -546,7 +550,7 @@ update msg model token =
 
         AddBannerClick ->
             ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
-            , Http.send AddBanner (authPostRequestExpectJson endpoint token bannerDecoder)
+            , Http.send AddBanner (authPostRequestExpectJson (endpoint ++ [ "new" ]) token bannerDecoder)
             )
 
         AddBanner (Err err) ->

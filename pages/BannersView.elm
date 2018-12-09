@@ -447,13 +447,13 @@ view model =
     div []
         [ viewErrorMsg model.errorMsg CloseErrorMsg
         , viewSpinner model.isLoading
+        , button [ class "btn btn-primary", onClick AddBannerClick ]
+            [ text "Dodaj banner" ]
+        , button [ class "btn btn-primary", style "margin-left" "20px", onClick LoadBannersClick ]
+            [ glyphicon "refresh" NoSpace ]
         , if List.isEmpty model.banners then
             text ""
 
           else
             displayTable
-        , button [ class "btn btn-primary", onClick AddBannerClick ]
-            [ text "Dodaj banner" ]
-        , button [ class "btn btn-primary", style "margin-left" "20px", onClick LoadBannersClick ]
-            [ glyphicon "refresh" NoSpace ]
         ]

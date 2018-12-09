@@ -34,7 +34,7 @@ type alias SimpleDate =
 
 boolToString : Bool -> String
 boolToString b = 
-    if b then "True" else "False"
+    if b then "true" else "false"
 
 
 httpErrToString : Http.Error -> String
@@ -59,6 +59,7 @@ httpErrToString err =
 domain : String
 domain =
     "https://red.zeszytykomiksowe.org"
+    --"http://0.0.0.0:4000"
 
 
 fileUrl : List String -> String
@@ -123,7 +124,7 @@ authPutFieldRequest : List String -> String -> Int -> String -> String -> Http.R
 authPutFieldRequest endpoint token id fieldName fieldValue =
     { method = "POST"
     , headers = authHeader token
-    , url = fileUrl <| endpoint ++ [ String.fromInt id, "edit" ]
+    , url = fileUrl <| endpoint ++ [ String.fromInt id, "update" ]
     , body = Http.multipartBody [ Http.stringPart fieldName fieldValue ]
     , expect = expectHttpCodeResponse
     , timeout = Nothing
