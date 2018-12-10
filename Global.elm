@@ -64,7 +64,7 @@ domain =
 
 fileUrl : List String -> String
 fileUrl pathElements =
-    Url.crossOrigin domain pathElements []
+    Url.crossOrigin domain (["api"] ++ pathElements) []
 
 
 expectHttpCodeResponse : Http.Expect ()
