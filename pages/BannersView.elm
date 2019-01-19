@@ -4,6 +4,7 @@ module BannersView exposing (view)
 
 import Banners exposing (..)
 import Global exposing (..)
+import Paths
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -242,7 +243,7 @@ viewImage mEditing banner =
             case banner.mImage of
                 Just image ->
                     div [ style "text-align" "center" ]
-                        [ img [ src <| fileUrl [ image.file ], width image.width, height image.height ] []
+                        [ img [ src <| Paths.images image.file, width image.width, height image.height ] []
                         , br [] []
                         , span [] [ text (String.fromInt image.width ++ " × " ++ String.fromInt image.height ++ " px") ]
                         ]

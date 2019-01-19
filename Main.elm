@@ -3,6 +3,7 @@ port module ZKMain exposing (main)
 import Banners
 import BannersView
 import Global exposing (..)
+import Paths
 import Browser exposing (Document, document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -134,7 +135,7 @@ update msg model =
     case msg of
         ClickLogIn ->
             let
-                loginUrl = fileUrl [ "auth", "login" ]
+                loginUrl = Paths.api [ "auth", "login" ]
                     
             in
                 ( model, Http.send GetTokenCompleted <| Http.post loginUrl (authUserReqFormBody model) userDecoder )

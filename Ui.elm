@@ -1,6 +1,6 @@
 module Ui exposing (Space(..), glyphicon, glyphiconInfo, viewErrorMsg, viewSpinner)
 
-import Global exposing (fileUrl)
+import Paths
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -49,7 +49,7 @@ viewSpinner : Bool -> Html msg
 viewSpinner shouldView =
     if shouldView then
         div [ style "width" "100%" ]
-            [ img [ src <| fileUrl [ "static", "ajax-loader.gif" ], width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
+            [ img [ src <| Paths.zkRoot [ "ajax-loader.gif" ], width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
 
     else
         text ""

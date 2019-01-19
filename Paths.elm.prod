@@ -1,0 +1,28 @@
+module Paths exposing
+    ( zkRoot
+    , api
+    , images
+    )
+
+
+import Url.Builder as Url
+
+
+zkRoot : List String -> String
+zkRoot pathElements = 
+    Url.crossOrigin "https://www.zeszytykomiksowe.org" pathElements []
+
+
+apiRoot : String
+apiRoot =
+    "https://red.zeszytykomiksowe.org"
+
+
+api : List String -> String
+api pathElements =
+    Url.crossOrigin apiRoot (["api"] ++ pathElements) []
+
+
+images : String -> String
+images fileName =
+    Url.crossOrigin "https://www.zeszytykomiksowe.org" ["uploads", fileName] []

@@ -31,6 +31,7 @@ import Result
 import Task
 import Browser.Dom as Dom
 import Url
+import Paths
 
 
 type Column
@@ -488,7 +489,7 @@ update msg model token =
                     else
                         -- /banners/:id/upload
                         ( { model | editing = setEditingUploadStatus editing (Uploading 0) }
-                        , initiateFileUpload ( inPlaceEditorId, fileUrl (endpoint ++ [String.fromInt editing.id, "upload"]) )
+                        , initiateFileUpload ( inPlaceEditorId, Paths.api (endpoint ++ [String.fromInt editing.id, "upload"]) )
                         )
 
                 -- This should never happen!!!

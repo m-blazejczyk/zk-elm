@@ -1,6 +1,7 @@
 module ViewTemplate exposing (viewFooter, viewHeader, viewLoginForm, viewMainMenu, viewTitle, viewTopMenu, viewUserMenu)
 
 import Global exposing (..)
+import Paths
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -25,7 +26,7 @@ viewHeader mUser =
     div [ attribute "style" "height: 95px;" ]
         [ div [ id "logo-zk" ]
             [ a [ href "#", onClick (OpenPage MainMenu) ]
-                [ img [ src <| fileUrl [ "static", "ZK_logo_red.png" ] ]
+                [ img [ src <| Paths.zkRoot [ "ZK_logo_red.png" ] ]
                     []
                 ]
             ]
