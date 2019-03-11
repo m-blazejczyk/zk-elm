@@ -41,12 +41,12 @@ type Availability
 type alias Issue =
     { id : Int
     , availability : Availability
-    , price : String
+    , mPrice : Maybe String
     , pl : IssueLang
     , en : IssueLang
-    , mImageBig : Maybe Image
-    , mImageMedium : Maybe Image
-    , mImageSmall : Maybe Image
+    --, mImageBig : Maybe Image
+    --, mImageMedium : Maybe Image
+    --, mImageSmall : Maybe Image
     }
 
 
@@ -54,10 +54,10 @@ type alias IssueLang =
     { id : Int
     , isPublished : Bool
     , hasTOC : Bool
-    , pubDate : SimpleDate
-    , topic : String
-    , editorial : String
-    , signature : String
+    , mPubDate : Maybe SimpleDate
+    , mTopic : Maybe String
+    , mEditorial : Maybe String
+    , mSignature : Maybe String
     }
 
 
@@ -92,7 +92,10 @@ endpoint = [ "issues" ]
 
 newIssue : Issue
 newIssue =
-    Issue -1
+    let
+        newLang = IssueLang -1 False False Nothing Nothing Nothing Nothing
+    in
+    Issue -1 InPreparation Nothing newLang newLang
 
 
 switchToPageCmd : Cmd Msg
@@ -105,7 +108,7 @@ update msg model token =
     case msg of
         LoadIssuesClick ->
             ( { model | issues = [], isLoading = True, errorMsg = Nothing, editing = Nothing }
-            , Http.send LoadIssues (authGetRequestExpectJson endpoint token (list issueDecoder))
+            , Cmd.none --Http.send LoadIssues (authGetRequestExpectJson endpoint token (list issueDecoder))
             )
 
         LoadIssues (Err err) ->
@@ -120,7 +123,7 @@ update msg model token =
 
         AddIssueClick ->
             ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
-            , Http.send AddIssue (authPostRequestExpectJson (endpoint ++ [ "new" ]) token issueDecoder)
+            , Cmd.none --Http.send AddIssue (authPostRequestExpectJson (endpoint ++ [ "new" ]) token issueDecoder)
             )
 
         AddIssue (Err err) ->
