@@ -23,6 +23,8 @@ import Paths
 
 type Msg
     = LoadIssuesClick
+    | AddIssueClick
+    | CloseErrorMsg
 
 
 type alias Issue =
@@ -64,4 +66,11 @@ switchToPageCmd =
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
     case msg of
-        LoadIssuesClick -> (model, Cmd.none)
+        LoadIssuesClick ->
+            ( model, Cmd.none )
+
+        AddIssueClick ->
+            ( model, Cmd.none )
+
+        CloseErrorMsg ->
+            ( { model | errorMsg = Nothing }, Cmd.none )

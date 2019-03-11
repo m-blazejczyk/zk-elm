@@ -3,6 +3,7 @@ port module ZKMain exposing (main)
 import Banners
 import BannersView
 import Issues
+import IssuesView
 import Global exposing (..)
 import Paths
 import Browser exposing (Document, document)
@@ -203,7 +204,7 @@ viewPage model =
             BannersView.view model.banners |> Html.map BannersMsg
 
         Issues ->
-            p [ class "text-center" ] [ text "Już niedługo…" ]
+            IssuesView.view model.issues |> Html.map IssuesMsg
 
         _ ->
             noContent
