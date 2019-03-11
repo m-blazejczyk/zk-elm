@@ -78,9 +78,9 @@ type Msg
     | FocusResult (Result Dom.Error ())
     | SwitchSort Column
     | AddBannerClick
-    | AddBanner (Result Http.Error SerializableBanner)
+    | AddBanner (Result Http.Error Banner)
     | LoadBannersClick
-    | LoadBanners (Result Http.Error (List SerializableBanner))
+    | LoadBanners (Result Http.Error (List Banner))
     | DeleteBannerClick Int
     | DeleteBanner Int (Result Http.Error ())
     | CloseErrorMsg
@@ -100,19 +100,6 @@ type alias Banner =
     , mStartDate : Maybe SimpleDate
     , mEndDate : Maybe SimpleDate
     , mImage : Maybe Image
-    , mUrl : Maybe String
-    , weight : Int
-    }
-
-
-type alias SerializableBanner =
-    { id : Int
-    , isSilent : Bool
-    , mStartDate : Maybe SimpleDate
-    , mEndDate : Maybe SimpleDate
-    , mImageUrl : Maybe String
-    , mImageHeight : Maybe Int
-    , mImageWidth : Maybe Int
     , mUrl : Maybe String
     , weight : Int
     }
@@ -171,30 +158,25 @@ simpleDateDecoder =
     Json.Decode.map stringToDate string
 
 
-bannerDecoder : Decoder SerializableBanner
-bannerDecoder =
-    succeed SerializableBanner
+bannerDecoder : Decoder Banner
+bannerDecoder = 
+    succeed Banner
         |> required "id" int
         |> required "isSilent" bool
         |> required "startDate" (oneOf [ simpleDateDecoder, null Nothing ])
         |> required "endDate" (oneOf [ simpleDateDecoder, null Nothing ])
-        |> required "imageUrl" (nullable string)
-        |> required "imageHeight" (nullable int)
-        |> required "imageWidth" (nullable int)
+        |> required "image" (oneOf [ mImageDecoder, null Nothing ])
         |> required "url" (nullable string)
         |> required "weight" int
 
 
-deserialize : SerializableBanner -> Banner
-deserialize sb =
-    Banner
-        sb.id
-        sb.isSilent
-        sb.mStartDate
-        sb.mEndDate
-        (Maybe.map3 Image sb.mImageUrl sb.mImageHeight sb.mImageWidth)
-        sb.mUrl
-        sb.weight
+mImageDecoder : Decoder (Maybe Image)
+mImageDecoder =
+    Json.Decode.map3
+        (\f h w -> Just (Image f h w))
+        (field "file" string)
+        (field "height" int)
+        (field "width" int)
 
 
 imageDecoder : Decoder Image
@@ -560,7 +542,7 @@ update msg model token =
             )
 
         AddBanner (Ok banner) ->
-            ( { model | banners = deserialize banner :: model.banners, isLoading = False, errorMsg = Nothing }
+            ( { model | banners = banner :: model.banners, isLoading = False, errorMsg = Nothing }
             , Cmd.none
             )
 
@@ -575,7 +557,7 @@ update msg model token =
             )
 
         LoadBanners (Ok banners) ->
-            ( { model | banners = List.map deserialize banners, errorMsg = Nothing, isLoading = False }
+            ( { model | banners = banners, errorMsg = Nothing, isLoading = False }
             , Cmd.none
             )
 
