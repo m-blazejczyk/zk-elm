@@ -2,6 +2,7 @@ port module ZKMain exposing (main)
 
 import Banners
 import BannersView
+import Issues
 import Global exposing (..)
 import Paths
 import Browser exposing (Document, document)
@@ -42,7 +43,7 @@ init mModelFP =
             ( model, openPageCmd model.page )
 
         Nothing ->
-            ( Model "" "" Nothing MainMenu Nothing Banners.init, Cmd.none )
+            ( Model "" "" Nothing MainMenu Nothing Banners.init Issues.init, Cmd.none )
 
 
 
@@ -173,6 +174,20 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
+        IssuesMsg innerMsg ->
+            case model.mUser of
+                Just user ->
+                    let
+                        ( innerModel, innerCmd ) =
+                            Issues.update innerMsg model.issues user.token
+                    in
+                    ( { model | issues = innerModel }
+                    , Cmd.map IssuesMsg innerCmd
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
 
 viewPage : Model -> Html Msg
 viewPage model =
@@ -186,6 +201,9 @@ viewPage model =
 
         Banners ->
             BannersView.view model.banners |> Html.map BannersMsg
+
+        Issues ->
+            p [ class "text-center" ] [ text "Już niedługo…" ]
 
         _ ->
             noContent
