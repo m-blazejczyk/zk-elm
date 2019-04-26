@@ -3,6 +3,7 @@ module Model exposing (
 
 import Banners
 import Issues
+import Todos
 import Http
 import Json.Decode as Decode exposing (..)
 import Json.Encode as E
@@ -20,6 +21,7 @@ type Msg
     | OpenPage Page
     | BannersMsg Banners.Msg
     | IssuesMsg Issues.Msg
+    | TodosMsg Todos.Msg
 
 
 type alias User =
@@ -40,6 +42,7 @@ type alias Model =
     , mUser : Maybe User
     , banners : Banners.Model
     , issues : Issues.Model
+    , todos : Todos.Model
     }
 
 
@@ -56,7 +59,7 @@ type alias ModelForPorts =
 
 modelFromPort : ModelForPorts -> Model
 modelFromPort modelFP =
-    Model "" "" Nothing (Page.fromString modelFP.pageStr) (Just modelFP.user) Banners.init Issues.init
+    Model "" "" Nothing (Page.fromString modelFP.pageStr) (Just modelFP.user) Banners.init Issues.init Todos.init
 
 
 userDecoder : Decoder User

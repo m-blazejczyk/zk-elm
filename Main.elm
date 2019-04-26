@@ -4,6 +4,7 @@ import Banners
 import BannersView
 import Issues
 import IssuesView
+import Todos
 import Global exposing (..)
 import Paths
 import Browser exposing (Document, document)
@@ -29,7 +30,6 @@ main =
         }
 
 
-
 -- Initialization
 
 
@@ -41,24 +41,11 @@ init mModelFP =
                 model =
                     modelFromPort modelFP
             in
-            ( model, openPageCmd model.page )
+                ( model, openPageCmd model.page )
 
         Nothing ->
-            ( Model "" "" Nothing MainMenu Nothing Banners.init Issues.init, Cmd.none )
-
-
-
-{-
-   UPDATE
-   * API routes
-   * GET and POST
-   * Encode request body
-   * Decode responses
-   * Messages
-   * Ports
-   * Update case
--}
--- POST register / login request
+            ( Model "" "" Nothing MainMenu Nothing Banners.init Issues.init Todos.init
+            , openPageCmd MainMenu )
 
 
 authUserReqFormBody : Model -> Http.Body
@@ -106,6 +93,12 @@ openPageCmd page =
     case page of
         Banners ->
             Cmd.map BannersMsg Banners.switchToPageCmd
+
+        Issues ->
+            Cmd.map IssuesMsg Issues.switchToPageCmd
+
+        MainMenu ->
+            Cmd.map TodosMsg Todos.switchToPageCmd
 
         _ ->
             Cmd.none
@@ -168,9 +161,9 @@ update msg model =
                         ( innerModel, innerCmd ) =
                             Banners.update innerMsg model.banners user.token
                     in
-                    ( { model | banners = innerModel }
-                    , Cmd.map BannersMsg innerCmd
-                    )
+                        ( { model | banners = innerModel }
+                        , Cmd.map BannersMsg innerCmd
+                        )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -182,9 +175,23 @@ update msg model =
                         ( innerModel, innerCmd ) =
                             Issues.update innerMsg model.issues user.token
                     in
-                    ( { model | issues = innerModel }
-                    , Cmd.map IssuesMsg innerCmd
-                    )
+                        ( { model | issues = innerModel }
+                        , Cmd.map IssuesMsg innerCmd
+                        )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        TodosMsg innerMsg ->
+            case model.mUser of
+                Just user ->
+                    let
+                        ( innerModel, innerCmd ) =
+                            Todos.update innerMsg model.todos user.token
+                    in
+                        ( { model | todos = innerModel }
+                        , Cmd.map TodosMsg innerCmd
+                        )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -198,7 +205,7 @@ viewPage model =
     in
     case model.page of
         MainMenu ->
-            viewMainMenu
+            div [] [ viewMainMenu, text "Tu będzie lista zadań" ]
 
         Banners ->
             BannersView.view model.banners |> Html.map BannersMsg
