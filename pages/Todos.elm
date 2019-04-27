@@ -79,7 +79,7 @@ endpoint = [ "todos" ]
 
 newTodoGroup : TodoGroup
 newTodoGroup =
-    TodoGroup -1 "Nowa kategoria" 1 False []
+    TodoGroup -1 "Nowa grupa zadań" 1 False []
 
 
 newTodoItem : TodoItem

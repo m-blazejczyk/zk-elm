@@ -5,6 +5,7 @@ import BannersView
 import Issues
 import IssuesView
 import Todos
+import TodosView
 import Global exposing (..)
 import Paths
 import Browser exposing (Document, document)
@@ -205,7 +206,7 @@ viewPage model =
     in
     case model.page of
         MainMenu ->
-            div [] [ viewMainMenu, text "Tu będzie lista zadań" ]
+            div [] [ viewMainMenu, TodosView.view model.todos |> Html.map TodosMsg ]
 
         Banners ->
             BannersView.view model.banners |> Html.map BannersMsg
