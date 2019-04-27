@@ -109,35 +109,35 @@ todoItemDecoder =
 
 priorityDecoder : Decoder Priority
 priorityDecoder =
-    string |> andThen (\str ->
-           case str of
-                "0" ->
+    int |> andThen (\prio ->
+           case prio of
+                0 ->
                     succeed DayOrTwo
-                "1" ->
+                1 ->
                     succeed OneWeek
-                "2" ->
+                2 ->
                     succeed TwoOrThreeWeeks
-                "3" ->
+                3 ->
                     succeed Eventually
                 somethingElse ->
-                    fail <| "Unknown priority: " ++ somethingElse
+                    fail <| "Unknown priority: " ++ (String.fromInt somethingElse)
         )
 
 
 statusDecoder : Decoder Status
 statusDecoder =
-    string |> andThen (\str ->
-           case str of
-                "0" ->
+    int |> andThen (\stat ->
+           case stat of
+                0 ->
                     succeed NotStarted
-                "1" ->
+                1 ->
                     succeed Started
-                "2" ->
+                2 ->
                     succeed Finished
-                "3" ->
+                3 ->
                     succeed Canceled
                 somethingElse ->
-                    fail <| "Unknown status: " ++ somethingElse
+                    fail <| "Unknown status: " ++ (String.fromInt somethingElse)
         )
 
 
@@ -155,12 +155,12 @@ update msg model token =
             )
 
         LoadTodos (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| httpErrToString err }
+            ( { model | isLoading = False, errorMsg = Just <| Debug.log "Error" (httpErrToString err) }
             , Cmd.none
             )
 
         LoadTodos (Ok todos) ->
-            ( { model | todos = todos, isLoading = False, errorMsg = Nothing }
+            ( { model | todos = Debug.log "Success" todos, isLoading = False, errorMsg = Nothing }
             , Cmd.none
             )
 
