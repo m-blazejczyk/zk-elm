@@ -83,7 +83,7 @@ viewFooter =
 viewLoginForm : String -> String -> Html Msg
 viewLoginForm userName password =
     div [ class "jumbotron text-left" ]
-        [ div [ id "form" ]
+        [ Html.form [ id "form" ]
             [ div [ class "form-group row" ]
                 [ div [ class "col-md-offset-2 col-md-8" ]
                     [ label [ for "username" ] [ text "Kto?" ]
