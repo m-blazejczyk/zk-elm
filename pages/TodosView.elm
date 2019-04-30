@@ -9,9 +9,22 @@ import Html.Events exposing (..)
 import Ui exposing (..)
 
 
+-- text "Tu będą przyciski… Archiwizuj Usuń Dodaj zadanie"
+
 viewTodoGroup : TodoGroup -> Html Msg
 viewTodoGroup group =
-    text (String.fromInt group.id)
+    div [ class "panel panel-primary" ] 
+        [ div [ class "panel-heading clearfix" ] 
+            [ h3 [ class "panel-title" ]
+                [ text group.name
+                , button [ class "btn btn-small btn-default pull-right" ] [ text "Archiwizuj Usuń" ]
+                ]
+            ]
+        , div [ class "panel-body" ]
+            [ button [ class "btn btn-primary" ]--, onClick AddTodoGroupClick ]
+                [ text "Dodaj zadanie" ]
+            ]
+        ]
 
 
 view : Model -> Html Msg
@@ -28,5 +41,5 @@ view model =
         , if List.isEmpty model.todos then
             em [] [ text "Brak zadań!" ]
           else
-            div [] (List.map viewTodoGroup model.todos)
+            div [ style "margin-top" "50px" ] (List.map viewTodoGroup model.todos)
         ]
