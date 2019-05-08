@@ -9,7 +9,14 @@ import Html.Events exposing (..)
 import Ui exposing (..)
 
 
--- text "Tu będą przyciski… Archiwizuj Usuń Dodaj zadanie"
+viewTodoItem : TodoItem -> Html Msg
+viewTodoItem item =
+    li [ class "list-group-item clearfix" ]
+        [ div [ style "font-size" "larger" ] [ text item.name ]
+        , br [] []
+        , div [ class "pull-right" ] [ text "Przyciski…" ]
+        ]
+
 
 viewTodoGroup : TodoGroup -> Html Msg
 viewTodoGroup group =
@@ -17,13 +24,24 @@ viewTodoGroup group =
         [ div [ class "panel-heading clearfix" ] 
             [ h3 [ class "panel-title" ]
                 [ text group.name
-                , button [ class "btn btn-small btn-default pull-right" ] [ text "Archiwizuj Usuń" ]
+                , span [ class "pull-right" ]
+                    [ button [ class "btn btn-small btn-default" ]
+                        [ glyphiconWithText "resize-small" "Zwiń" ]
+                    , button [ class "btn btn-small btn-default", style "margin-left" "10px" ]
+                        [ glyphiconWithText "inbox" "Archiwizuj" ]
+                    , button [ class "btn btn-small btn-default", style "margin-left" "10px" ]
+                        [ glyphiconWithText "trash" "Usuń" ]
+                    ]
                 ]
             ]
         , div [ class "panel-body" ]
             [ button [ class "btn btn-primary" ]--, onClick AddTodoGroupClick ]
-                [ text "Dodaj zadanie" ]
+                [ glyphiconWithText "plus-sign" "Dodaj zadanie" ]
             ]
+        , if List.isEmpty group.items then
+            text ""
+          else
+            ul [ class "list-group" ] (List.map viewTodoItem group.items)
         ]
 
 
@@ -34,10 +52,10 @@ view model =
         , h2 [ id "title" ] [ text "Zadania" ]
         , viewErrorMsg model.errorMsg CloseErrorMsg
         , viewSpinner model.isLoading
-        , button [ class "btn btn-primary", onClick AddTodoGroupClick ]
-            [ text "Dodaj grupę zadań" ]
-        , button [ class "btn btn-primary", style "margin-left" "20px", onClick LoadTodosClick ]
+        , button [ class "btn btn-primary", onClick LoadTodosClick ]
             [ glyphicon "refresh" NoSpace ]
+        , button [ class "btn btn-primary", onClick AddTodoGroupClick, style "margin-left" "20px" ]
+            [ glyphiconWithText "plus-sign" "Dodaj grupę zadań" ]
         , if List.isEmpty model.todos then
             em [] [ text "Brak zadań!" ]
           else

@@ -1,4 +1,4 @@
-module Ui exposing (Space(..), glyphicon, glyphiconInfo, viewErrorMsg, viewSpinner)
+module Ui exposing (Space(..), glyphicon, glyphiconWithText, glyphiconInfo, viewErrorMsg, viewSpinner)
 
 import Paths
 import Html exposing (..)
@@ -24,6 +24,15 @@ spaceStyle space =
 glyphicon : String -> Space -> Html msg
 glyphicon glyph space =
     span ([ class "glyphicon", class ("glyphicon-" ++ glyph) ] ++ spaceStyle space) []
+
+
+glyphiconWithText : String -> String -> Html msg
+glyphiconWithText glyph txt =
+    span []
+        [ span [ class "glyphicon", class ("glyphicon-" ++ glyph) ] []
+        , text " "
+        , text txt
+        ]
 
 
 glyphiconInfo : Space -> String -> Html msg
