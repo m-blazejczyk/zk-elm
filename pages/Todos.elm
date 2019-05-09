@@ -3,6 +3,8 @@ module Todos exposing
     , TodoItem
     , Model
     , Msg(..)
+    , Priority(..)
+    , Status(..)
     , init
     , switchToPageCmd
     , update

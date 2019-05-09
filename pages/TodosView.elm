@@ -9,12 +9,49 @@ import Html.Events exposing (..)
 import Ui exposing (..)
 
 
+statusToStyle : Status -> Attribute Msg
+statusToStyle style =
+    case style of
+        NotStarted ->
+            class "todo-status-not-started"
+
+        Started ->
+            class "todo-status-started"
+
+        Finished ->
+            class "todo-status-finished"
+
+        Canceled ->
+            class "todo-status-canceled"
+
+
+priorityToBkgd : Priority -> Attribute Msg
+priorityToBkgd prio =
+    case prio of
+        DayOrTwo->
+            class "bg-danger"
+
+        OneWeek->
+            class "todo-bg-warning"
+
+        TwoOrThreeWeeks->
+            class "bg-info"
+
+        Eventually->
+            class ""
+
+
 viewTodoItem : TodoItem -> Html Msg
 viewTodoItem item =
-    li [ class "list-group-item clearfix" ]
-        [ div [ style "font-size" "larger" ] [ text item.name ]
-        , br [] []
-        , div [ class "pull-right" ] [ text "Przyciski…" ]
+    li [ class "list-group-item clearfix", priorityToBkgd item.priority ]
+        [ div []
+            [ div [ class "todo-status", statusToStyle item.status ]
+                [ glyphicon "pencil" SpaceRight
+                , text item.name
+                ]
+            , br [] []
+            , div [ class "pull-right" ] [ text "Przyciski…" ]
+            ]
         ]
 
 
@@ -23,7 +60,10 @@ viewTodoGroup group =
     div [ class "panel panel-primary" ] 
         [ div [ class "panel-heading clearfix" ] 
             [ h3 [ class "panel-title" ]
-                [ text group.name
+                [ span [ style "font-size" "x-large" ]
+                    [ glyphicon "pencil" SpaceRight
+                    , text group.name
+                    ]
                 , span [ class "pull-right" ]
                     [ button [ class "btn btn-small btn-default" ]
                         [ glyphiconWithText "resize-small" "Zwiń" ]
@@ -57,7 +97,7 @@ view model =
         , button [ class "btn btn-primary", onClick AddTodoGroupClick, style "margin-left" "20px" ]
             [ glyphiconWithText "plus-sign" "Dodaj grupę zadań" ]
         , if List.isEmpty model.todos then
-            em [] [ text "Brak zadań!" ]
+            h3 [] [ text "Brak zadań!" ]
           else
             div [ style "margin-top" "50px" ] (List.map viewTodoGroup model.todos)
         ]

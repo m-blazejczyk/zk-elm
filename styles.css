@@ -86,6 +86,33 @@
   font-size: 14px;
 }
 
+/* Todo item statuses */
+.todo-status {
+  font-size: larger;
+}
+
+.todo-status-not-started {
+
+}
+
+.todo-status-started {
+  font-weight: bold;
+}
+
+.todo-status-finished {
+  text-decoration: line-through;
+  color: darkgreen;
+}
+
+.todo-status-canceled {
+  font-style: italic;
+  color: grey;
+}
+
+.todo-bg-warning {
+  background-color: #fcf8e3 !important;
+}
+
 body {
     border-top: 5px solid #325565;
     margin: 0;
