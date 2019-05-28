@@ -11,7 +11,6 @@ module Todos exposing
     )
 
 
-import Debug exposing (log)
 import Global exposing (..)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, string, succeed, fail, field, decodeValue, andThen)
@@ -157,12 +156,12 @@ update msg model token =
             )
 
         LoadTodos (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| Debug.log "Error" (httpErrToString err) }
+            ( { model | isLoading = False, errorMsg = Just <| httpErrToString err }
             , Cmd.none
             )
 
         LoadTodos (Ok todos) ->
-            ( { model | todos = Debug.log "Success" todos, isLoading = False, errorMsg = Nothing }
+            ( { model | todos = todos, isLoading = False, errorMsg = Nothing }
             , Cmd.none
             )
 
