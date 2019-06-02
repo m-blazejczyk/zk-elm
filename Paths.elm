@@ -18,9 +18,11 @@ apiRoot =
     "http://0.0.0.0:4000"
 
 
+
 api : List String -> String
 api pathElements =
     Url.crossOrigin apiRoot (["api"] ++ pathElements) []
+
 
 
 images : String -> String

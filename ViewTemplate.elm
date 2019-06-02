@@ -2,6 +2,7 @@ module ViewTemplate exposing (viewFooter, viewHeader, viewLoginForm, viewMainMen
 
 import Global exposing (..)
 import Paths
+import Version
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -77,13 +78,15 @@ viewFooter =
                 [ text " Dennis Wojda" ]
             , text "2011"
             ]
+        , div [ id "footer-slogan" ]
+            [ text Version.zkVersion ]
         ]
 
 
 viewLoginForm : String -> String -> Html Msg
 viewLoginForm userName password =
     div [ class "jumbotron text-left" ]
-        [ Html.form [ id "form" ]
+        [ Html.form [ id "form", onSubmit ClickLogIn ]
             [ div [ class "form-group row" ]
                 [ div [ class "col-md-offset-2 col-md-8" ]
                     [ label [ for "username" ] [ text "Kto?" ]
@@ -97,7 +100,7 @@ viewLoginForm userName password =
                     ]
                 ]
             , div [ class "text-center" ]
-                [ button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Zaloguj się" ]
+                [ button [ class "btn btn-primary" ] [ text "Zaloguj się" ]
                 ]
             ]
         ]

@@ -18,9 +18,11 @@ apiRoot =
     "https://red.zeszytykomiksowe.org"
 
 
+
 api : List String -> String
 api pathElements =
     Url.crossOrigin apiRoot (["api"] ++ pathElements) []
+
 
 
 images : String -> String
