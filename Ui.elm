@@ -58,7 +58,7 @@ viewSpinner : Bool -> Html msg
 viewSpinner shouldView =
     if shouldView then
         div [ style "width" "100%" ]
-            [ img [ src <| Paths.zkRoot [ "ajax-loader.gif" ], width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
+            [ img [ src <| Paths.zkStatic "ajax-loader.gif", width 32, height 32, class "center-block", style "margin-bottom" "20px" ] [] ]
 
     else
         text ""

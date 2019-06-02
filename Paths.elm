@@ -1,5 +1,5 @@
 module Paths exposing
-    ( zkRoot
+    ( zkStatic
     , api
     , images
     )
@@ -8,9 +8,9 @@ module Paths exposing
 import Url.Builder as Url
 
 
-zkRoot : List String -> String
-zkRoot pathElements = 
-    Url.crossOrigin "https://www.zeszytykomiksowe.org" pathElements []
+zkStatic : String -> String
+zkStatic file = 
+    Url.crossOrigin "https://www.zeszytykomiksowe.org" [file] []
 
 
 apiRoot : String
@@ -18,11 +18,9 @@ apiRoot =
     "http://0.0.0.0:4000"
 
 
-
 api : List String -> String
 api pathElements =
     Url.crossOrigin apiRoot (["api"] ++ pathElements) []
-
 
 
 images : String -> String

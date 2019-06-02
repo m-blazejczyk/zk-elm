@@ -27,7 +27,7 @@ viewHeader mUser =
     div [ attribute "style" "height: 95px;" ]
         [ div [ id "logo-zk" ]
             [ a [ href "#", onClick (OpenPage MainMenu) ]
-                [ img [ src <| Paths.zkRoot [ "ZK_logo_red.png" ] ]
+                [ img [ src <| Paths.zkStatic "ZK_logo_white.png" ]
                     []
                 ]
             ]
