@@ -10,7 +10,7 @@ import Url.Builder as Url
 
 zkStatic : String -> String
 zkStatic file = 
-    Url.crossOrigin "https://www.zeszytykomiksowe.org" [file] []
+    Url.crossOrigin "https://red.zeszytykomiksowe.org" [file] []
 
 
 apiRoot : String
