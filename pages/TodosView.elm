@@ -41,47 +41,118 @@ priorityToBkgd prio =
             class ""
 
 
-viewTodoItem : TodoItem -> Html Msg
-viewTodoItem item =
-    li [ class "list-group-item clearfix", priorityToBkgd item.priority ]
-        [ div []
-            [ div [ class "todo-status", statusToStyle item.status ]
-                [ glyphicon "pencil" SpaceRight
+inputButtons : Html Msg
+inputButtons =
+    div [ class "btn-group right-align" ]
+        [ button [ class "btn btn-default btn-sm", style "color" "green", onClick SubmitEditingClick ]
+            [ glyphicon "ok" NoSpace ]
+        , button [ class "btn btn-default btn-sm", style "color" "red", onClick CancelEditing ]
+            [ glyphicon "remove" NoSpace ]
+        ]
+
+
+textEditor : String -> Html Msg
+textEditor val =
+    div [ class "form-group full-width-input" ]
+        [ input [ maxlength maxLen
+                  , value val
+                  , type_ "text"
+                  , class "form-control"
+                  , id "inPlaceEditor"
+                  , onInput ChangeInput ]
+                []
+        ]
+
+
+itemName : Maybe Editing -> TodoGroup -> TodoItem -> Html Msg
+itemName mEditing group item =
+    case mEditing of
+        Nothing ->
+            div [ class "todo-status"
+                , statusToStyle item.status
+                , onClick <| StartEditing (Item group.id item.id) item.name ]
+                [ button [ class "btn btn-small btn-default", style "margin-right" "10px" ]
+                    [ glyphicon "pencil" NoSpace ]
                 , text item.name
                 ]
+
+        check id!
+        Just editing ->
+            div [ class "todo-status full-width"
+                , statusToStyle item.status ]
+                [ textEditor editing.value, inputButtons ]
+
+
+groupHeaderNotEditingStyleBasic : Attribute Msg
+groupHeaderNotEditingStyleBasic = 
+    style "font-size" "x-large"
+
+
+groupHeaderNotEditingStyle : Bool -> TodoGroup -> List (Attribute Msg)
+groupHeaderNotEditingStyle isClickable group =
+    if isClickable then
+        [ groupHeaderNotEditingStyleBasic
+        , onClick <| StartEditing (Group group.id) group.name ]
+    else
+        [ groupHeaderNotEditingStyleBasic ]
+
+groupHeaderNotEditing : Bool -> TodoGroup -> Html Msg
+groupHeaderNotEditing isClickable group =
+    h3 [ class "panel-title" ]
+        [ span
+            (groupHeaderNotEditingStyle isClickable group)
+            [ button [ class "btn btn-small btn-default", style "margin-right" "10px" ]
+                [ glyphicon "pencil" NoSpace ]
+            , text group.name
+            ]
+        , span [ class "pull-right" ]
+            [ button [ class "btn btn-small btn-default" ]
+                [ glyphiconWithText "resize-small" "Zwiń" ]
+            , button [ class "btn btn-small btn-default", style "margin-left" "10px" ]
+                [ glyphiconWithText "inbox" "Archiwizuj" ]
+            , button [ class "btn btn-small btn-default", style "margin-left" "10px" ]
+                [ glyphiconWithText "trash" "Usuń" ]
+            ]
+    ]
+
+
+groupHeader : Maybe Editing -> TodoGroup -> Html Msg
+groupHeader mEditing group =
+    case mEditing of
+        Nothing ->
+            groupHeaderNotEditing True group
+
+        Just editing ->
+            h3 [ class "panel-title" ]
+                [ span [ style "font-size" "x-large" ]
+                    [ textEditor editing.value, inputButtons ]
+                ]
+
+
+viewTodoItem : Maybe Editing -> TodoGroup -> TodoItem -> Html Msg
+viewTodoItem mEditing grup item =
+    li [ class "list-group-item clearfix", priorityToBkgd item.priority ]
+        [ div []
+            [ itemName mEditing group item
             , br [] []
-            , div [ class "pull-right" ] [ text "Przyciski…" ]
+            , div [ class "pull-right" ] [ text "Dropdowns…" ]
             ]
         ]
 
 
-viewTodoGroup : TodoGroup -> Html Msg
-viewTodoGroup group =
+viewTodoGroup : Maybe Editing -> TodoGroup -> Html Msg
+viewTodoGroup mEditing group =
     div [ class "panel panel-primary" ] 
         [ div [ class "panel-heading clearfix" ] 
-            [ h3 [ class "panel-title" ]
-                [ span [ style "font-size" "x-large" ]
-                    [ glyphicon "pencil" SpaceRight
-                    , text group.name
-                    ]
-                , span [ class "pull-right" ]
-                    [ button [ class "btn btn-small btn-default" ]
-                        [ glyphiconWithText "resize-small" "Zwiń" ]
-                    , button [ class "btn btn-small btn-default", style "margin-left" "10px" ]
-                        [ glyphiconWithText "inbox" "Archiwizuj" ]
-                    , button [ class "btn btn-small btn-default", style "margin-left" "10px" ]
-                        [ glyphiconWithText "trash" "Usuń" ]
-                    ]
-                ]
-            ]
+            [ groupHeader mEditing group ]
         , div [ class "panel-body" ]
-            [ button [ class "btn btn-primary" ]--, onClick AddTodoGroupClick ]
+            [ button [ class "btn btn-primary" ]
                 [ glyphiconWithText "plus-sign" "Dodaj zadanie" ]
             ]
         , if List.isEmpty group.items then
             text ""
           else
-            ul [ class "list-group" ] (List.map viewTodoItem group.items)
+            ul [ class "list-group" ] (List.map (viewTodoItem mEditing group) group.items)
         ]
 
 
@@ -99,5 +170,5 @@ view model =
         , if List.isEmpty model.todos then
             h3 [] [ text "Brak zadań!" ]
           else
-            div [ style "margin-top" "50px" ] (List.map viewTodoGroup model.todos)
+            div [ style "margin-top" "50px" ] (List.map (viewTodoGroup model.mEditing) model.todos)
         ]
