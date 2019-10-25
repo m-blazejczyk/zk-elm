@@ -4,8 +4,6 @@ import Banners
 import BannersView
 import Issues
 import IssuesView
-import Todos
-import TodosView
 import Global exposing (..)
 import Paths
 import Browser exposing (Document, document)
@@ -45,7 +43,7 @@ init mModelFP =
                 ( model, openPageCmd model.page )
 
         Nothing ->
-            ( Model "" "" Nothing MainMenu Nothing Banners.init Issues.init Todos.init
+            ( Model "" "" Nothing MainMenu Nothing Banners.init Issues.init
             , openPageCmd MainMenu )
 
 
@@ -97,9 +95,6 @@ openPageCmd page =
 
         Issues ->
             Cmd.map IssuesMsg Issues.switchToPageCmd
-
-        MainMenu ->
-            Cmd.map TodosMsg Todos.switchToPageCmd
 
         _ ->
             Cmd.none
@@ -183,20 +178,6 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        TodosMsg innerMsg ->
-            case model.mUser of
-                Just user ->
-                    let
-                        ( innerModel, innerCmd ) =
-                            Todos.update innerMsg model.todos user.token
-                    in
-                        ( { model | todos = innerModel }
-                        , Cmd.map TodosMsg innerCmd
-                        )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
 
 viewPage : Model -> Html Msg
 viewPage model =
@@ -206,7 +187,7 @@ viewPage model =
     in
     case model.page of
         MainMenu ->
-            div [] [ viewMainMenu, TodosView.view model.todos |> Html.map TodosMsg ]
+            viewMainMenu
 
         Banners ->
             BannersView.view model.banners |> Html.map BannersMsg
