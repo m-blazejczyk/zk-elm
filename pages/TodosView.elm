@@ -54,7 +54,7 @@ inputButtons =
 textEditor : String -> Html Msg
 textEditor val =
     div [ class "form-group full-width-input" ]
-        [ input [ maxlength maxLen
+        [ input [ maxlength 50 -- Hard-coded!
                   , value val
                   , type_ "text"
                   , class "form-control"
@@ -76,7 +76,8 @@ itemName mEditing group item =
                 , text item.name
                 ]
 
-        check id!
+        -- Here we need check the id so that we only display the editor for the entry
+        -- that is being edited
         Just editing ->
             div [ class "todo-status full-width"
                 , statusToStyle item.status ]
@@ -130,7 +131,7 @@ groupHeader mEditing group =
 
 
 viewTodoItem : Maybe Editing -> TodoGroup -> TodoItem -> Html Msg
-viewTodoItem mEditing grup item =
+viewTodoItem mEditing group item =
     li [ class "list-group-item clearfix", priorityToBkgd item.priority ]
         [ div []
             [ itemName mEditing group item

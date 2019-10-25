@@ -1,4 +1,4 @@
 module Version exposing (zkVersion)
 
 zkVersion : String
-zkVersion = "Sat 22 Jun 2019 23:05:03 EDT"
+zkVersion = "Fri 25 Oct 2019 18:56:53 BST"
