@@ -11,8 +11,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode as Decode exposing (..)
-import Json.Encode as E
 import Model exposing (..)
 import Page exposing (..)
 import Ui exposing (viewErrorMsg)

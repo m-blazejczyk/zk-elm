@@ -21,13 +21,10 @@ port module Banners exposing
     )
 
 import Debug exposing (log)
-import Dict
 import Global exposing (..)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, field, decodeValue)
 import Json.Decode.Pipeline exposing (required)
-import Regex
-import Result
 import Task
 import Browser.Dom as Dom
 import Url

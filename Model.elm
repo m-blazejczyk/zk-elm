@@ -5,9 +5,7 @@ import Banners
 import Issues
 import Http
 import Json.Decode as Decode exposing (..)
-import Json.Encode as E
 import Page exposing (..)
-import Task
 
 
 type Msg

@@ -2,7 +2,6 @@ module IssuesView exposing (view)
 
 import Issues exposing (..)
 import Global exposing (..)
-import Paths
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)

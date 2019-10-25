@@ -2,7 +2,6 @@ module TodosView exposing (view)
 
 import Todos exposing (..)
 import Global exposing (..)
-import Paths
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)

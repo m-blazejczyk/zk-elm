@@ -19,7 +19,6 @@ import Time exposing (Month(..))
 import Http
 import Json.Decode exposing (Decoder)
 import Maybe exposing (..)
-import Result
 import Task
 import Paths
 
