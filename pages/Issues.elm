@@ -1,6 +1,11 @@
 module Issues exposing
     ( Issue
     , IssueLang
+    , Availability(..)
+    , issuePubDate
+    , issueTopic
+    , issueEditorial
+    , issueSignature
     , EditableItem(..)
     , Editing
     , Model
@@ -11,16 +16,16 @@ module Issues exposing
     )
 
 
-import Debug exposing (log)
+-- import Debug exposing (log)
 import Global exposing (..)
 import Http
-import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, fail, field, decodeValue, andThen)
+import Json.Decode exposing (Decoder, bool, int, list, nullable, string, succeed, fail, andThen)
 import Json.Decode.Pipeline exposing (required)
-import Result
-import Task
-import Browser.Dom as Dom
-import Url
-import Paths
+-- import Result
+-- import Task
+-- import Browser.Dom as Dom
+-- import Url
+-- import Paths
 
 
 type Msg
@@ -79,6 +84,26 @@ type alias Model =
     , issues : List Issue
     , editing : Maybe Editing
     }
+
+
+issuePubDate : IssueLang -> String
+issuePubDate issueLang =
+    issueLang.mPubDate |> Maybe.withDefault "Brak daty publikacji"
+
+
+issueTopic : IssueLang -> String
+issueTopic issueLang =
+    issueLang.mTopic |> Maybe.withDefault "Brak tytułu"
+
+
+issueEditorial : IssueLang -> String
+issueEditorial issueLang =
+    issueLang.mEditorial |> Maybe.withDefault "Brak wstępniaka"
+
+
+issueSignature : IssueLang -> String
+issueSignature issueLang =
+    issueLang.mSignature |> Maybe.withDefault "Brak podpisu wstępniaka"
 
 
 init : Model
