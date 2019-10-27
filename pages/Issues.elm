@@ -136,7 +136,7 @@ availabilityDecoder =
                 4 ->
                     succeed OutOfPrint
                 somethingElse ->
-                    fail <| "Unknown availability: " ++ (String.fromInt somethingElse)
+                    fail <| "Unknown availability: " ++ String.fromInt somethingElse
         )
 
 

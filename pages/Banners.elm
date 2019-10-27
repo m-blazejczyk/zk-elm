@@ -20,7 +20,7 @@ port module Banners exposing
     , validateWeight
     )
 
-import Debug exposing (log)
+-- import Debug exposing (log)
 import Global exposing (..)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, field, decodeValue)
@@ -281,12 +281,7 @@ modifyWeight strVal banner =
 
 validateUrl : Validator
 validateUrl strVal =
-    case Url.fromString strVal of
-        Nothing ->
-            Nothing
-
-        Just _ ->
-            Just strVal
+    Maybe.map (\_ -> strVal) (Url.fromString strVal)
 
 
 modifyUrl : Modifier
@@ -307,12 +302,7 @@ validateDate dateStr =
         Just ""
 
     else
-        case stringToDate dateStr of
-            Just date ->
-                Just <| dateToString date
-
-            Nothing ->
-                Nothing
+        Maybe.map dateToString (stringToDate dateStr)
 
 
 modifyDate : Column -> Modifier
@@ -365,7 +355,7 @@ switchSort column oldModel =
     let
         newBanners =
             case oldModel.sortOrder of
-                Just ( oldColumn, oldSortOrder ) ->
+                Just ( oldColumn, _ ) ->
                     -- Properly handle the case when we only need to reverse the list
                     if oldColumn == column then
                         List.reverse oldModel.banners
@@ -496,7 +486,7 @@ update msg model token =
                                 ( { model | editing = Nothing, banners = List.map updateImage model.banners }
                                 , Cmd.none )
 
-                        Err error ->
+                        Err _ ->
                             ( { model | editing = setEditingUploadStatus editing (UploadFinished <| Err "Nie zrozumiałem odpowiedzi serwera… :(") }
                             , Cmd.none )
 

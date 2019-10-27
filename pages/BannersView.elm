@@ -12,7 +12,8 @@ import Ui exposing (..)
 
 
 type alias BasicEditConfig a =
-    { a | mHint : Maybe String, onOkClick : Attribute Msg }
+    { a | mHint : Maybe String
+        , onOkClick : Attribute Msg }
 
 
 type alias ForText a =
@@ -410,10 +411,10 @@ view model =
                 Just ( sortColumn, order ) ->
                     if sortColumn == column then
                         if order == Ascending then
-                            glyphicon "arrow-up" SpaceRight :: [ columnHeader column ]
+                            [ glyphicon "arrow-up" SpaceRight, columnHeader column ]
 
                         else
-                            glyphicon "arrow-down" SpaceRight :: [ columnHeader column ]
+                            [ glyphicon "arrow-down" SpaceRight, columnHeader column ]
 
                     else
                         [ columnHeader column ]
