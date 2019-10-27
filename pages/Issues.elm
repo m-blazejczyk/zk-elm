@@ -14,8 +14,8 @@ module Issues exposing
 import Debug exposing (log)
 import Global exposing (..)
 import Http
---import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, field, decodeValue)
---import Json.Decode.Pipeline exposing (required)
+import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, fail, field, decodeValue, andThen)
+import Json.Decode.Pipeline exposing (required)
 import Result
 import Task
 import Browser.Dom as Dom
@@ -54,7 +54,7 @@ type alias IssueLang =
     { id : Int
     , isPublished : Bool
     , hasTOC : Bool
-    , mPubDate : Maybe SimpleDate
+    , mPubDate : Maybe String
     , mTopic : Maybe String
     , mEditorial : Maybe String
     , mSignature : Maybe String
@@ -98,6 +98,47 @@ newIssue =
     Issue -1 InPreparation Nothing newLang newLang
 
 
+availabilityDecoder : Decoder Availability
+availabilityDecoder = 
+    int |> andThen (\availability ->
+           case availability of
+                1 ->
+                    succeed InPreparation
+                2 ->
+                    succeed Available
+                3 ->
+                    succeed ReprintAvailable
+                4 ->
+                    succeed OutOfPrint
+                somethingElse ->
+                    fail <| "Unknown availability: " ++ (String.fromInt somethingElse)
+        )
+
+
+issueLangDecoder : Decoder IssueLang
+issueLangDecoder = 
+    succeed IssueLang
+        |> required "id" int
+        |> required "is_published" bool
+        |> required "has_toc" bool
+        |> required "pub_date" (nullable string)
+        |> required "topic" (nullable string)
+        |> required "editorial" (nullable string)
+        |> required "editorial_sig" (nullable string)
+
+        
+issueDecoder : Decoder Issue
+issueDecoder = 
+    succeed Issue
+        |> required "id" int
+        |> required "availability" availabilityDecoder
+        |> required "price" (nullable string)
+        |> required "pl" issueLangDecoder
+        |> required "en" issueLangDecoder
+        -- image_big
+        -- image_medium
+        -- image_small
+
 switchToPageCmd : Cmd Msg
 switchToPageCmd =
     toCmd LoadIssuesClick
@@ -108,7 +149,7 @@ update msg model token =
     case msg of
         LoadIssuesClick ->
             ( { model | issues = [], isLoading = True, errorMsg = Nothing, editing = Nothing }
-            , Cmd.none --Http.send LoadIssues (authGetRequestExpectJson endpoint token (list issueDecoder))
+            , Http.send LoadIssues (authGetRequestExpectJson endpoint token (list issueDecoder))
             )
 
         LoadIssues (Err err) ->

@@ -150,11 +150,6 @@ newBanner =
     Banner -1 False Nothing Nothing Nothing Nothing 10
 
 
-simpleDateDecoder : Decoder (Maybe SimpleDate)
-simpleDateDecoder =
-    Json.Decode.map stringToDate string
-
-
 bannerDecoder : Decoder Banner
 bannerDecoder = 
     succeed Banner

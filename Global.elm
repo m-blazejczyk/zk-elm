@@ -9,6 +9,7 @@ module Global exposing
     , authRequestExpectJson
     , compareMaybeDates
     , dateToString
+    , simpleDateDecoder
     , maybeIsJust
     , stringToDate
     , toCmd
@@ -17,7 +18,7 @@ module Global exposing
 import Array
 import Time exposing (Month(..))
 import Http
-import Json.Decode exposing (Decoder)
+import Json.Decode exposing (Decoder, string)
 import Maybe exposing (..)
 import Task
 import Paths
@@ -346,3 +347,8 @@ compareMaybeDates md1 md2 =
             Maybe.withDefault 0 (Maybe.map dateToNum msd)
     in
     compare (maybeDateToNum md1) (maybeDateToNum md2)
+
+
+simpleDateDecoder : Decoder (Maybe SimpleDate)
+simpleDateDecoder =
+    Json.Decode.map stringToDate string

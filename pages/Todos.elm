@@ -15,7 +15,7 @@ module Todos exposing
 
 import Global exposing (..)
 import Http
-import Json.Decode exposing (Decoder, bool, int, list, string, succeed, fail, field, decodeValue, andThen)
+import Json.Decode exposing (Decoder, bool, int, list, string, succeed, fail)
 import Json.Decode.Pipeline exposing (required)
 import Task
 import Browser.Dom as Dom
