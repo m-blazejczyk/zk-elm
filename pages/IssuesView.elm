@@ -33,26 +33,42 @@ viewAvailabilityLabel avail =
                 OutOfPrint -> "Nakład wyczerpany"
     in
     
-    span [ class ("label label-" ++ getClass)
-            , style "margin-right" "10px" ]
+    span [ class ("label label-" ++ getClass), style "margin-right" "10px" ]
         [ text getText ]
 
 
-viewSingleIssue : Issue -> Html Msg
-viewSingleIssue issue =
+viewStaticIssue : Issue -> List (Html Msg)
+viewStaticIssue issue =
+    [ img [ src "dummy.jpg", width 100, height 100, style "float" "left", style "margin-right" "20px" ] []
+    , p [ class "section" ]
+        [ text <| "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl ]
+    , p []
+        [ viewLangVerLabel issue.pl "Polska wersja strony"
+        , viewLangVerLabel issue.en "Angielska wersja strony"
+        , viewAvailabilityLabel issue.availability
+        , button [ class "btn btn-primary", style "margin-left" "20px", style "float" "right", onClick <| StartEditing issue.id ]
+            [ text "Szczegóły / Edycja" ]
+        ]
+    ]
+
+
+viewEditableIssue : Issue -> List (Html Msg)
+viewEditableIssue _ =
+    [ text "Edytujesz mnie!"]
+
+
+viewIssue : Maybe Editing -> Issue -> Html Msg
+viewIssue mEditing issue =
+    let
+        idToCompare = Maybe.withDefault -1 (Maybe.map (\m -> m.id) mEditing)
+    in
+
     div [ class "panel panel-default" ]
         [ div [ class "panel-body" ]
-            [ img [ src "dummy.jpg", width 100, height 100, style "float" "left", style "margin-right" "20px" ] []
-            , p [ class "section" ]
-                [ text <| "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl ]
-            , p []
-                [ viewLangVerLabel issue.pl "Polska wersja strony"
-                , viewLangVerLabel issue.en "Angielska wersja strony"
-                , viewAvailabilityLabel issue.availability
-                , button [ class "btn btn-primary", style "margin-left" "20px", style "float" "right" ]
-                    [ text "Szczegóły / Edycja" ]
-                ]
-            ]
+            (if issue.id == idToCompare then
+                viewEditableIssue issue
+            else
+                viewStaticIssue issue)
         ]
 
 
@@ -71,5 +87,5 @@ view model =
             text ""
 
           else
-            div [] (List.map viewSingleIssue model.issues)
+            div [] (List.map (viewIssue model.editing) model.issues)
         ]

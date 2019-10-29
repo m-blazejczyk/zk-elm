@@ -6,7 +6,7 @@ module Issues exposing
     , issueTopic
     , issueEditorial
     , issueSignature
-    , EditableItem(..)
+    , TextField(..)
     , Editing
     , Model
     , Msg(..)
@@ -34,6 +34,7 @@ type Msg
     | AddIssueClick
     | AddIssue (Result Http.Error Issue)
     | CloseErrorMsg
+    | StartEditing Int
 
 
 type Availability
@@ -66,15 +67,22 @@ type alias IssueLang =
     }
 
 
-type EditableItem
-    = Dummy
+type TextField
+    = PriceField
+    | PubDatePlField
+    | TopicPlField
+    | SignaturePlField
+    | PubDateEnField
+    | TopicEnField
+    | SignatureEnField
 
 
 type alias Editing =
     { id : Int
-    , item : EditableItem
+    , mTextField : Maybe TextField
     , value : String
     , isError : Bool
+    -- , mUploadStatus : Maybe UploadStatus
     }
 
 
@@ -188,19 +196,26 @@ update msg model token =
             )
 
         AddIssueClick ->
-            ( { model | errorMsg = Nothing, editing = Nothing, isLoading = True }
+            ( { model | errorMsg = Nothing, isLoading = True }
             , Cmd.none --Http.send AddIssue (authPostRequestExpectJson (endpoint ++ [ "new" ]) token issueDecoder)
             )
 
         AddIssue (Err err) ->
-            ( { model | isLoading = False, errorMsg = Just <| httpErrToString err }
+            ( { model | errorMsg = Just <| httpErrToString err, isLoading = False }
             , Cmd.none
             )
 
         AddIssue (Ok issue) ->
-            ( { model | issues = issue :: model.issues, isLoading = False, errorMsg = Nothing }
+            ( { model | issues = issue :: model.issues, isLoading = False, errorMsg = Nothing, editing = Just <| Editing issue.id Nothing "" False }
             , Cmd.none
             )
 
         CloseErrorMsg ->
-            ( { model | errorMsg = Nothing }, Cmd.none )
+            ( { model | errorMsg = Nothing }
+            , Cmd.none
+            )
+
+        StartEditing id ->
+            ( { model | errorMsg = Nothing, editing = Just <| Editing id Nothing "" False }
+            , Cmd.none
+            )
