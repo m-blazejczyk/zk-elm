@@ -57,7 +57,7 @@ viewEditableIssue issue =
     [ p [ class "issue-header" ]
         [ span [ class "section" ]
             [ text <| "Numer " ++ String.fromInt issue.id ++ ": Szczegóły / Edycja" ]
-        , button [ class "btn btn-danger btn-float-right" ]
+        , button [ class "btn btn-danger btn-float-right", onClick <| StopEditing ]
             [ text "Zamknij / Anuluj" ]
         ]
     , div [ class "container full-width" ]

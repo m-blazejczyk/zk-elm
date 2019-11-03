@@ -35,6 +35,7 @@ type Msg
     | AddIssue (Result Http.Error Issue)
     | CloseErrorMsg
     | StartEditing Int
+    | StopEditing
 
 
 type Availability
@@ -219,3 +220,8 @@ update msg model token =
             ( { model | errorMsg = Nothing, editing = Just <| Editing id Nothing "" False }
             , Cmd.none
             )
+
+        StopEditing ->
+            ( { model | errorMsg = Nothing, editing = Nothing }
+            , Cmd.none
+            )        
