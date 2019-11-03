@@ -3,8 +3,6 @@
 .whitecourier { color: #FFFFFF}
 .blackcourier { color: #000000}
 .blackcourierbold { font-weight: bold; color: #000000}
-.whitecourierlink { }
-.blackcourierlink { }
 .sectioninfo { font-weight: bold; }
 .nowosc { font-weight: bold; color: #d63f2b; }
 
@@ -18,7 +16,6 @@
 .articlecite {  font-style: italic}
 .articleauthor {  font-weight: bold; text-align: right}
 .articlefooter {  font-size: smaller; font-style: italic; text-align: right}
-.articletext { }
 
 .francrozdzial { text-align: center; font-size: x-large; font-weight: bold  }
 .francsekcja {
@@ -89,10 +86,6 @@
 /* Todo item statuses */
 .todo-status {
   font-size: larger;
-}
-
-.todo-status-not-started {
-
 }
 
 .todo-status-started {
@@ -634,4 +627,25 @@ p.inobtrusive {
 
 .zawartosc {
   margin-bottom: 6px;
+}
+
+/* ------------ EDYCJA NUMERÓW ZK ------------ */
+
+.label-availability {
+  margin-right: 10px;
+}
+
+img.issue-cover {
+  float: left;
+  margin-right: 20px;
+}
+
+.btn-float-right {
+  margin-left: 20px;
+  float: right;
+}
+
+p.issue-header {
+  text-align: center;
+  margin-bottom: 20px;
 }
