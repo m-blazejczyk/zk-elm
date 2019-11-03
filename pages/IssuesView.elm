@@ -53,8 +53,27 @@ viewStaticIssue issue =
 
 
 viewEditableIssue : Issue -> List (Html Msg)
-viewEditableIssue _ =
-    [ text "Edytujesz mnie!"]
+viewEditableIssue issue =
+    [ p [ style "text-align" "center", style "margin-bottom" "20px" ]
+        [ span [ class "section" ]
+            [ text <| "Numer " ++ String.fromInt issue.id ++ ": Szczegóły / Edycja" ]
+        , button [ class "btn btn-danger", style "margin-left" "20px", style "float" "right" ]
+            [ text "Zamknij / Anuluj" ]
+        ]
+    , div [ class "container", style "width" "100%" ]
+        [ div [ class "row" ]
+            [ div [ class "col-md-2" ] 
+                [ p [ class "strong", style "text-align" "center" ] [ text "Ogólne" ]
+                ]
+            , div [ class "col-md-5" ]
+                [ p [ class "strong", style "text-align" "center" ] [ text "Wersja polska" ]
+                ]
+            , div [ class "col-md-5" ]
+                [ p [ class "strong", style "text-align" "center" ] [ text "Wersja angielska" ]
+                ]
+            ]
+        ]
+    ]
 
 
 viewIssue : Maybe Editing -> Issue -> Html Msg
