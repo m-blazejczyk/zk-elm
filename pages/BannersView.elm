@@ -4,23 +4,12 @@ module BannersView exposing (view)
 
 import Banners exposing (..)
 import Global exposing (..)
-import Paths
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Ui exposing (..)
-
-
-type alias BasicEditConfig a =
-    { a | mHint : Maybe String
-        , onOkClick : Attribute Msg }
-
-
-type alias ForText a =
-    { a | maxLen : Int }
-
-
-type alias EditorView a = Bool -> String -> BasicEditConfig a -> Html Msg
+import Image
+import UiEditing exposing (..)
 
 
 columnTooltip : Column -> Maybe (Html Msg)
@@ -120,158 +109,29 @@ columnStyle column =
             []
 
 
-viewInputButtons : Attribute Msg -> Html Msg
-viewInputButtons onOkClick =
-    div [ class "btn-group right-align" ]
-        [ button [ class "btn btn-default btn-sm", style "color" "green", onOkClick ]
-            [ glyphicon "ok" NoSpace ]
-        , button [ class "btn btn-default btn-sm", style "color" "red", onClick CancelEditing ]
-            [ glyphicon "remove" NoSpace ]
-        ]
+isEdited : Column -> Int -> Editing -> Bool
+isEdited column id editing = 
+    editing.id == id && editing.column == column
 
 
-viewInputWrapper : Attribute Msg -> Maybe String -> Html Msg -> Html Msg
-viewInputWrapper onOkClick hint content =
-    let
-        hintHtml =
-            case hint of
-                Just actualHint ->
-                    span [ class "tytul" ] [ text <| "(" ++ actualHint ++ ")" ]
-
-                Nothing ->
-                    text ""
-    in
-    div [ class "full-width" ]
-        [ content, hintHtml, viewInputButtons onOkClick ]
+getUploadStatus : Editing -> Maybe Image.UploadStatus
+getUploadStatus editing =
+    editing.mUploadStatus
 
 
-viewUploadStatus : UploadStatus -> Html Msg
-viewUploadStatus uploadStatus =
-    case uploadStatus of
-        Uploading progress ->
-            if progress == 100 then
-                text <| "Plik nagrany. Przetwarzanie na serwerze…"
-            else
-                div []
-                    [ text <| "Nagrywanie pliku… "
-                    , div [ class "progress" ]
-                        [ div [ class "progress-bar", style "width" (String.fromInt progress ++ "%") ]
-                            [ span [ class "sr-only" ] [] ] ] ]
-
-        UploadFinished (Ok image) ->
-            text <| "Plik nagrany: " ++ image.file
-
-        UploadFinished (Err error) ->
-            viewErrorMsg (Just error) CloseUploadErrorMsg
+isError : Editing -> Bool
+isError editing =
+    editing.isError
 
 
-textEditorView : Bool -> String -> ForText a -> Html Msg
-textEditorView isError val { maxLen } =
-    let
-        viewRawInput =
-            input [ maxlength maxLen
-                  , value val
-                  , type_ "text"
-                  , class "form-control"
-                  , id "inPlaceEditor"
-                  , onInput ChangeInput ]
-                []
-            
-    in
-            
-    if isError then
-        div [ class "form-group has-error has-feedback full-width-input" ]
-            [ viewRawInput
-            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-            ]
-    else
-        div [ class "form-group full-width-input" ]
-            [ viewRawInput ]
-
-
-uploadEditorView : Bool -> String -> BasicEditConfig a -> Html Msg
-uploadEditorView isError val _ =
-    let
-        viewRawFile =
-            input [ type_ "file"
-                  , class "form-control"
-                  , id "inPlaceEditor"
-                  , onInput ChangeInput ]
-                []
-            
-    in
-            
-    if isError then
-        div [ class "form-group has-error has-feedback full-width-input" ]
-            [ viewRawFile
-            , span [ class "glyphicon glyphicon-exclamation-sign form-control-feedback" ] []
-            ]
-    else
-        div [ class "form-group full-width-input" ]
-            [ viewRawFile ]
-
-
-viewEditableField : Maybe Editing -> Column -> Int -> Html Msg -> EditorView a -> BasicEditConfig a -> Html Msg
-viewEditableField mEditing column id nonEditingView editorView editConfig =
-    let
-        { mHint, onOkClick } = editConfig
-            
-    in
-        case mEditing of
-            Just editing ->
-                if editing.id == id && editing.column == column then
-                    case editing.mUploadStatus of
-                        Just uploadStatus ->
-                            viewUploadStatus uploadStatus
-
-                        Nothing ->
-                            viewInputWrapper
-                                onOkClick
-                                mHint
-                                (editorView editing.isError editing.value editConfig)
-
-                else
-                    nonEditingView
-
-            Nothing ->
-                nonEditingView
+getValue : Editing -> String
+getValue editing =
+    editing.value
 
 
 viewImage : Maybe Editing -> Banner -> Html Msg
 viewImage mEditing banner =
     let
-        viewJustImage =
-            case banner.mImage of
-                Just image ->
-                    div [ style "text-align" "center" ]
-                        [ img [ src <| Paths.images image.file, width image.width, height image.height ] []
-                        , br [] []
-                        , span [] [ text (String.fromInt image.width ++ " × " ++ String.fromInt image.height ++ " px") ]
-                        ]
-
-                Nothing ->
-                    text "Brak obrazka"
-
-        editingText =
-            case banner.mImage of
-                Just _ ->
-                    "Zmień obrazek"
-
-                Nothing ->
-                    "Dodaj obrazek"
-
-        nonEditingView =
-            div []
-                [ p []
-                    [ viewJustImage ]
-                , p []
-                    [ button [ class "btn btn-primary btn-sm"
-                             , onClick <| StartEditing banner.id ImageColumn ""
-                             ]
-                             [ text editingText ] 
-                    ]
-                ]
-
         fakeValidator : String -> Maybe String
         fakeValidator _ =
             Nothing
@@ -279,15 +139,22 @@ viewImage mEditing banner =
         fakeModifier : String -> Banner -> Banner
         fakeModifier _ b =
             b
-
+        
     in
-    viewEditableField
+    viewEditableImage
         mEditing
-        ImageColumn
-        banner.id
-        nonEditingView
-        uploadEditorView
-        { mHint = Nothing, onOkClick = onClick <| SubmitFileUpload fakeValidator fakeModifier }
+        (isEdited ImageColumn banner.id)
+        getUploadStatus
+        isError
+        getValue
+        banner.mImage
+        { mHint = Nothing
+        , maxLen = 0
+        , changeMsg = ChangeInput
+        , cancelMsg = CancelEditing
+        , submitMsg = SubmitFileUpload fakeValidator fakeModifier
+        , closeUploadErrorMsg = CloseUploadErrorMsg }
+        (StartEditing banner.id ImageColumn "")
 
 
 viewWeight : Maybe Editing -> Banner -> Html Msg
@@ -302,11 +169,18 @@ viewWeight mEditing banner =
     in
     viewEditableField
         mEditing
-        WeightColumn
-        banner.id
+        (isEdited WeightColumn banner.id)
+        getUploadStatus
+        isError
+        getValue
         nonEditingView
         textEditorView
-        { maxLen = 2, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateWeight modifyWeight }
+        { mHint = Nothing
+        , maxLen = 2
+        , changeMsg = ChangeInput
+        , cancelMsg = CancelEditing
+        , submitMsg = ValidateEditing validateWeight modifyWeight
+        , closeUploadErrorMsg = CloseUploadErrorMsg }
 
 
 shorterUrl : Maybe String -> String
@@ -349,11 +223,18 @@ viewUrl mEditing banner =
     in
     viewEditableField
         mEditing
-        UrlColumn
-        banner.id
+        (isEdited UrlColumn banner.id)
+        getUploadStatus
+        isError
+        getValue
         nonEditingView
         textEditorView
-        { maxLen = 500, mHint = Nothing, onOkClick = onClick <| ValidateEditing validateUrl modifyUrl }
+        { mHint = Nothing
+        , maxLen = 500
+        , changeMsg = ChangeInput
+        , cancelMsg = CancelEditing
+        , submitMsg = ValidateEditing validateUrl modifyUrl
+        , closeUploadErrorMsg = CloseUploadErrorMsg }
 
 
 viewDate : Maybe Editing -> Maybe SimpleDate -> Column -> Int -> Html Msg
@@ -377,11 +258,18 @@ viewDate mEditing mDate column id =
     in
     viewEditableField
         mEditing
-        column
-        id
+        (isEdited column id)
+        getUploadStatus
+        isError
+        getValue
         nonEditingView
         textEditorView
-        { maxLen = 10, mHint = Just "rrrr-m-d", onOkClick = onClick <| ValidateEditing validateDate (modifyDate column) }
+        { mHint = Just "rrrr-m-d"
+        , maxLen = 10
+        , changeMsg = ChangeInput
+        , cancelMsg = CancelEditing
+        , submitMsg = ValidateEditing validateDate (modifyDate column)
+        , closeUploadErrorMsg = CloseUploadErrorMsg }
 
 
 viewDeleteButton : Int -> Html Msg

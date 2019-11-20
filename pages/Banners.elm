@@ -2,7 +2,6 @@ port module Banners exposing
     ( Banner
     , Column(..)
     , Editing
-    , UploadStatus(..)
     , Model
     , Msg(..)
     , SortOrder(..)
@@ -22,6 +21,7 @@ port module Banners exposing
 
 -- import Debug exposing (log)
 import Global exposing (..)
+import Image exposing (..)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, null, nullable, oneOf, string, succeed, field, decodeValue)
 import Json.Decode.Pipeline exposing (required)
@@ -84,13 +84,6 @@ type Msg
     | CloseUploadErrorMsg
 
 
-type alias Image =
-    { file : String
-    , height : Int
-    , width : Int
-    }
-
-
 type alias Banner =
     { id : Int
     , isSilent : Bool
@@ -100,11 +93,6 @@ type alias Banner =
     , mUrl : Maybe String
     , weight : Int
     }
-
-
-type UploadStatus
-    = Uploading Int
-    | UploadFinished (Result String Image)
 
 
 type alias Editing =
@@ -160,49 +148,6 @@ bannerDecoder =
         |> required "image" (oneOf [ mImageDecoder, null Nothing ])
         |> required "url" (nullable string)
         |> required "weight" int
-
-
-mImageDecoder : Decoder (Maybe Image)
-mImageDecoder =
-    Json.Decode.map3
-        (\f h w -> Just (Image f h w))
-        (field "file" string)
-        (field "height" int)
-        (field "width" int)
-
-
-imageDecoder : Decoder Image
-imageDecoder =
-    succeed Image
-        |> required "file" string
-        |> required "height" int
-        |> required "width" int
-
-
-uploadStatusProgressDecoder : Decoder UploadStatus
-uploadStatusProgressDecoder =
-    Json.Decode.map
-        (\progress -> Uploading progress)
-        (field "progress" int)
-
-
-uploadStatusSuccessDecoder : Decoder UploadStatus
-uploadStatusSuccessDecoder =
-    Json.Decode.map
-        (\image -> UploadFinished (Ok image))
-        imageDecoder
-
-
-uploadStatusErrorDecoder : Decoder UploadStatus
-uploadStatusErrorDecoder =
-    Json.Decode.map
-        (\err -> UploadFinished (Err err))
-        (field "errorMsg" string)
-
-
-uploadStatusDecoder : Decoder UploadStatus
-uploadStatusDecoder =
-    oneOf [ uploadStatusProgressDecoder, uploadStatusSuccessDecoder, uploadStatusErrorDecoder ]
 
 
 setEditingError : Editing -> Editing
