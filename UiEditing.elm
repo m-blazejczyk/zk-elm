@@ -14,16 +14,6 @@ import Html.Events exposing (..)
 import Ui exposing (..)
 
 
--- type alias BasicEditConfig a m =
---     { a | mHint : Maybe String
---         , maxLen : Int
---         , submitMsg : m
---         , changeMsg : String -> m
---         , cancelMsg : m
---         , closeUploadErrorMsg : m
---         , startEditingImageMsg : m }
-
-
 type alias EditorConfig m =
     { mHint : Maybe String
     , maxLen : Int
