@@ -1,4 +1,4 @@
-port module ZKMain exposing (main)
+port module Main exposing (main)
 
 import Banners
 import BannersView
