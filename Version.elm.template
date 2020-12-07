@@ -1,0 +1,7 @@
+-- File Version.elm should be auto-generated during the build process with a command like:
+-- echo -e "module Version exposing (zkVersion)\n\nzkVersion : String\nzkVersion = \"$(date)\"" > Version.elm
+
+module Version exposing (zkVersion)
+
+zkVersion : String
+zkVersion = "Sun  1 Nov 2020 21:40:22 EST"

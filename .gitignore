@@ -8,3 +8,4 @@ elm.js
 .gitconfig
 .DS_Store
 package-lock.json
+Version.elm
