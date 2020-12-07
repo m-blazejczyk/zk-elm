@@ -9,3 +9,4 @@ elm.js
 .DS_Store
 package-lock.json
 Version.elm
+Paths.elm
