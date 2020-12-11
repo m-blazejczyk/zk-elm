@@ -23,6 +23,7 @@
           flags: startingState
         });
         elmApp.ports.setStorage.subscribe(function(state) {
+            // state example: {pageStr: "Banners", user: {…}}
             localStorage.setItem('ZKmodel', JSON.stringify(state));
         });
         elmApp.ports.removeStorage.subscribe(function() {
