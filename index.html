@@ -18,7 +18,7 @@
     <script>
         var storedState = localStorage.getItem('ZKmodel');
         var startingState = storedState ? JSON.parse(storedState) : null;
-        var elmApp = Elm.ZKMain.init({
+        var elmApp = Elm.Main.init({
           node: document.getElementById('elm-area'),
           flags: startingState
         });
