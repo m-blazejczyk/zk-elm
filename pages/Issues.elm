@@ -6,7 +6,6 @@ module Issues exposing
     , issueTopic
     , issueEditorial
     , issueSignature
-    , TextField(..)
     , Model
     , Msg(..)
     , init
@@ -67,16 +66,6 @@ type alias IssueLang =
     , mEditorial : Maybe String
     , mSignature : Maybe String
     }
-
-
-type TextField
-    = PriceField
-    | PubDatePlField
-    | TopicPlField
-    | SignaturePlField
-    | PubDateEnField
-    | TopicEnField
-    | SignatureEnField
 
 
 type alias Model =
