@@ -38,28 +38,9 @@ viewAvailabilityLabel avail =
         [ text getText ]
 
 
-viewEditableIssue : Issue -> List (Html Msg)
-viewEditableIssue issue =
-    [ p [ class "issue-header" ]
-        [ span [ class "section" ]
-            [ text <| "Numer " ++ String.fromInt issue.id ++ ": Szczegóły / Edycja" ]
-        , button [ class "btn btn-danger btn-float-right", onClick <| StopEditing ]
-            [ text "Zamknij / Anuluj" ]
-        ]
-    , div [ class "container full-width" ]
-        [ div [ class "row" ]
-            [ div [ class "col-md-2" ] 
-                [ p [ class "strong centered" ] [ text "Ogólne" ]
-                ]
-            , div [ class "col-md-5" ]
-                [ p [ class "strong centered" ] [ text "Wersja polska" ]
-                ]
-            , div [ class "col-md-5" ]
-                [ p [ class "strong centered" ] [ text "Wersja angielska" ]
-                ]
-            ]
-        ]
-    ]
+issueFullTitle : Issue -> String
+issueFullTitle issue =
+    "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl
 
 
 viewIssue : Issue -> Html Msg
@@ -68,7 +49,7 @@ viewIssue issue =
         [ div [ class "panel-body" ]
             [ img [ class "issue-cover", src "dummy.jpg", width 100, height 100 ] []
             , p [ class "section" ]
-                [ text <| "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl ]
+                [ text <| issueFullTitle issue ]
             , p []
                 [ viewLangVerLabel issue.pl "Polska wersja strony"
                 , viewLangVerLabel issue.en "Angielska wersja strony"
@@ -79,12 +60,30 @@ viewIssue issue =
             ]
         ]
 
+
 editIssue : Issue -> Html Msg
 editIssue issue =
     div [ class "modal-zk" ] [
         div [ class "modal-content-zk" ]
-            [ span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
-            , text ("Editing " ++ String.fromInt issue.id)
+            [ p [ class "section" ]
+                [ text <| issueFullTitle issue
+                , span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
+                ]
+            , div [ class "panel panel-default" ]
+                [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text "Informacje ogólne" ] ]
+                , div [ class "panel-body" ]
+                    [ text <| "…" ]
+                ]
+            , div [ class "panel panel-default" ]
+                [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text "Wersja polska" ] ]
+                , div [ class "panel-body" ]
+                    [ text <| "…" ]
+                ]
+            , div [ class "panel panel-default" ]
+                [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text "Wersja angielska" ] ]
+                , div [ class "panel-body" ]
+                    [ text <| "…" ]
+                ]
             ]
     ]
 
