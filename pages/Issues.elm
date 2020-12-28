@@ -7,7 +7,6 @@ module Issues exposing
     , issueEditorial
     , issueSignature
     , TextField(..)
-    , Editing
     , Model
     , Msg(..)
     , init
@@ -78,20 +77,11 @@ type TextField
     | SignatureEnField
 
 
-type alias Editing =
-    { id : Int
-    , mTextField : Maybe TextField
-    , value : String
-    , isError : Bool
-    -- , mUploadStatus : Maybe UploadStatus
-    }
-
-
 type alias Model =
     { isLoading : Bool
     , errorMsg : Maybe String
     , issues : List Issue
-    , editing : Maybe Editing
+    , mEditing : Maybe Issue
     }
 
 
@@ -182,7 +172,7 @@ update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
     case msg of
         LoadIssuesClick ->
-            ( { model | issues = [], isLoading = True, errorMsg = Nothing, editing = Nothing }
+            ( { model | issues = [], isLoading = True, errorMsg = Nothing, mEditing = Nothing }
             , Http.send LoadIssues (authGetRequestExpectJson endpoint token (list issueDecoder))
             )
 
@@ -207,7 +197,7 @@ update msg model token =
             )
 
         AddIssue (Ok issue) ->
-            ( { model | issues = issue :: model.issues, isLoading = False, errorMsg = Nothing, editing = Just <| Editing issue.id Nothing "" False }
+            ( { model | issues = issue :: model.issues, isLoading = False, errorMsg = Nothing }
             , Cmd.none
             )
 
@@ -217,11 +207,11 @@ update msg model token =
             )
 
         StartEditing id ->
-            ( { model | errorMsg = Nothing, editing = Just <| Editing id Nothing "" False }
+            ( { model | errorMsg = Nothing, mEditing = Nothing }
             , Cmd.none
             )
 
         StopEditing ->
-            ( { model | errorMsg = Nothing, editing = Nothing }
+            ( { model | errorMsg = Nothing, mEditing = Nothing }
             , Cmd.none
-            )        
+            )

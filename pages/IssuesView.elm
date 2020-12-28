@@ -37,21 +37,6 @@ viewAvailabilityLabel avail =
         [ text getText ]
 
 
-viewStaticIssue : Issue -> List (Html Msg)
-viewStaticIssue issue =
-    [ img [ class "issue-cover", src "dummy.jpg", width 100, height 100 ] []
-    , p [ class "section" ]
-        [ text <| "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl ]
-    , p []
-        [ viewLangVerLabel issue.pl "Polska wersja strony"
-        , viewLangVerLabel issue.en "Angielska wersja strony"
-        , viewAvailabilityLabel issue.availability
-        , button [ class "btn btn-primary btn-float-right", onClick <| StartEditing issue.id ]
-            [ text "Szczegóły / Edycja" ]
-        ]
-    ]
-
-
 viewEditableIssue : Issue -> List (Html Msg)
 viewEditableIssue issue =
     [ p [ class "issue-header" ]
@@ -76,18 +61,21 @@ viewEditableIssue issue =
     ]
 
 
-viewIssue : Maybe Editing -> Issue -> Html Msg
-viewIssue mEditing issue =
-    let
-        idToCompare = Maybe.withDefault -1 (Maybe.map (\m -> m.id) mEditing)
-    in
-
+viewIssue : Issue -> Html Msg
+viewIssue issue =
     div [ class "panel panel-default" ]
         [ div [ class "panel-body" ]
-            (if issue.id == idToCompare then
-                viewEditableIssue issue
-            else
-                viewStaticIssue issue)
+            [ img [ class "issue-cover", src "dummy.jpg", width 100, height 100 ] []
+            , p [ class "section" ]
+                [ text <| "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl ]
+            , p []
+                [ viewLangVerLabel issue.pl "Polska wersja strony"
+                , viewLangVerLabel issue.en "Angielska wersja strony"
+                , viewAvailabilityLabel issue.availability
+                , button [ class "btn btn-primary btn-float-right", onClick <| StartEditing issue.id ]
+                    [ text "Szczegóły / Edycja" ]
+                ]
+            ]
         ]
 
 
@@ -104,7 +92,6 @@ view model =
             ]
         , if List.isEmpty model.issues then
             text ""
-
           else
-            div [] (List.map (viewIssue model.editing) model.issues)
+            div [] (List.map viewIssue model.issues)
         ]
