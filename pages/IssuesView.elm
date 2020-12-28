@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Ui exposing (..)
+import Dict
 
 
 viewLangVerLabel : IssueLang -> String -> Html Msg
@@ -90,8 +91,9 @@ view model =
             , button [ class "btn btn-primary", style "margin-left" "20px", onClick LoadIssuesClick ]
                 [ glyphicon "refresh" NoSpace ]
             ]
-        , if List.isEmpty model.issues then
+        , if Dict.isEmpty model.issues then
             text ""
           else
-            div [] (List.map viewIssue model.issues)
+          -- Dict.values returns the values "in the order of their keys" (see Elm's documentation).
+            div [] (List.map viewIssue (List.reverse (Dict.values model.issues)))
         ]

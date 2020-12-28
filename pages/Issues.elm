@@ -20,6 +20,8 @@ import Global exposing (..)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, nullable, string, succeed, fail, andThen)
 import Json.Decode.Pipeline exposing (required)
+import List
+import Dict
 -- import Result
 -- import Task
 -- import Browser.Dom as Dom
@@ -80,7 +82,8 @@ type TextField
 type alias Model =
     { isLoading : Bool
     , errorMsg : Maybe String
-    , issues : List Issue
+    , issues : Dict.Dict Int Issue
+    , latestIssueId : Int
     , mEditing : Maybe Issue
     }
 
@@ -107,7 +110,7 @@ issueSignature issueLang =
 
 init : Model
 init =
-    Model False Nothing [] Nothing
+    Model False Nothing Dict.empty 0 Nothing
 
 
 endpoint : List String
@@ -170,9 +173,13 @@ switchToPageCmd =
 
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
+    let
+        processIssuesList issue ( issuesDict, maxId ) = 
+            (  Dict.insert issue.id issue issuesDict , max issue.id maxId )
+    in
     case msg of
         LoadIssuesClick ->
-            ( { model | issues = [], isLoading = True, errorMsg = Nothing, mEditing = Nothing }
+            ( { model | issues = Dict.empty, isLoading = True, errorMsg = Nothing, mEditing = Nothing }
             , Http.send LoadIssues (authGetRequestExpectJson endpoint token (list issueDecoder))
             )
 
@@ -181,8 +188,11 @@ update msg model token =
             , Cmd.none
             )
 
-        LoadIssues (Ok issues) ->
-            ( { model | issues = issues, errorMsg = Nothing, isLoading = False }
+        LoadIssues (Ok issuesList) ->
+            let
+                ( issues, latestIssueId ) = List.foldl processIssuesList ( Dict.empty, 0 ) issuesList
+            in
+            ( { model | issues = issues, latestIssueId = latestIssueId, errorMsg = Nothing, isLoading = False }
             , Cmd.none
             )
 
@@ -197,7 +207,7 @@ update msg model token =
             )
 
         AddIssue (Ok issue) ->
-            ( { model | issues = issue :: model.issues, isLoading = False, errorMsg = Nothing }
+            ( { model | issues = Dict.insert issue.id issue model.issues, latestIssueId = issue.id, isLoading = False, errorMsg = Nothing }
             , Cmd.none
             )
 
