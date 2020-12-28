@@ -217,7 +217,7 @@ update msg model token =
             )
 
         StartEditing id ->
-            ( { model | errorMsg = Nothing, mEditing = Nothing }
+            ( { model | errorMsg = Nothing, mEditing = Dict.get id model.issues }
             , Cmd.none
             )
 

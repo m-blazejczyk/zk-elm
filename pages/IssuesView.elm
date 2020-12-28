@@ -79,6 +79,14 @@ viewIssue issue =
             ]
         ]
 
+editIssue : Issue -> Html Msg
+editIssue issue =
+    div [ class "modal-zk" ] [
+        div [ class "modal-content-zk" ]
+            [ span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
+            , text ("Editing " ++ String.fromInt issue.id)
+            ]
+    ]
 
 view : Model -> Html Msg
 view model =
@@ -96,4 +104,5 @@ view model =
           else
           -- Dict.values returns the values "in the order of their keys" (see Elm's documentation).
             div [] (List.map viewIssue (List.reverse (Dict.values model.issues)))
+        , Maybe.withDefault (text "") (Maybe.map editIssue model.mEditing)
         ]
