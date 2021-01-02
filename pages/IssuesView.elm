@@ -61,6 +61,39 @@ viewIssue issue =
         ]
 
 
+editGeneralInfo : Issue -> List (Html Msg)
+editGeneralInfo issue =
+    [ div [ class "form-group" ]
+        [ label [ for "nr" ] [ text "Numer:" ]
+        , input [ type_ "text", class "form-control", id "nr", value "25" ] []
+        ]
+    , div [ class "form-group" ]
+        [ label [ for "price" ] [ text "Cena (np. \"19 zł\"):" ]
+        , input [ type_ "text", class "form-control", id "price", value "19 zł" ] []
+        ]
+    , div [ class "form-group" ]
+        [ label [] [ text "Dostępność:" ]
+        , div []
+            [ label [ class "radio-inline" ] [ input [ type_ "radio", name "availability", checked True ] [], text "Option 1" ]
+            , label [ class "radio-inline" ] [ input [ type_ "radio", name "availability", checked False ] [], text "Option 2" ]
+            ]
+        ]
+    ]
+
+
+editLang : IssueLang -> List (Html Msg)
+editLang lang =
+    [ text "…" ]
+
+
+editPanel : String -> List (Html Msg) -> Html Msg
+editPanel t components =
+    div [ class "panel panel-default" ]
+        [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text t ] ]
+        , div [ class "panel-body" ] components
+        ]
+
+
 editIssue : Issue -> Html Msg
 editIssue issue =
     div [ class "modal-zk" ] [
@@ -69,21 +102,9 @@ editIssue issue =
                 [ text <| issueFullTitle issue
                 , span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
                 ]
-            , div [ class "panel panel-default" ]
-                [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text "Informacje ogólne" ] ]
-                , div [ class "panel-body" ]
-                    [ text <| "…" ]
-                ]
-            , div [ class "panel panel-default" ]
-                [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text "Wersja polska" ] ]
-                , div [ class "panel-body" ]
-                    [ text <| "…" ]
-                ]
-            , div [ class "panel panel-default" ]
-                [ div [ class "panel-heading" ] [ h3 [ class "panel-title" ] [ text "Wersja angielska" ] ]
-                , div [ class "panel-body" ]
-                    [ text <| "…" ]
-                ]
+            , editPanel "Informacje ogólne" (editGeneralInfo issue)
+            , editPanel "Wersja polska" (editLang issue.pl)
+            , editPanel "Wersja angielska" (editLang issue.en)
             ]
     ]
 
