@@ -93,9 +93,17 @@ editGeneralInfo issue =
     ]
 
 
-editLang : IssueLangEditable -> List (Html Msg)
-editLang lang =
-    [ text "…" ]
+editLang : IssueLangEditable -> String -> String -> String -> List (Html Msg)
+editLang lang langName pubDateName topicName =
+    [ div [ class "form-group" ]
+        [ label [ for <| "pubdate_" ++ langName ] [ text pubDateName ]
+        , input [ type_ "text", class "form-control", id <| "pubdate_" ++ langName, value lang.pubDate ] []
+        ]
+    , div [ class "form-group" ]
+        [ label [ for <| "topic_" ++ langName ] [ text topicName ]
+        , input [ type_ "text", class "form-control", id <| "topic_" ++ langName, value lang.topic ] []
+        ]
+    ]
 
 
 editPanel : String -> List (Html Msg) -> Html Msg
@@ -123,8 +131,8 @@ editIssue issue =
                 , span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
                 ]
             , editPanel "Informacje ogólne" (editGeneralInfo issue)
-            , editPanel "Wersja polska" (editLang issue.pl)
-            , editPanel "Wersja angielska" (editLang issue.en)
+            , editPanel "Wersja polska" (editLang issue.pl "pl" "Data publikacji:" "Temat:" )
+            , editPanel "English Version" (editLang issue.en "en" "Publication Date:" "Topic:")
             ]
     ]
 

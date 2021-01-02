@@ -185,8 +185,8 @@ issueToEditable issue =
         (String.fromInt issue.id)
         issue.availability
         (Maybe.withDefault "" issue.mPrice)
-        (issueLangToEditable issue.en)
         (issueLangToEditable issue.pl)
+        (issueLangToEditable issue.en)
 
 
 switchToPageCmd : Cmd Msg
