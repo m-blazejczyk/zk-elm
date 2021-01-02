@@ -53,7 +53,7 @@
 
     /* Position the tooltip text */
     position: absolute;
-    z-index: 1;
+    z-index: 2;
 
     left: 0px; 
 }
@@ -135,7 +135,7 @@ body a:hover {
     height: 150px;
     top: -5px;
     left: 375px;
-    z-index: 9900;
+    z-index: 1;
 }
 
 #logo-zk img {
@@ -150,7 +150,7 @@ body a:hover {
     top: -112px;
     left: 550px;
     text-align: right;
-    z-index: 9900;
+    z-index: 1;
 }
 
 #user-menu b {
@@ -653,7 +653,7 @@ p.issue-header {
 .modal-zk {
   display: block;
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 2; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
