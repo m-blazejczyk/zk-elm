@@ -38,18 +38,18 @@ viewAvailabilityLabel avail =
         [ text getText ]
 
 
-issueFullTitle : Issue -> String
-issueFullTitle issue =
-    "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl
-
-
 viewIssue : Issue -> Html Msg
 viewIssue issue =
+    let
+        viewIssueTitle =
+            "Numer " ++ String.fromInt issue.id ++ ": " ++ issueTopic issue.pl
+    in
+    
     div [ class "panel panel-default" ]
         [ div [ class "panel-body" ]
             [ img [ class "issue-cover", src "dummy.jpg", width 100, height 100 ] []
             , p [ class "section" ]
-                [ text <| issueFullTitle issue ]
+                [ text viewIssueTitle ]
             , p []
                 [ viewLangVerLabel issue.pl "Polska wersja strony"
                 , viewLangVerLabel issue.en "Angielska wersja strony"
@@ -61,15 +61,15 @@ viewIssue issue =
         ]
 
 
-editGeneralInfo : Issue -> List (Html Msg)
+editGeneralInfo : IssueEditable -> List (Html Msg)
 editGeneralInfo issue =
     [ div [ class "form-group" ]
         [ label [ for "nr" ] [ text "Numer:" ]
-        , input [ type_ "text", class "form-control", id "nr", value "25" ] []
+        , input [ type_ "text", class "form-control", id "nr", value issue.id ] []
         ]
     , div [ class "form-group" ]
         [ label [ for "price" ] [ text "Cena (np. \"19 zł\"):" ]
-        , input [ type_ "text", class "form-control", id "price", value "19 zł" ] []
+        , input [ type_ "text", class "form-control", id "price", value issue.price ] []
         ]
     , div [ class "form-group" ]
         [ label [] [ text "Dostępność:" ]
@@ -81,7 +81,7 @@ editGeneralInfo issue =
     ]
 
 
-editLang : IssueLang -> List (Html Msg)
+editLang : IssueLangEditable -> List (Html Msg)
 editLang lang =
     [ text "…" ]
 
@@ -94,12 +94,20 @@ editPanel t components =
         ]
 
 
-editIssue : Issue -> Html Msg
+editIssue : IssueEditable -> Html Msg
 editIssue issue =
+    let
+        editIssueTitle =
+            if issue.isNew then
+                "Nowy numer"
+            else
+                "Numer " ++ issue.id ++ ": " ++ issue.pl.topic
+    in
+    
     div [ class "modal-zk" ] [
         div [ class "modal-content-zk" ]
             [ p [ class "section" ]
-                [ text <| issueFullTitle issue
+                [ text editIssueTitle
                 , span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
                 ]
             , editPanel "Informacje ogólne" (editGeneralInfo issue)

@@ -2,6 +2,8 @@ module Issues exposing
     ( Issue
     , IssueLang
     , Availability(..)
+    , IssueEditable
+    , IssueLangEditable
     , issuePubDate
     , issueTopic
     , issueEditorial
@@ -68,12 +70,28 @@ type alias IssueLang =
     }
 
 
+type alias IssueEditable =
+    { isNew : Bool
+    , id : String
+    , availability : Availability
+    , price : String
+    , pl : IssueLangEditable
+    , en : IssueLangEditable
+    }
+
+
+type alias IssueLangEditable =
+    { pubDate : String
+    , topic : String
+    }
+
+
 type alias Model =
     { isLoading : Bool
     , errorMsg : Maybe String
     , issues : Dict.Dict Int Issue
     , latestIssueId : Int
-    , mEditing : Maybe Issue
+    , mEditing : Maybe IssueEditable
     }
 
 
@@ -151,9 +169,25 @@ issueDecoder =
         |> required "price" (nullable string)
         |> required "pl" issueLangDecoder
         |> required "en" issueLangDecoder
-        -- image_big
-        -- image_medium
-        -- image_small
+
+
+issueLangToEditable : IssueLang -> IssueLangEditable
+issueLangToEditable lang =
+    IssueLangEditable
+        (Maybe.withDefault "" lang.mPubDate)
+        (Maybe.withDefault "" lang.mTopic)
+
+
+issueToEditable : Issue -> IssueEditable
+issueToEditable issue =
+    IssueEditable
+        False
+        (String.fromInt issue.id)
+        issue.availability
+        (Maybe.withDefault "" issue.mPrice)
+        (issueLangToEditable issue.en)
+        (issueLangToEditable issue.pl)
+
 
 switchToPageCmd : Cmd Msg
 switchToPageCmd =
@@ -206,7 +240,7 @@ update msg model token =
             )
 
         StartEditing id ->
-            ( { model | errorMsg = Nothing, mEditing = Dict.get id model.issues }
+            ( { model | errorMsg = Nothing, mEditing = Maybe.map issueToEditable (Dict.get id model.issues) }
             , Cmd.none
             )
 
