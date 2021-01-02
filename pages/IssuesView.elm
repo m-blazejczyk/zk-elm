@@ -16,6 +16,15 @@ viewLangVerLabel issueLang str =
         [ text str ]
 
 
+availabilityToText : Availability -> String
+availabilityToText avail =
+    case avail of
+        InPreparation -> "Numer w przygotowaniu"
+        Available -> "Numer dostępny"
+        ReprintAvailable -> "Dodruk dostępny"
+        OutOfPrint -> "Nakład wyczerpany"
+
+
 viewAvailabilityLabel : Availability -> Html Msg
 viewAvailabilityLabel avail =
     let
@@ -25,17 +34,10 @@ viewAvailabilityLabel avail =
                 Available -> "success"
                 ReprintAvailable -> "success"
                 OutOfPrint -> "danger"
-
-        getText =
-            case avail of
-                InPreparation -> "Numer w przygotowaniu"
-                Available -> "Numer dostępny"
-                ReprintAvailable -> "Dodruk dostępny"
-                OutOfPrint -> "Nakład wyczerpany"
     in
     
     span [ class ("label label-" ++ getClass ++ " label-availability") ]
-        [ text getText ]
+        [ text <| availabilityToText avail ]
 
 
 viewIssue : Issue -> Html Msg
@@ -63,9 +65,17 @@ viewIssue issue =
 
 editGeneralInfo : IssueEditable -> List (Html Msg)
 editGeneralInfo issue =
+    let
+        radio avail =
+            label [ class "radio-inline" ]
+                [ input [ type_ "radio", name "availability", checked <| issue.availability == avail ] []
+                , text <| availabilityToText avail
+                ]
+    in
+    
     [ div [ class "form-group" ]
         [ label [ for "nr" ] [ text "Numer:" ]
-        , input [ type_ "text", class "form-control", id "nr", value issue.id ] []
+        , input [ type_ "text", class "form-control", id "nr", value issue.id, disabled <| not issue.isNew ] []
         ]
     , div [ class "form-group" ]
         [ label [ for "price" ] [ text "Cena (np. \"19 zł\"):" ]
@@ -74,8 +84,10 @@ editGeneralInfo issue =
     , div [ class "form-group" ]
         [ label [] [ text "Dostępność:" ]
         , div []
-            [ label [ class "radio-inline" ] [ input [ type_ "radio", name "availability", checked True ] [], text "Option 1" ]
-            , label [ class "radio-inline" ] [ input [ type_ "radio", name "availability", checked False ] [], text "Option 2" ]
+            [ radio InPreparation
+            , radio Available
+            , radio ReprintAvailable
+            , radio OutOfPrint
             ]
         ]
     ]
