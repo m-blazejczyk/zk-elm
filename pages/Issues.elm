@@ -47,12 +47,6 @@ type Msg
     | SubmitEdit
     | ReceiveFormValues Json.Decode.Value
     | StopEditing
-    -- | ChangeId
-    -- | ChangePrice
-    -- | ChangePubDatePl
-    -- | ChangeTopicPl
-    -- | ChangePubDateEn
-    -- | ChangeTopicEn
 
 
 type Availability
@@ -277,34 +271,3 @@ update msg model token =
             ( { model | errorMsg = Nothing, mEditing = Nothing }
             , Cmd.none
             )
-
-        -- ChangeId ->
-        --     ( model
-        --     , Cmd.none
-        --     )
-
-        -- ChangePrice ->
-        --     ( model
-        --     , Cmd.none
-        --     )
-
-        -- ChangePubDatePl ->
-        --     ( model
-        --     , Cmd.none
-        --     )
-
-        -- ChangeTopicPl ->
-        --     ( model
-        --     , Cmd.none
-        --     )
-
-        -- ChangePubDateEn ->
-        --     ( model
-        --     , Cmd.none
-        --     )
-
-        -- ChangeTopicEn ->
-        --     ( model
-        --     , Cmd.none
-        --     )
-
