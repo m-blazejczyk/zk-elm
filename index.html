@@ -87,5 +87,16 @@
             
             request.send(data);
         });
-    </script>
+        elmApp.ports.askForFormValues.subscribe(function(){
+            var data = {
+                'nr': document.getElementById('issue_nr').value,
+                'price': document.getElementById('issue_price').value,
+                'pubdate_pl': document.getElementById('issue_pubdate_pl').value,
+                'topic_pl': document.getElementById('issue_topic_pl').value,
+                'pubdate_en': document.getElementById('issue_pubdate_en').value,
+                'topic_en': document.getElementById('issue_topic_en').value
+            };
+            elmApp.ports.formValuesReceiver.send(data);
+        });
+</script>
 </html> 

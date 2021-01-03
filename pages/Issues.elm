@@ -1,7 +1,8 @@
-module Issues exposing
+port module Issues exposing
     ( Issue
     , IssueLang
     , Availability(..)
+    , formValuesReceiver
     , IssueEditable
     , IssueLangEditable
     , issuePubDate
@@ -30,6 +31,12 @@ import Dict
 -- import Paths
 
 
+port askForFormValues : () -> Cmd msg
+
+
+port formValuesReceiver : (Json.Decode.Value -> msg) -> Sub msg
+
+
 type Msg
     = LoadIssuesClick
     | LoadIssues (Result Http.Error (List Issue))
@@ -37,7 +44,15 @@ type Msg
     | AddIssue (Result Http.Error Issue)
     | CloseErrorMsg
     | StartEditing Int
+    | SubmitEdit
+    | ReceiveFormValues Json.Decode.Value
     | StopEditing
+    -- | ChangeId
+    -- | ChangePrice
+    -- | ChangePubDatePl
+    -- | ChangeTopicPl
+    -- | ChangePubDateEn
+    -- | ChangeTopicEn
 
 
 type Availability
@@ -244,7 +259,52 @@ update msg model token =
             , Cmd.none
             )
 
+        SubmitEdit ->
+            ( { model | errorMsg = Nothing }
+            , askForFormValues () 
+            )
+
+        ReceiveFormValues jsonVal ->
+            case model.mEditing of
+                Just editing ->
+                    ( { model | errorMsg = Just "Jest!" }, Cmd.none )
+
+                -- This should never happen!!!
+                Nothing ->
+                    ( model, Cmd.none )
+
         StopEditing ->
             ( { model | errorMsg = Nothing, mEditing = Nothing }
             , Cmd.none
             )
+
+        -- ChangeId ->
+        --     ( model
+        --     , Cmd.none
+        --     )
+
+        -- ChangePrice ->
+        --     ( model
+        --     , Cmd.none
+        --     )
+
+        -- ChangePubDatePl ->
+        --     ( model
+        --     , Cmd.none
+        --     )
+
+        -- ChangeTopicPl ->
+        --     ( model
+        --     , Cmd.none
+        --     )
+
+        -- ChangePubDateEn ->
+        --     ( model
+        --     , Cmd.none
+        --     )
+
+        -- ChangeTopicEn ->
+        --     ( model
+        --     , Cmd.none
+        --     )
+

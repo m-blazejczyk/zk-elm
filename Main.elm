@@ -114,6 +114,9 @@ subscriptions model =
         Page.Banners ->
             Sub.map BannersMsg (Banners.fileUploadStatus Banners.FileUploadStatus)
 
+        Page.Issues ->
+            Sub.map IssuesMsg (Issues.formValuesReceiver Issues.ReceiveFormValues)
+
         -- Should never happen!
         _ ->
             Sub.none

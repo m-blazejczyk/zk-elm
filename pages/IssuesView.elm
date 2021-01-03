@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Ui exposing (..)
 import Dict
+import Issues exposing (Msg(..))
 
 
 viewLangVerLabel : IssueLang -> String -> Html Msg
@@ -75,11 +76,11 @@ editGeneralInfo issue =
     
     [ div [ class "form-group" ]
         [ label [ for "nr" ] [ text "Numer:" ]
-        , input [ type_ "text", class "form-control", id "nr", value issue.id, disabled <| not issue.isNew ] []
+        , input [ type_ "text", class "form-control", id "issue_nr", value issue.id, disabled <| not issue.isNew ] []
         ]
     , div [ class "form-group" ]
         [ label [ for "price" ] [ text "Cena (np. \"19 zł\"):" ]
-        , input [ type_ "text", class "form-control", id "price", value issue.price ] []
+        , input [ type_ "text", class "form-control", id "issue_price", value issue.price ] []
         ]
     , div [ class "form-group" ]
         [ label [] [ text "Dostępność:" ]
@@ -97,11 +98,11 @@ editLang : IssueLangEditable -> String -> String -> String -> List (Html Msg)
 editLang lang langName pubDateName topicName =
     [ div [ class "form-group" ]
         [ label [ for <| "pubdate_" ++ langName ] [ text pubDateName ]
-        , input [ type_ "text", class "form-control", id <| "pubdate_" ++ langName, value lang.pubDate ] []
+        , input [ type_ "text", class "form-control", id <| "issue_pubdate_" ++ langName, value lang.pubDate ] []
         ]
     , div [ class "form-group" ]
         [ label [ for <| "topic_" ++ langName ] [ text topicName ]
-        , input [ type_ "text", class "form-control", id <| "topic_" ++ langName, value lang.topic ] []
+        , input [ type_ "text", class "form-control", id <| "issue_topic_" ++ langName, value lang.topic ] []
         ]
     ]
 
@@ -131,8 +132,9 @@ editIssue issue =
                 , span [ class "close-zk", onClick <| StopEditing ] [ text "✕" ]
                 ]
             , editPanel "Informacje ogólne" (editGeneralInfo issue)
-            , editPanel "Wersja polska" (editLang issue.pl "pl" "Data publikacji:" "Temat:" )
+            , editPanel "Wersja polska" (editLang issue.pl "pl" "Data publikacji:" "Temat:")
             , editPanel "English Version" (editLang issue.en "en" "Publication Date:" "Topic:")
+            , button [ class "btn btn-primary", onClick <| SubmitEdit ] [ text "Zatwierdź zmiany" ]
             ]
     ]
 
